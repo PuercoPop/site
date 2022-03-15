@@ -1,24 +1,21 @@
 package swiki
 
-import "net/http"
+import (
+	"net/http"
+)
 
 type swiki struct {
-	*http.ServeMux
+	Mux *http.ServeMux
 }
 
-func New() *swiki {
-	srv := &swiki{}
+func New(mux *http.ServeMux) *swiki {
+	srv := &swiki{Mux: mux}
 	srv.registerroutes()
 	return srv
 }
 
-// func NewMux() {
-// 	mux := http.NewServeMux()
-// 	mux.Handle("/", indexFunc())
-// }
-
 func (srv *swiki) registerroutes() {
-	srv.Handle("/", srv.indexFunc())
+	srv.Mux.HandleFunc("/", srv.indexFunc())
 }
 
 func (srv *swiki) indexFunc() http.HandlerFunc {
