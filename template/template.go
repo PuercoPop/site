@@ -1,6 +1,9 @@
 package template
 
-import "io/fs"
+import (
+	_ "embed"
+	"io/fs"
+)
 
 //go:embed *.html.tmpl
 var FS fs.FS
