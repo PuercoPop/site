@@ -16,7 +16,7 @@ create table content_types(
 insert into content_types (name) values
 ('note'), ('photo'), ('article');
 
-create table pages (
+create table posts (
     page_id integer primary key,
     title text not null, -- slug?
     content text not null
