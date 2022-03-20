@@ -1,6 +1,7 @@
 package swiki
 
 import (
+	"context"
 	"embed"
 	"html/template"
 	"log"
@@ -35,7 +36,15 @@ func (srv *swiki) registerroutes() {
 // Add an html/template here
 func (srv *swiki) indexFunc() http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
-		res.Write([]byte("Hello World"))
+		posts := []Post{
+			{
+				Title:   "Awesome Post!",
+				Content: "lololol",
+			},
+		}
+		data := struct{ LatestPosts []Post }{LatestPosts: posts}
+		srv.T.ExecuteTemplate(res, "index.html.tmpl", data)
+		// How to check an error here
 	}
 }
 
@@ -53,3 +62,19 @@ func NewStore(dbpath string) (*store, error) {
 	return &store{pool: pool}, nil
 
 }
+
+type Post struct {
+	Title   string
+	Content string
+	// published *civil.Date
+}
+
+type PostsDBAL interface {
+	// Return the N most recent posts
+	ListRecentPosts(ctx context.Context, n int) []*Post
+}
+
+// func (srv *swiki) ListRecentPosts(ctx context.Context, n int) []*Post {
+// 	conn := srv.db.Get(ctx)
+// 	conn.Prepare()
+// }

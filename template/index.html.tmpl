@@ -1,5 +1,11 @@
 <!doctype html>
 <html>
 <body>
+<h2> Latest Posts</h2>
+<ol>
+{{range .LatestPosts}}
+<li>{{.Title}}</li>
+{{end}}
+</ol>
 </body>
 </html>
