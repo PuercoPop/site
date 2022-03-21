@@ -3,6 +3,7 @@ package swiki
 import (
 	"context"
 	"embed"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -48,18 +49,18 @@ func (srv *swiki) indexFunc() http.HandlerFunc {
 	}
 }
 
-type store struct {
+type Store struct {
 	pool *sqlitex.Pool
 }
 
 const DBPATH = "swkiki.db"
 
-func NewStore(dbpath string) (*store, error) {
+func NewStore(dbpath string) (*Store, error) {
 	pool, err := sqlitex.Open(dbpath, 0, 4)
 	if err != nil {
 		return nil, err
 	}
-	return &store{pool: pool}, nil
+	return &Store{pool: pool}, nil
 
 }
 
@@ -71,10 +72,20 @@ type Post struct {
 
 type PostsDBAL interface {
 	// Return the N most recent posts
-	ListRecentPosts(ctx context.Context, n int) []*Post
+	ListRecentPosts(ctx context.Context, n int) ([]*Post, error)
 }
 
-// func (srv *swiki) ListRecentPosts(ctx context.Context, n int) []*Post {
-// 	conn := srv.db.Get(ctx)
-// 	conn.Prepare()
-// }
+const sqlListRecentPosts = `
+SELECT * FROM POSTS LIMIT $1`
+
+func (svc *Store) ListRecentPosts(ctx context.Context, n int) ([]*Post, error) {
+	conn := svc.pool.Get(ctx)
+	defer svc.pool.Put(conn)
+	// This should be part of the initialization instead.
+	stmt, err := conn.Prepare(sqlListRecentPosts)
+	if err != nil {
+		return nil, fmt.Errorf("Could not prepare the query %w", err)
+	}
+	stmt.SetText("$1", string(n))
+	for 
+}
