@@ -1,6 +1,6 @@
--- -*- sql-product -*-
+-- -*- sql-product: sqlite -*-
 
-PRAGMA foreign_keys = ON; -- Per connection specific
+PRAGMA foreign_keys = ON; -- connection specific setting?
 
 create table users (
 user_id integer primary key,
