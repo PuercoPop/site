@@ -3,5 +3,17 @@
 // notification webhookd will rebuild all the swiki cmds.
 package main
 
+type WebhookProcessor struct {
+}
+
+// WeebhookBouncer inspects requests and determines if they should be
+// processed any further.
+type WebhookBouncer struct{}
+
+func NewWebhookBouncer() *WebhookBouncer {
+	return &WebhookBouncer{}
+}
+
 func main() {
+
 }
