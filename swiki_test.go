@@ -11,6 +11,7 @@ func TestMain(m *testing.M) {
 
 func teststore(t testing.T) *Store {
 	t.Helper()
+	// TODO: Use :memory: database
 	svc, err := NewStore("test_db")
 	if err != nil {
 		t.Fatalf("Could not open test db: %s", err)

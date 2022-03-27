@@ -73,19 +73,19 @@ type Post struct {
 type PostsDBAL interface {
 	// Return the N most recent posts
 	ListRecentPosts(ctx context.Context, n int) ([]*Post, error)
+	Save(ctx context.Context, post Post) error
 }
 
 const sqlListRecentPosts = `
 SELECT * FROM POSTS LIMIT $1`
 
-func (svc *Store) ListRecentPosts(ctx context.Context, n int) ([]*Post, error) {
+func (svc *Store) ListRecentPosts(ctx context.Context, n int64) ([]*Post, error) {
 	conn := svc.pool.Get(ctx)
 	defer svc.pool.Put(conn)
-	// This should be part of the initialization instead.
 	stmt, err := conn.Prepare(sqlListRecentPosts)
 	if err != nil {
 		return nil, fmt.Errorf("Could not prepare the query %w", err)
 	}
-	stmt.SetText("$1", string(n))
-	for 
+	stmt.BindInt64(1, n)
+
 }
