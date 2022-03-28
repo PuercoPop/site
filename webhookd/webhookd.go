@@ -3,6 +3,7 @@ package webhookd
 
 import (
 	"errors"
+	"encoding/json"
 	"net/http"
 )
 
@@ -12,7 +13,21 @@ type WebhookProcessor struct {
 // Parse reads an http.Request and extracts the relevant information
 // into a WebhookEvent.
 func Parse(req *http.Request) (*WebhookEvent, error) {
-	return nil, errors.New("")
+	ev := &WebhookEvent{}
+	ev.evtype = req.Header.Get("X-GitHub-Event")
+	ev.sig = req.Header.Get("X-Hub-Signature-256")
+	body := struct {
+		ref    string `json:"ref"`
+		commit string `json:"after"`
+	}{}
+	err := json.NewDecoder(req.Body).Decode(&body)
+	defer req.Body.Close()
+	if err != nil {
+		return nil, err
+	}
+	ev.branch = body.ref
+	ev.commit = body.commit
+	return ev, nil
 }
 
 // WebhookEvent containst

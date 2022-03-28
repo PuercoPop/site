@@ -8,28 +8,28 @@ import (
 )
 
 func TestParse(t *testing.T) {
-	tests := []struct {
-		description string
-		headers     http.Header
-	}{
-		{description: "X-GitHub-Event should be present",
-			headers: http.Header{}},
-		{
-			description: "request method should be POST",
-		},
-		{description: "X-Hub-Signature-256 header should be present"},
-	}
-	for _, tc := range tests {
-		t.Run(tc.description, func(t *testing.T) {
-			t.Parallel()
-		})
-	}
+	// tests := []struct {
+	// 	description string
+	// 	headers     http.Header
+	// }{
+	// 	{description: "X-GitHub-Event should be present",
+	// 		headers: http.Header{}},
+	// 	{
+	// 		description: "request method should be POST",
+	// 	},
+	// 	{description: "X-Hub-Signature-256 header should be present"},
+	// }
+	// for _, tc := range tests {
+	// 	t.Run(tc.description, func(t *testing.T) {
+	// 		t.Parallel()
+	// 	})
+	// }
 	t.Run("parses requests into a WebhookEvent", func(t *testing.T) {
 		body, err := os.Open("./webhookbody.sample")
 		if err != nil {
 			t.Fatalf("Could not open webookbody.sample. %s", err)
 		}
-		req := httptest.NewRequest(http.MethodPost, "swiki-webhook", body)
+		req := httptest.NewRequest(http.MethodPost, "https://puercopop.com/swiki-webhook", body)
 		req.Header.Add("content-type", "application/json")
 		req.Header.Add("User-Agent", "GitHub-Hookshot/f05835d")
 		req.Header.Add("X-GitHub-Delivery", "1eb307f2-ad7f-11ec-98bb-f307568b0602")
@@ -45,7 +45,7 @@ func TestParse(t *testing.T) {
 			t.Errorf("Expected err to be nil. Got %s", err)
 		}
 		if ev.branch != "default" {
-			t.Errorf("Expected branch to 'default'. Got %s", ev.branch)
+			t.Errorf("Expected branch to 'default'. Got %s.", ev.branch)
 		}
 		if ev.sig == "" {
 			t.Errorf("Expected a signature to be present.")
