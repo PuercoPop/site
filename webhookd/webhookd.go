@@ -2,8 +2,8 @@
 package webhookd
 
 import (
-	"error"
-	"http"
+	"errors"
+	"net/http"
 )
 
 type WebhookProcessor struct {
@@ -11,8 +11,8 @@ type WebhookProcessor struct {
 
 // Parse reads an http.Request and extracts the relevant information
 // into a WebhookEvent.
-func Parse(req *http.Request) *WebhookEvent {
-	return nil
+func Parse(req *http.Request) (*WebhookEvent, error) {
+	return nil, errors.New("")
 }
 
 // WebhookEvent containst
@@ -34,14 +34,14 @@ func NewWebhookBouncer() *WebhookBouncer {
 	return &WebhookBouncer{}
 }
 
-const (
-	UnknownEventType = error.New("not a push event")
-	SignatureMismatch = error.New("signature mismatch")
-	WrongBranch = error.New("wrong branch")
+var (
+	UnknownEventType  error = errors.New("not a push event")
+	SignatureMismatch error = errors.New("signature mismatch")
+	WrongBranch       error = errors.New("wrong branch")
 )
 
 func (b *WebhookBouncer) Do() error {
-	b.checksig()
+	b.checksig("iou")
 	b.checkevent()
 	b.checkbranch()
 	return b.ret
@@ -49,12 +49,12 @@ func (b *WebhookBouncer) Do() error {
 
 func (b *WebhookBouncer) checksig(secret string) {}
 func (b *WebhookBouncer) checkevent() {
-	if b.evtype != "push" {
+	if b.ev.evtype != "push" {
 		b.ret = UnknownEventType
 	}
 }
 func (b *WebhookBouncer) checkbranch() {
-	if b.branch != "default" {
+	if b.ev.branch != "default" {
 		b.ret = WrongBranch
 	}
 }

@@ -9,7 +9,7 @@ func TestMain(m *testing.M) {
 	// OpenDB collection
 }
 
-func teststore(t testing.T) *Store {
+func teststore(t *testing.T) *Store {
 	t.Helper()
 	// TODO: Use :memory: database
 	svc, err := NewStore("test_db")
@@ -20,7 +20,7 @@ func teststore(t testing.T) *Store {
 
 }
 
-func TestLatestPosts(t testing.T) {
+func TestLatestPosts(t *testing.T) {
 	store := teststore(t)
 	t.Run("With no posts in the database", func(t *testing.T) {
 		// setup

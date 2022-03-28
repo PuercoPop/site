@@ -87,5 +87,5 @@ func (svc *Store) ListRecentPosts(ctx context.Context, n int64) ([]*Post, error)
 		return nil, fmt.Errorf("Could not prepare the query %w", err)
 	}
 	stmt.BindInt64(1, n)
-
+	return nil, fmt.Errorf("iou")
 }
