@@ -70,6 +70,9 @@ type Post struct {
 	// published *civil.Date
 }
 
+// Posts know how to render themselves as HTML
+// func (p *Post)ServeHTTP(w httpResponseWriter, r *http.Request){}
+
 type PostsDBAL interface {
 	// Return the N most recent posts
 	ListRecentPosts(ctx context.Context, n int) ([]*Post, error)
