@@ -70,6 +70,10 @@ type Post struct {
 	// published *civil.Date
 }
 
+func ReadPost(path string) (*Post, error) {
+	return &Post{}, nil
+}
+
 // Posts know how to render themselves as HTML
 // func (p *Post)ServeHTTP(w httpResponseWriter, r *http.Request){}
 

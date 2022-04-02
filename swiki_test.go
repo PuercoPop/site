@@ -35,3 +35,16 @@ func TestLatestPosts(t *testing.T) {
 		}
 	})
 }
+
+func TestReadPost(t *testing.T) {
+	t.Run("Reads a post successfully", func(t *testing.T) {
+		path := "./testdata/post.md"
+		post, err := ReadPost(path)
+		if err != nil {
+			t.Errorf("Unexpected error returned. %s", err)
+		}
+		if post.Title != "Some title" {
+			t.Errorf("Wrong title. got: %s. want: Some title", post.Title)
+		}
+	})
+}
