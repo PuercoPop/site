@@ -44,7 +44,7 @@ func TestParse(t *testing.T) {
 		if err != nil {
 			t.Errorf("Expected err to be nil. Got %s", err)
 		}
-		if ev.branch != "default" {
+		if ev.branch != "refs/heads/default" {
 			t.Errorf("Expected branch to 'default'. Got %s.", ev.branch)
 		}
 		if ev.sig == "" {

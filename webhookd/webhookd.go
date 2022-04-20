@@ -17,16 +17,16 @@ func Parse(req *http.Request) (*WebhookEvent, error) {
 	ev.evtype = req.Header.Get("X-GitHub-Event")
 	ev.sig = req.Header.Get("X-Hub-Signature-256")
 	body := struct {
-		ref    string `json:"ref"`
-		commit string `json:"after"`
+		Ref    string `json:"ref"`
+		Commit string `json:"after"`
 	}{}
 	err := json.NewDecoder(req.Body).Decode(&body)
 	defer req.Body.Close()
 	if err != nil {
 		return nil, err
 	}
-	ev.branch = body.ref
-	ev.commit = body.commit
+	ev.branch = body.Ref
+	ev.commit = body.Commit
 	return ev, nil
 }
 
