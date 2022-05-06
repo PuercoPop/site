@@ -49,6 +49,10 @@ func (srv *swiki) indexFunc() http.HandlerFunc {
 	}
 }
 
+func (srv *swiki) PageHandlerFunc() http.HandlerFunc {
+
+}
+
 type Store struct {
 	pool *sqlitex.Pool
 }
