@@ -21,4 +21,5 @@ create table posts (
     title text not null, -- slug?
     content text not null
     created_at datetime not null default NOW()
+    -- author_id integer references
 )

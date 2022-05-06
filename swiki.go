@@ -19,7 +19,8 @@ type swiki struct {
 //go:embed template/*.tmpl
 var FSTemplates embed.FS
 
-func New(mux *http.ServeMux) *swiki {
+func New(dbpath string) *swiki {
+	mux := http.NewServeMux()
 	srv := &swiki{Mux: mux}
 	srv.registerroutes()
 	t, err := template.ParseFS(FSTemplates, "template/*.tmpl")
@@ -49,9 +50,9 @@ func (srv *swiki) indexFunc() http.HandlerFunc {
 	}
 }
 
-func (srv *swiki) PageHandlerFunc() http.HandlerFunc {
+// func (srv *swiki) PageHandlerFunc() http.HandlerFunc {
 
-}
+// }
 
 type Store struct {
 	pool *sqlitex.Pool
