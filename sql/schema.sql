@@ -19,7 +19,7 @@ insert into content_types (name) values
 create table posts (
     page_id integer primary key,
     title text not null, -- slug?
-    content text not null
+    content text not null,
     created_at datetime not null default NOW()
     -- author_id integer references
 )

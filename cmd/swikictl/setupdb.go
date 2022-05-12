@@ -15,7 +15,6 @@ import (
 )
 
 func setupdb(dbpath string) error {
-	fmt.Println("Calling setuppath with ", dbpath)
 	if _, err := os.Stat(dbpath); !os.IsNotExist(err) {
 		fmt.Println("A previous version of the database was found. Delete it? [y/N]")
 		reader := bufio.NewReader(os.Stdin)
