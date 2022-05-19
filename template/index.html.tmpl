@@ -1,11 +1,18 @@
 <!doctype html>
 <html>
-<body>
-<h2> Latest Posts</h2>
-<ol>
-{{range .LatestPosts}}
-<li>{{.Title}}</li>
-{{end}}
-</ol>
-</body>
+  <body>
+    <nav>
+      <ul>
+        <li>
+          <a href="/sign-in/">Sign-in</a>
+        </li>
+      </ul>
+    </nav>
+    <h2> Latest Posts</h2>
+    <ol>
+      {{range .LatestPosts}}
+      <li>{{.Title}}</li>
+      {{end}}
+    </ol>
+  </body>
 </html>
