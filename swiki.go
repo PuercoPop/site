@@ -5,6 +5,8 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 type swiki struct {
@@ -47,7 +49,7 @@ func (srv *swiki) indexFunc() http.HandlerFunc {
 	}
 }
 
-func (srv *swiki) signinFunc() http.HandlerFunc {
+func (srv *swiki) signinFunc(db *pgxpool.Pool) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		switch req.Method {
 		case http.MethodGet:
@@ -59,6 +61,16 @@ func (srv *swiki) signinFunc() http.HandlerFunc {
 			}
 		case http.MethodPost:
 			// todo(javier): check credentials
+			err := req.ParseForm()
+			if err != nil {
+				log.Fatalf("Could not parse form. %s", err)
+			}
+			email := req.PostForm.Get("email")
+			password := req.PostForm.Get("password")
+			var hash []byte
+			row := db.QueryRow("SELECT password FROM users where email = $1", email)
+			err = row.Scan(&hash)
+			// res.Write([]())
 		}
 
 	}
