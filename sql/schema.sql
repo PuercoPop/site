@@ -1,10 +1,19 @@
 -- -*- sql-product: postgres -*-
+BEGIN;
 
 CREATE TABLE users (
        user_id INTEGER PRIMARY KEY generated always as identity,
        email TEXT NOT NULL,
        password BYTEA NOT NULL,
        admin BOOLEAN NOT NULL DEFAULT false
+);
+
+create table sessions (
+       session_id BYTEA PRIMARY KEY,
+       user_id INTEGER NOT NULL,
+       created_at TIME WITH TIME ZONE NOT NULL DEFAULT NOW(),
+       expires_at TIME WITH TIME ZONE,
+       foreign key (user_id) references users(user_id)
 );
 
 -- CREATE TABLE content_types (
@@ -22,3 +31,5 @@ CREATE TABLE users (
 --     CREATED_AT DATETIME NOT NULL DEFAULT NOW()
 --     -- author_id integer references
 -- )
+
+COMMIT;

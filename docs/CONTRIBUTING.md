@@ -16,3 +16,12 @@ $ mkcert localhost 127.0.0.1 ::1
 ```shell
 $ fd '.go$' . | entr -s 'go run ./cmd/swiki/main.go'
 ```
+
+
+## Setting up the test database
+
+
+```shell
+$ createdb swiki-test
+$ psql -f sql/schema.sql -d swiki-test
+```
