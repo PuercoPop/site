@@ -1,6 +1,7 @@
 package swiki
 
 import (
+	"context"
 	"crypto/rand"
 	"log"
 
@@ -34,12 +35,16 @@ func NewSessionService(pool *pgxpool.Pool) *SessionService {
 }
 
 // CreateSessionFor creates
-func (svc *SessionService) CreateSessionFor(user_id int) ([]byte, error) {
+func (svc *SessionService) CreateSessionFor(ctx context.Context, user_id int) ([]byte, error) {
 	// "The session ID should be at least 128 bits o prevent brute-force session guessing attacks."
 	// Ref: https://owasp.org/www-community/vulnerabilities/Insufficient_Session-ID_Length
-	sessionid := randomBytes(128)
+	sid := randomBytes(128)
 	// insert to sql
-	return sessionid, nil
+	_, err := svc.pool.Exec(ctx, "INSERT INTO sessions (session_id, user_id) values ($1, $2)", sid, user_id)
+	if err != nil {
+		return nil, err
+	}
+	return sid, nil
 }
 
 // UserFromSession retrieves the user-id associated with session id, sid.
