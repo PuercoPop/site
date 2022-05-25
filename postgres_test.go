@@ -8,6 +8,7 @@ import (
 )
 
 func setuptestdb(t *testing.T) (*pgxpool.Pool, func()) {
+	t.Helper()
 	pool, err := pgxpool.Connect(context.TODO(), "postgres:///swiki-test")
 	if err != nil {
 		t.Fatalf("Could not connect to database %s", err)

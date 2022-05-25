@@ -48,6 +48,11 @@ func (svc *SessionService) CreateSessionFor(ctx context.Context, user_id int) ([
 }
 
 // UserFromSession retrieves the user-id associated with session id, sid.
-func (svc *SessionService) UserFromSession(sid []byte) (int, error) {
-	return 0, nil
+func (svc *SessionService) UserFromSession(ctx context.Context, sid []byte) (int, error) {
+	var user_id int
+	err := svc.pool.QueryRow(ctx, "SELECT user_id FROM sessions WHERE session_id = $1 ", sid).Scan(&user_id)
+	if err != nil {
+		return 0, err
+	}
+	return user_id, nil
 }

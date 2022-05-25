@@ -2,8 +2,12 @@ package swiki
 
 import "github.com/jackc/pgx/v4/pgxpool"
 
-type UserSvc struct {
-	db *pgxpool.Pool
+type UserService struct {
+	pool *pgxpool.Pool
+}
+
+func NewUserService(pool *pgxpool.Pool) *UserService {
+	return &UserService{pool: pool}
 }
 
 // func (svc *UserSvc)authenticateUser(email string, password string) int, bool {

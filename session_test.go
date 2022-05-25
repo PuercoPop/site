@@ -10,13 +10,14 @@ func TestRetrieveUserFromSession(t *testing.T) {
 	db, close := setuptestdb(t)
 	defer close()
 	svc := NewSessionService(db)
-	want := 19
+	usersvc := NewUserService(db)
+	want := usersvc.createTestUser(ctx, t)
 	sid, err := svc.CreateSessionFor(ctx, want)
 	if err != nil {
 		t.Fatalf("Could not create session. %s", err)
 	}
 	// TODO(javier): check the expiration time on the recently created session
-	got, err := svc.UserFromSession(sid)
+	got, err := svc.UserFromSession(ctx, sid)
 	if err != nil {
 		t.FailNow()
 	}
