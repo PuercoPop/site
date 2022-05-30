@@ -3,18 +3,13 @@ package swiki
 import (
 	"context"
 	"crypto/rand"
+	"errors"
 	"log"
 
+	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
+	"golang.org/x/crypto/bcrypt"
 )
-
-// Authenticate checks the user credentials. If valid the user id is returned. If not an error is returned.
-func Authenticate(email string, password string) (int, error) {
-	return 0, nil
-	// var hash []byte
-	// row := db.QueryRow("SELECT password FROM users where email = $1", email)
-	// err = row.Scan(&hash) // TODO:: Check
-}
 
 func randomBytes(n int) []byte {
 	buf := make([]byte, n)
@@ -27,32 +22,31 @@ func randomBytes(n int) []byte {
 }
 
 type SessionService struct {
-	pool *pgxpool.Pool
+	db *pgxpool.Pool
 }
 
 func NewSessionService(pool *pgxpool.Pool) *SessionService {
-	return &SessionService{pool: pool}
+	return &SessionService{db: pool}
 }
 
-// CreateSessionFor creates
-func (svc *SessionService) CreateSessionFor(ctx context.Context, user_id int) ([]byte, error) {
+// Authenticate checks the user credentials. If valid the user id is returned. If not an error is returned.
+func (svc *SessionService) Authenticate(ctx context.Context, email string, password string) ([]byte, error) {
+	var userid int
+	var hashed []byte
+	err := svc.db.QueryRow(ctx, "SELECT user_id, password FROM users where email = $1", email).Scan(&userid, &hashed)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, err
+	}
+	err = bcrypt.CompareHashAndPassword(hashed, []byte(password))
+	if err != nil {
+		return nil, err
+	}
 	// "The session ID should be at least 128 bits o prevent brute-force session guessing attacks."
 	// Ref: https://owasp.org/www-community/vulnerabilities/Insufficient_Session-ID_Length
 	sid := randomBytes(128)
-	// insert to sql
-	_, err := svc.pool.Exec(ctx, "INSERT INTO sessions (session_id, user_id) values ($1, $2)", sid, user_id)
+	_, err = svc.db.Exec(ctx, "INSERT INTO sessions (session_id, user_id) values ($1, $2)", sid, userid)
 	if err != nil {
 		return nil, err
 	}
 	return sid, nil
-}
-
-// UserFromSession retrieves the user-id associated with session id, sid.
-func (svc *SessionService) UserFromSession(ctx context.Context, sid []byte) (int, error) {
-	var user_id int
-	err := svc.pool.QueryRow(ctx, "SELECT user_id FROM sessions WHERE session_id = $1 ", sid).Scan(&user_id)
-	if err != nil {
-		return 0, err
-	}
-	return user_id, nil
 }
