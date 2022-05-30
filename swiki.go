@@ -1,12 +1,15 @@
 package swiki
 
 import (
+	"context"
 	"embed"
 	"html/template"
 	"log"
 	"net/http"
 
+	"github.com/jackc/pgx"
 	"github.com/jackc/pgx/v4/pgxpool"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type swiki struct {
@@ -31,7 +34,7 @@ func New(dbpath string) *swiki {
 
 func (srv *swiki) registerroutes() {
 	srv.Mux.HandleFunc("/", srv.indexFunc())
-	// srv.Mux.HandleFunc("/sign-in/", srv.signinFunc())
+	srv.Mux.HandleFunc("/sign-in/", srv.handleSignin())
 }
 
 // Add an html/template here
@@ -49,28 +52,50 @@ func (srv *swiki) indexFunc() http.HandlerFunc {
 	}
 }
 
-func (srv *swiki) signinFunc(db *pgxpool.Pool) http.HandlerFunc {
-	return func(res http.ResponseWriter, req *http.Request) {
-		switch req.Method {
+func (srv *swiki) handleSignin(db *pgxpool.Pool) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
 		case http.MethodGet:
-			res.Header().Set("Content-Type", "text/html; charset=utf-8")
-			err := srv.T.ExecuteTemplate(res, "sign-in.html.tmpl", nil)
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			err := srv.T.ExecuteTemplate(w, "sign-in.html.tmpl", nil)
 			// todo(javier): log error instead of dying.
 			if err != nil {
 				log.Fatalf("Could not render sign-in template. %s", err)
 			}
 		case http.MethodPost:
 			// todo(javier): check credentials
-			err := req.ParseForm()
+			err := r.ParseForm()
 			if err != nil {
 				log.Fatalf("Could not parse form. %s", err)
 			}
-			// email := req.PostForm.Get("email")
-			// password := req.PostForm.Get("password")
-			// var hash []byte
-			// row := db.QueryRow("SELECT password FROM users where email = $1", email)
-			// err = row.Scan(&hash)
-			// res.Write([]())
+			email := req.PostForm.Get("email")
+			password := req.PostForm.Get("password")
+			var hash []byte
+			err := db.QueryRow(context.TODO(), "SELECT password FROM users where email = $1", email).Scan(&hash)
+			// If there is a user with that email.
+			if errors.is(err, pgx.ErrNoRows) {
+				w.Header().Set("Content-Type", "text/html; charset=utf-8")
+				// TODO(javier): Add an error to the template
+				err := srv.T.ExecuteTemplate(w, "sign-in.html.tmpl", nil)
+				// todo(javier): log error instead of dying.
+				if err != nil {
+					log.Fatalf("Could not render sign-in template. %s", err)
+				}
+
+			}
+			err = bcrypt.CompareHashAndPassword(hash, password)
+			if err != nil {
+				w.Header().Set("Content-Type", "text/html; charset=utf-8")
+				// TODO(javier): Add an error to the template
+				err := srv.T.ExecuteTemplate(w, "sign-in.html.tmpl", nil)
+				// todo(javier): log error instead of dying.
+				if err != nil {
+					log.Fatalf("Could not render sign-in template. %s", err)
+				}
+			}
+			// set cookie
+			w.Write()
+
 		}
 
 	}

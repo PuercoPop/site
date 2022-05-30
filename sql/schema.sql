@@ -3,7 +3,7 @@ BEGIN;
 
 CREATE TABLE users (
        user_id INTEGER PRIMARY KEY generated always as identity,
-       email TEXT NOT NULL,
+       email TEXT NOT NULL UNIQUE, -- todo(javier): we want uniqueness to be case-insensitive
        password BYTEA NOT NULL,
        admin BOOLEAN NOT NULL DEFAULT false
 );
