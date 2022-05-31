@@ -13,6 +13,7 @@ import (
 type swiki struct {
 	Mux *http.ServeMux
 	T   *template.Template
+	db  *pgxpool.Pool
 }
 
 //go:embed template/*.tmpl
@@ -32,7 +33,7 @@ func New(dbpath string) *swiki {
 
 func (srv *swiki) registerroutes() {
 	srv.Mux.HandleFunc("/", srv.indexFunc())
-	srv.Mux.HandleFunc("/sign-in/", srv.handleSignin())
+	srv.Mux.HandleFunc("/sign-in/", srv.handleSignin(srv.db))
 }
 
 // Add an html/template here
@@ -82,7 +83,8 @@ func (srv *swiki) handleSignin(db *pgxpool.Pool) http.HandlerFunc {
 			}
 			cookie := &http.Cookie{Name: "sid", Value: string(sid)}
 			http.SetCookie(w, cookie)
-			w.Write()
+			// todo(javier): redirect to / or redirect_to query param
+			w.Write([]byte("login successful."))
 
 		}
 
