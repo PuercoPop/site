@@ -80,7 +80,8 @@ func (srv *swiki) handleSignin(db *pgxpool.Pool) http.HandlerFunc {
 					log.Fatalf("Could not render sign-in template. %s", err)
 				}
 			}
-			// set cookie
+			cookie := &http.Cookie{Name: "sid", Value: string(sid)}
+			http.SetCookie(w, cookie)
 			w.Write()
 
 		}
