@@ -21,16 +21,16 @@ func randomBytes(n int) []byte {
 
 }
 
-type SessionService struct {
+type SessionHandler struct {
 	db *pgxpool.Pool
 }
 
-func NewSessionService(pool *pgxpool.Pool) *SessionService {
-	return &SessionService{db: pool}
+func NewSessionService(pool *pgxpool.Pool) *SessionHandler {
+	return &SessionHandler{db: pool}
 }
 
 // Authenticate checks the user credentials. If valid the user id is returned. If not an error is returned.
-func (svc *SessionService) Authenticate(ctx context.Context, email string, password string) ([]byte, error) {
+func (svc *SessionHandler) Authenticate(ctx context.Context, email string, password string) ([]byte, error) {
 	var userid int
 	var hashed []byte
 	err := svc.db.QueryRow(ctx, "SELECT user_id, password FROM users where email = $1", email).Scan(&userid, &hashed)

@@ -16,5 +16,5 @@ func main() {
 	flag.Parse()
 	srv := site.New(*dbpath)
 	// TODO(javier): Obtain addr and cert files from flags
-	log.Fatal(http.ListenAndServeTLS(":8080", *cert, *key, srv))
+	log.Fatal(http.ListenAndServeTLS(":8080", *cert, *key, srv.Mux))
 }
