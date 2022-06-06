@@ -16,7 +16,11 @@ func (h *site) indexFunc() http.HandlerFunc {
 		}
 		data := struct{ LatestPosts []Post }{LatestPosts: posts}
 		h.t.ExecuteTemplate(res, "index.html.tmpl", data)
-		// How to check an error here
+		err := h.t.ExecuteTemplate(w, "index.html.tmpl", d)
+		if err != nil {
+			// w.WriteHeader(http.StatusInternalServerError)
+			log.Fatalf("Error rendering tempalte. %s", err)
+		}
 	}
 }
 
