@@ -1,4 +1,4 @@
-package swiki
+package site
 
 import (
 	"context"

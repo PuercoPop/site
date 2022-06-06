@@ -1,4 +1,4 @@
-module github.com/PuercoPop/swiki
+module github.com/PuercoPop/site
 
 go 1.17
 

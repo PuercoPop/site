@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/PuercoPop/swiki"
+	"github.com/PuercoPop/site"
 )
 
 var dbpath = flag.String("d", "swiki.db", "Path to th SQLite databse")
@@ -14,7 +14,7 @@ var key = flag.String("key", "localhost+2-key.pem", "The keyFile to use for http
 
 func main() {
 	flag.Parse()
-	srv := swiki.New(*dbpath)
+	srv := site.New(*dbpath)
 	// TODO(javier): Obtain addr and cert files from flags
-	log.Fatal(http.ListenAndServeTLS(":8080", *cert, *key, srv.Mux))
+	log.Fatal(http.ListenAndServeTLS(":8080", *cert, *key, srv))
 }

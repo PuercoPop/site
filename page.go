@@ -1,4 +1,4 @@
-package swiki
+package site
 
 // PageMux takes care of creating, updating, and deleting pages. It is mounted
 // under /p/.

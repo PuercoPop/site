@@ -8,13 +8,12 @@ import (
 	"os"
 	"strings"
 
-	"crawshaw.io/sqlite"
-	"crawshaw.io/sqlite/sqlitex"
-	"github.com/PuercoPop/swiki/sql"
+	"github.com/PuercoPop/site/sql"
+	"github.com/jackc/pgx/v4"
 	"github.com/peterbourgon/ff/v3/ffcli"
 )
 
-func setupdb(dbpath string) error {
+func setupdb(ctx context.Context, dbpath string) error {
 	if _, err := os.Stat(dbpath); !os.IsNotExist(err) {
 		fmt.Println("A previous version of the database was found. Delete it? [y/N]")
 		reader := bufio.NewReader(os.Stdin)
@@ -31,13 +30,15 @@ func setupdb(dbpath string) error {
 			}
 		}
 	}
-	conn, err := sqlite.OpenConn(dbpath, 0)
+	conf, err := pgx.ParseConfig(dbpath)
 	if err != nil {
 		return err
 	}
-	defer conn.Close()
+	conn, err := pgx.ConnectConfig(ctx, conf)
+	defer conn.Close(ctx)
 
-	if err = sqlitex.ExecScript(conn, sql.Schema); err != nil {
+	_, err = conn.Exec(ctx, sql.Schema)
+	if err != nil {
 		log.Fatalf("Error executing the database schema. %s\n.", err)
 	}
 	return nil
@@ -48,7 +49,7 @@ func NewSetupDBCmd(dbpath string) *ffcli.Command {
 		Name:       "setupdb",
 		ShortUsage: "swikictl setupdb",
 		Exec: func(ctx context.Context, args []string) error {
-			return setupdb(dbpath)
+			return setupdb(ctx, dbpath)
 		},
 	}
 	return cmd

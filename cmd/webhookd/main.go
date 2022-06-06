@@ -8,7 +8,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/PuercoPop/swiki/webhookd"
+	"github.com/PuercoPop/site/webhookd"
 )
 
 func handleWebhook(w http.ResponseWriter, r *http.Request) {

@@ -4,7 +4,7 @@ import (
 	"context"
 	"log"
 
-	"github.com/PuercoPop/swiki"
+	"github.com/PuercoPop/site"
 	"github.com/peterbourgon/ff/v3/ffcli"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -14,7 +14,7 @@ func NewAddUserCmd(dbpath string) *ffcli.Command {
 		Name:       "addadmin",
 		ShortUsage: "swikictl addadmin",
 		Exec: func(ctx context.Context, args []string) error {
-			db, err := swiki.NewDB(ctx, dbpath)
+			db, err := site.NewDB(ctx, dbpath)
 			email := "pirata@gmail.com"
 			password := "yohoho"
 			hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)

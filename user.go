@@ -1,4 +1,4 @@
-package swiki
+package site
 
 import "github.com/jackc/pgx/v4/pgxpool"
 
