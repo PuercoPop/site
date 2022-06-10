@@ -47,8 +47,10 @@ func (m *SessionMiddleware) wrap(f http.HandlerFunc) http.HandlerFunc {
 }
 
 type SessionService interface {
-	Authenticate(ctx context.Context, email string, password string) ([]byte, error) // TODO(javier): Rename to Create?
-	ReadSession(r *http.Request) (int, error)
+	// New returns a new session id.
+	New(ctx context.Context, email string, password string) ([]byte, error)
+	// Lookup the userid from the sessionid in the request.
+	Lookup(r *http.Request) (int, error)
 }
 
 type SessionStore struct {

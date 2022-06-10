@@ -2,10 +2,32 @@ package site
 
 import (
 	"context"
+	"net/http"
 	"testing"
 )
 
 // TODO(javier): Test SessionMiddleware
+type SessionMemStore struct {
+	// a map from []byte to it
+	m map[string]int
+}
+
+func NewSessionMemStore() *SessionMemStore {
+	store := &SessionMemStore{}
+	store.m = make(map[string]int)
+	return store
+
+}
+func (store *SessionMemStore) New(ctx context.Context, email string, password string) ([]byte, error) {
+	sid := randomBytes(128)
+	// How do I get th euser id?
+	return sid, nil
+}
+func (store *SessionMemStore) Lookup(r *http.Request) (int, error) {}
+func TestSessionMiddleware(t *testing.T) {
+
+}
+
 func TestRetrieveUserFromSession(t *testing.T) {
 	ctx := context.Background()
 	db, close := setuptestdb(t)
