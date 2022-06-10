@@ -26,8 +26,28 @@ type SessionMiddleware struct {
 	svc SessionService
 }
 
+const userkey = "user-key"
+
+// wrap applies the SessionMiddleware. It reads the session id cookie and adds the associated user to
+// the request context.
+func (m *SessionMiddleware) wrap(f http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		u, err := m.svc.ReadSession(r)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			log.Printf("[SessionMiddleware.wrap]: %s\n", err)
+			return
+		}
+		if u != 0 {
+			ctx := context.WithValue(r.Context(), userkey, u)
+			r = r.WithContext(ctx)
+		}
+		f(w, r)
+	}
+}
+
 type SessionService interface {
-	Authenticate(ctx context.Context, email string, password string) ([]byte, error)
+	Authenticate(ctx context.Context, email string, password string) ([]byte, error) // TODO(javier): Rename to Create?
 	ReadSession(r *http.Request) (int, error)
 }
 
@@ -57,10 +77,6 @@ func (svc *SessionStore) Authenticate(ctx context.Context, email string, passwor
 	return sid, nil
 }
 
-// wrap applies the SessionMiddleware. It reads the session id cookie and adds the associated user to
-// the request context.
-func (svc *SessionMiddleware) wrap(f http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		f(w, r)
-	}
+func (svc *SessionStore) ReadSession(r *http.Request) (int, error) {
+	return 0, errors.New("IOU")
 }
