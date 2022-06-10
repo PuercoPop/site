@@ -34,8 +34,9 @@ func New(dbpath string) *site {
 		log.Fatalf("Could not connect to database: %s", err)
 	}
 	h.sessionsvc = &SessionStore{db: db}
+	sm := &SessionMiddleware{svc: h.sessionsvc}
 	h.Mux = http.NewServeMux()
-	h.Mux.HandleFunc("/", h.indexFunc())
+	h.Mux.HandleFunc("/", sm.wrap(h.indexFunc()))
 	h.Mux.HandleFunc("/sign-in/", h.handleSignin())
 
 	return h
