@@ -22,16 +22,21 @@ func randomBytes(n int) []byte {
 
 }
 
-type SessionHandler struct {
+type SessionMiddleware struct {
+	svc SessionService
+}
+
+type SessionService interface {
+	Authenticate(ctx context.Context, email string, password string) ([]byte, error)
+	ReadSession(r *http.Request) (int, error)
+}
+
+type SessionStore struct {
 	db *pgxpool.Pool
 }
 
-func NewSessionService(pool *pgxpool.Pool) *SessionHandler {
-	return &SessionHandler{db: pool}
-}
-
-// Authenticate checks the user credentials. If valid the user id is returned. If not an error is returned.
-func (svc *SessionHandler) Authenticate(ctx context.Context, email string, password string) ([]byte, error) {
+// Authenticate checks the user credentials. If valid the session id is returned. If not an error is returned.
+func (svc *SessionStore) Authenticate(ctx context.Context, email string, password string) ([]byte, error) {
 	var userid int
 	var hashed []byte
 	err := svc.db.QueryRow(ctx, "SELECT user_id, password FROM users where email = $1", email).Scan(&userid, &hashed)
@@ -52,9 +57,9 @@ func (svc *SessionHandler) Authenticate(ctx context.Context, email string, passw
 	return sid, nil
 }
 
-// SessionMiddleware reads the session id cookie and adds the associated user to
+// wrap applies the SessionMiddleware. It reads the session id cookie and adds the associated user to
 // the request context.
-func SessionMiddleware(f http.HandlerFunc) http.HandlerFunc {
+func (svc *SessionMiddleware) wrap(f http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		f(w, r)
 	}

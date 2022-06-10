@@ -5,6 +5,7 @@ import (
 	"testing"
 )
 
+// TODO(javier): Test SessionMiddleware
 func TestRetrieveUserFromSession(t *testing.T) {
 	ctx := context.Background()
 	db, close := setuptestdb(t)
