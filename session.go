@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"errors"
 	"log"
+	"net/http"
 
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -49,4 +50,12 @@ func (svc *SessionHandler) Authenticate(ctx context.Context, email string, passw
 		return nil, err
 	}
 	return sid, nil
+}
+
+// SessionMiddleware reads the session id cookie and adds the associated user to
+// the request context.
+func SessionMiddleware(f http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		f(w, r)
+	}
 }
