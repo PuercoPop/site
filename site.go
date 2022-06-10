@@ -13,9 +13,10 @@ import (
 
 // site is the top level handler
 type site struct {
-	Mux *http.ServeMux
-	t   *template.Template
-	db  *pgxpool.Pool
+	Mux        *http.ServeMux
+	t          *template.Template
+	db         *pgxpool.Pool
+	sessionsvc SessionService
 }
 
 //go:embed template/*.tmpl
@@ -28,6 +29,11 @@ func New(dbpath string) *site {
 		log.Fatalf("Could not pare the templates: %s", err)
 	}
 	h.t = t
+	db, err := NewDB(context.Background(), dbpath)
+	if err != nil {
+		log.Fatalf("Could not connect to database: %s", err)
+	}
+	h.sessionsvc = &SessionStore{db: db}
 	h.Mux = http.NewServeMux()
 	h.Mux.HandleFunc("/", h.indexFunc())
 	h.Mux.HandleFunc("/sign-in/", h.handleSignin())
@@ -38,21 +44,6 @@ func New(dbpath string) *site {
 // Add an html/template here
 
 // func (srv *swiki) PageHandlerFunc() http.HandlerFunc {
-
-// }
-
-// type Store struct {
-// 	pool *sqlitex.Pool
-// }
-
-// const DBPATH = "swkiki.db"
-
-// func NewStore(dbpath string) (*Store, error) {
-// 	pool, err := sqlitex.Open(dbpath, 0, 4)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	return &Store{pool: pool}, nil
 
 // }
 

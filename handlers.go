@@ -21,9 +21,9 @@ func (h *site) indexFunc() http.HandlerFunc {
 		d := data{LatestPosts: posts, CurrentUser: nil}
 		err := h.t.ExecuteTemplate(w, "index.html.tmpl", d)
 		if err != nil {
-			// todo(javier): Write error message to response.
-			// w.WriteHeader(http.StatusInternalServerError)
-			log.Fatalf("Error rendering tempalte. %s", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			log.Printf("Error rendering tempalte. %s", err)
+			return
 		}
 	}
 }
@@ -35,12 +35,12 @@ func (h *site) handleSignin() http.HandlerFunc {
 		case http.MethodGet:
 			w.Header().Set("Content-Type", "text/html; charset=utf-8")
 			err := h.t.ExecuteTemplate(w, "sign-in.html.tmpl", nil)
-			// todo(javier): log error instead of dying.
 			if err != nil {
-				log.Fatalf("Could not render sign-in template. %s", err)
+				w.WriteHeader(http.StatusInternalServerError)
+				log.Printf("Error rendering tempalte. %s", err)
+				return
 			}
 		case http.MethodPost:
-			svc := NewSessionService(h.db)
 			// todo(javier): check credentials
 			err := r.ParseForm()
 			if err != nil {
@@ -48,20 +48,23 @@ func (h *site) handleSignin() http.HandlerFunc {
 			}
 			email := r.PostForm.Get("email")
 			password := r.PostForm.Get("password")
-			sid, err := svc.Authenticate(ctx, email, password)
+			sid, err := h.sessionsvc.New(ctx, email, password)
 			if err != nil {
 				w.Header().Set("Content-Type", "text/html; charset=utf-8")
 				// TODO(javier): Add an error to the template
 				err := h.t.ExecuteTemplate(w, "sign-in.html.tmpl", nil)
-				// todo(javier): log error instead of dying.
 				if err != nil {
-					log.Fatalf("Could not render sign-in template. %s", err)
+					w.WriteHeader(http.StatusInternalServerError)
+					log.Printf("Could not render sign-in template. %s\n", err)
 				}
 			}
 			cookie := &http.Cookie{Name: "sid", Value: string(sid)}
 			http.SetCookie(w, cookie)
-			// todo(javier): redirect to / or redirect_to query param
-			http.Redirect(w, r, "/", http.StatusSeeOther)
+			url := r.Form.Get("redirect_to")
+			if url == "" {
+				url = "/"
+			}
+			http.Redirect(w, r, url, http.StatusSeeOther)
 			w.Write([]byte("login successful."))
 
 		}

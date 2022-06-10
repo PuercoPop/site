@@ -32,7 +32,7 @@ const userkey = "user-key"
 // the request context.
 func (m *SessionMiddleware) wrap(f http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		u, err := m.svc.ReadSession(r)
+		u, err := m.svc.Lookup(r)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			log.Printf("[SessionMiddleware.wrap]: %s\n", err)
@@ -58,7 +58,7 @@ type SessionStore struct {
 }
 
 // Authenticate checks the user credentials. If valid the session id is returned. If not an error is returned.
-func (svc *SessionStore) Authenticate(ctx context.Context, email string, password string) ([]byte, error) {
+func (svc *SessionStore) New(ctx context.Context, email string, password string) ([]byte, error) {
 	var userid int
 	var hashed []byte
 	err := svc.db.QueryRow(ctx, "SELECT user_id, password FROM users where email = $1", email).Scan(&userid, &hashed)
@@ -79,6 +79,6 @@ func (svc *SessionStore) Authenticate(ctx context.Context, email string, passwor
 	return sid, nil
 }
 
-func (svc *SessionStore) ReadSession(r *http.Request) (int, error) {
+func (svc *SessionStore) Lookup(r *http.Request) (int, error) {
 	return 0, errors.New("IOU")
 }
