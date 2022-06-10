@@ -4,7 +4,13 @@
     <nav>
       <ul>
         <li>
+          {{if .CurrentUser}}
+          <a href="/profile/">{{.CurrentUser}}</a>
+          {{else}}
           <a href="/sign-in/">Sign-in</a>
+          {{end}}
+          <!-- guard if authenticated -- >
+          <a href="/posts/new/">New Post</a>
         </li>
       </ul>
     </nav>

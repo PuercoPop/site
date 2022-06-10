@@ -7,17 +7,21 @@ import (
 )
 
 func (h *site) indexFunc() http.HandlerFunc {
-	return func(res http.ResponseWriter, req *http.Request) {
+	type data struct {
+		LatestPosts []Post
+		CurrentUser *User
+	}
+	return func(w http.ResponseWriter, r *http.Request) {
 		posts := []Post{
 			{
 				Title:   "Awesome Post!",
 				Content: "lololol",
 			},
 		}
-		data := struct{ LatestPosts []Post }{LatestPosts: posts}
-		h.t.ExecuteTemplate(res, "index.html.tmpl", data)
+		d := data{LatestPosts: posts, CurrentUser: nil}
 		err := h.t.ExecuteTemplate(w, "index.html.tmpl", d)
 		if err != nil {
+			// todo(javier): Write error message to response.
 			// w.WriteHeader(http.StatusInternalServerError)
 			log.Fatalf("Error rendering tempalte. %s", err)
 		}

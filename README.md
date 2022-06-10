@@ -1,4 +1,5 @@
 # site
-## A wiki to power a personal site.
+## The code that powers my personal site.
 
-- Indieweb
+It is inspired by the indieweb philosophy of self-hosting and ownership of
+data. See [./contributing.md] for information on how to setup the project.
