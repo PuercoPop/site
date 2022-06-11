@@ -8,6 +8,10 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+type User struct {
+	Email string
+}
+
 type UserService struct {
 	db *pgxpool.Pool
 }
