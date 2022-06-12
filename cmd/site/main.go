@@ -4,6 +4,9 @@ import (
 	"flag"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/PuercoPop/site"
 )
@@ -14,6 +17,12 @@ var key = flag.String("key", "localhost+2-key.pem", "The keyFile to use for http
 
 func main() {
 	flag.Parse()
+	go func() {
+		sc := make(chan os.Signal, 1)
+		signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
+		<-sc
+		os.Exit(0)
+	}()
 	srv := site.New(*dbpath)
 	// TODO(javier): Obtain addr and cert files from flags
 	log.Fatal(http.ListenAndServeTLS(":8080", *cert, *key, srv.Mux))
