@@ -1,6 +1,7 @@
 package site
 
 import (
+	"github.com/PuercoPop/site/blog"
 	"io"
 	"testing"
 )
@@ -8,7 +9,7 @@ import (
 func TestRenderPostList(t *testing.T) {
 	type args struct {
 		w     io.Writer
-		posts []Post
+		posts []blog.Post
 	}
 	tt := []struct {
 		name string
@@ -27,7 +28,7 @@ func TestRenderPostList(t *testing.T) {
 			name: "One Post List",
 			args: args{
 				w:     nil,
-				posts: []Post{
+				posts: []blog.Post{
 					{
 						Title: "Test",
 					},

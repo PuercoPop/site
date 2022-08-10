@@ -1,5 +1,6 @@
 # Some title
-## Published at: 2022/30/3
+## And a subtitle
+## 2022-30-3
 ## tags: en,testing
 
 # Preface

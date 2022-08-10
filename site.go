@@ -39,7 +39,7 @@ func New(dbpath string) *site {
 	sm := &SessionMiddleware{svc: h.sessionsvc}
 	h.Mux = http.NewServeMux()
 	h.Mux.HandleFunc("/", sm.wrap(h.indexFunc()))
-	h.Mux.Handle("/resources/", http.StripPrefix("/resources/", http.FileServer(FSResources)))
+	h.Mux.Handle("/resources/", http.StripPrefix("/resources/", http.FileServer(http.FS(FSResources))))
 	h.Mux.HandleFunc("/sign-in/", h.handleSignin())
 
 	return h

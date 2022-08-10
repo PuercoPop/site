@@ -2,17 +2,18 @@ package site
 
 import (
 	"context"
+	"github.com/PuercoPop/site/blog"
 	"log"
 	"net/http"
 )
 
 func (h *site) indexFunc() http.HandlerFunc {
 	type data struct {
-		LatestPosts []Post
+		LatestPosts []blog.Post
 		CurrentUser *User
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
-		posts := []Post{
+		posts := []blog.Post{
 			{
 				Title:   "Awesome Post!",
 				Content: "lololol",
