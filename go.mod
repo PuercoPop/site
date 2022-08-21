@@ -7,6 +7,7 @@ require (
 	github.com/google/go-cmp v0.5.8
 	github.com/jackc/pgx/v4 v4.16.1
 	github.com/peterbourgon/ff/v3 v3.1.2
+	github.com/yuin/goldmark v1.3.5
 	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97
 )
 
