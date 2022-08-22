@@ -1,10 +1,11 @@
 package blog
 
 import (
-	"cloud.google.com/go/civil"
-	"github.com/google/go-cmp/cmp"
 	"testing"
 	"time"
+
+	"cloud.google.com/go/civil"
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestReadPost(t *testing.T) {
@@ -15,9 +16,9 @@ func TestReadPost(t *testing.T) {
 	}{{
 		name: "read post 1",
 		path: "testdata/post.md",
-		want: &Post{title: "Some Title",
-			tags:      []string{"en", "testing"},
-			published: &civil.Date{Year: 2022, Month: time.March, Day: 30},
+		want: &Post{Title: "Some Title",
+			Tags:      []string{"en", "testing"},
+			Published: &civil.Date{Year: 2022, Month: time.March, Day: 30},
 		},
 	}}
 	for _, tc := range tt {
@@ -26,7 +27,7 @@ func TestReadPost(t *testing.T) {
 			if err != nil {
 				t.Errorf("Could not read post successfully. %s", err)
 			}
-			if diff := cmp.Diff(tc.want, got, cmp.AllowUnexported(Post{})); diff != "" {
+			if diff := cmp.Diff(tc.want, got); diff != "" {
 				t.Errorf("Post mistmatch (-want, +got): %s", diff)
 			}
 		})
