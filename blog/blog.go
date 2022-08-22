@@ -115,14 +115,12 @@ func ReadPost(fpath string) (*Post, error) {
 		return nil, err
 	}
 	// TODO(javier): Save rendered markdown in Content field.
-	// post.Content = md.Renderer().Render(d)
-
-	// var buf bytes.Buffer
-	// err = md.Convert(data, &buf)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// post.Content = buf
+	var buf bytes.Buffer
+	err = md.Renderer().Render(&buf, data, doc)
+	if err != nil {
+		return nil, err
+	}
+	post.Content = &buf
 	return post, nil
 }
 

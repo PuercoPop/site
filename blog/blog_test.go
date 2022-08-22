@@ -21,7 +21,8 @@ func TestReadPost(t *testing.T) {
 		want: &Post{Title: "Some title",
 			Tags:      []string{"en", "testing"},
 			Published: civil.Date{Year: 2022, Month: time.March, Day: 30},
-			Content:   bytes.NewBufferString(""),
+			// TODO(javier): Move to reading from file
+			Content: bytes.NewBufferString("<h1>Some title</h1>\n<h2>en, testing</h2>\n<h2>2022-30-3</h2>\n<h1>Preface</h1>\n<p>Here is some content</p>\n<h1>Another header</h1>\n"),
 		},
 	}}
 	for _, tc := range tt {
@@ -30,8 +31,11 @@ func TestReadPost(t *testing.T) {
 			if err != nil {
 				t.Errorf("Could not read post successfully. %s", err)
 			}
-			if diff := cmp.Diff(tc.want, got, cmpopts.IgnoreUnexported()); diff != "" {
+			if diff := cmp.Diff(tc.want, got, cmpopts.IgnoreFields(Post{}, "Content")); diff != "" {
 				t.Errorf("Post mistmatch (-want, +got): %s", diff)
+			}
+			if diff := cmp.Diff(tc.want.Content.String(), got.Content.String()); diff != "" {
+				t.Errorf("Post Content mismatch (-want, +got): %s", diff)
 			}
 		})
 	}
