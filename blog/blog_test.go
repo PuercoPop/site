@@ -18,7 +18,7 @@ func TestReadPost(t *testing.T) {
 	}{{
 		name: "read post 1",
 		path: "testdata/post.md",
-		want: &Post{Title: "Some Title",
+		want: &Post{Title: "Some title",
 			Tags:      []string{"en", "testing"},
 			Published: civil.Date{Year: 2022, Month: time.March, Day: 30},
 			Content:   bytes.NewBufferString(""),

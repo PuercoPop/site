@@ -66,7 +66,11 @@ func annotatePost(post *Post, data []byte) func(ast.Node, bool) (ast.WalkStatus,
 			if n.Kind() == ast.KindHeading && entering {
 				hn := n.(*ast.Heading)
 				if hn.Level == 2 {
-					post.Tags = strings.Split(string(n.Text(data)), ",")
+					tags := strings.Split(string(n.Text(data)), ",")
+					for ix := range tags {
+						tags[ix] = strings.TrimSpace(tags[ix])
+					}
+					post.Tags = tags
 				}
 				return ast.WalkStatus(ast.WalkSkipChildren), nil
 			}
