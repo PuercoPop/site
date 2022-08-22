@@ -3,9 +3,9 @@ package blog
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"io/fs"
 	"os"
+	"time"
 
 	"cloud.google.com/go/civil"
 	"github.com/yuin/goldmark"
@@ -36,28 +36,59 @@ type Site struct {
 type Post struct {
 	Title     string
 	Tags      []string
-	Published *civil.Date
+	Published civil.Date
 	Content   bytes.Buffer
 }
 
+const (
+	STATE_TITLE = iota
+	STATE_TAGS
+	STATE_DATE
+	STATE_DONE
+)
+
 // annotatePost walks the markdown document and copies any metadata found to the post.
 func annotatePost(post *Post, data []byte) func(ast.Node, bool) (ast.WalkStatus, error) {
+	state := STATE_TITLE
 	return func(n ast.Node, entering bool) (ast.WalkStatus, error) {
-		s := ast.WalkStatus(ast.WalkContinue)
-		//fmt.Printf("node: %#v \n", n)
-		if n.Kind() == ast.KindHeading && entering {
-			hn := n.(*ast.Heading)
-			if hn.Level == 1 {
-				post.Title = string(n.Text(data))
+		switch state {
+		case STATE_TITLE:
+			if n.Kind() == ast.KindHeading && entering {
+				hn := n.(*ast.Heading)
+				if hn.Level == 1 {
+					post.Title = string(n.Text(data))
+					state = STATE_TAGS
+				}
+				return ast.WalkStatus(ast.WalkSkipChildren), nil
 			}
-			if hn.Level == 2 {
-
+		case STATE_TAGS:
+			if n.Kind() == ast.KindHeading && entering {
+				hn := n.(*ast.Heading)
+				if hn.Level == 2 {
+					// split text by ,
+				}
+				return ast.WalkStatus(ast.WalkSkipChildren), nil
 			}
-			fmt.Printf("N: %v, %v\n", n.Kind(), hn.Level)
-			// fmt.Printf("N: %#v\n", n)
-
+		case STATE_DATE:
+			if n.Kind() == ast.KindHeading && entering {
+				hn := n.(*ast.Heading)
+				if hn.Level == 2 {
+					fmt := "2006-01-02"
+					d, err := time.Parse(fmt, string(n.Text(data)))
+					if err != nil {
+						return ast.WalkStatus(ast.WalkStop), err
+					}
+					post.Published = civil.DateOf(d)
+				}
+				return ast.WalkStatus(ast.WalkSkipChildren), nil
+			}
+		case STATE_DONE:
+			return ast.WalkStatus(ast.WalkStop), nil
+		default:
+			return ast.WalkStatus(ast.WalkContinue), nil
 		}
-		return s, nil
+		return ast.WalkStatus(ast.WalkContinue), nil
+
 	}
 }
 
