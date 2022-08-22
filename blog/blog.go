@@ -60,7 +60,7 @@ func annotatePost(post *Post, data []byte) func(ast.Node, bool) (ast.WalkStatus,
 					post.Title = string(n.Text(data))
 					state = STATE_TAGS
 				}
-				return ast.WalkStatus(ast.WalkSkipChildren), nil
+				return ast.WalkSkipChildren, nil
 			}
 		case STATE_TAGS:
 			if n.Kind() == ast.KindHeading && entering {
@@ -73,7 +73,7 @@ func annotatePost(post *Post, data []byte) func(ast.Node, bool) (ast.WalkStatus,
 					post.Tags = tags
 					state = STATE_DATE
 				}
-				return ast.WalkStatus(ast.WalkSkipChildren), nil
+				return ast.WalkSkipChildren, nil
 			}
 		case STATE_DATE:
 			if n.Kind() == ast.KindHeading && entering {
@@ -82,19 +82,19 @@ func annotatePost(post *Post, data []byte) func(ast.Node, bool) (ast.WalkStatus,
 					timefmt := "2006-2-1"
 					d, err := time.Parse(timefmt, string(n.Text(data)))
 					if err != nil {
-						return ast.WalkStatus(ast.WalkStop), err
+						return ast.WalkStop, err
 					}
 					post.Published = civil.DateOf(d)
 					state = STATE_DONE
 				}
-				return ast.WalkStatus(ast.WalkSkipChildren), nil
+				return ast.WalkSkipChildren, nil
 			}
 		case STATE_DONE:
-			return ast.WalkStatus(ast.WalkStop), nil
+			return ast.WalkStop, nil
 		default:
-			return ast.WalkStatus(ast.WalkContinue), nil
+			return ast.WalkContinue, nil
 		}
-		return ast.WalkStatus(ast.WalkContinue), nil
+		return ast.WalkContinue, nil
 
 	}
 }
@@ -106,7 +106,6 @@ func ReadPost(fpath string) (*Post, error) {
 		return nil, err
 	}
 	post := &Post{}
-	// How can we use goldmark parser here?
 	reader := text.NewReader(data)
 	md := goldmark.New(goldmark.WithRendererOptions(html.WithUnsafe()))
 	doc := md.Parser().Parse(reader)
@@ -115,6 +114,7 @@ func ReadPost(fpath string) (*Post, error) {
 	if err != nil {
 		return nil, err
 	}
+	// TODO(javier): Save rendered markdown in Content field.
 	// post.Content = md.Renderer().Render(d)
 
 	// var buf bytes.Buffer
