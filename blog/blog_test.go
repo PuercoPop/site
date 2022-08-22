@@ -1,11 +1,13 @@
 package blog
 
 import (
+	"bytes"
 	"testing"
 	"time"
 
 	"cloud.google.com/go/civil"
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 )
 
 func TestReadPost(t *testing.T) {
@@ -18,7 +20,8 @@ func TestReadPost(t *testing.T) {
 		path: "testdata/post.md",
 		want: &Post{Title: "Some Title",
 			Tags:      []string{"en", "testing"},
-			Published: &civil.Date{Year: 2022, Month: time.March, Day: 30},
+			Published: civil.Date{Year: 2022, Month: time.March, Day: 30},
+			Content:   bytes.NewBufferString(""),
 		},
 	}}
 	for _, tc := range tt {
@@ -27,7 +30,7 @@ func TestReadPost(t *testing.T) {
 			if err != nil {
 				t.Errorf("Could not read post successfully. %s", err)
 			}
-			if diff := cmp.Diff(tc.want, got); diff != "" {
+			if diff := cmp.Diff(tc.want, got, cmpopts.IgnoreUnexported()); diff != "" {
 				t.Errorf("Post mistmatch (-want, +got): %s", diff)
 			}
 		})

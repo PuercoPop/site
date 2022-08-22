@@ -38,7 +38,7 @@ type Post struct {
 	Title     string
 	Tags      []string
 	Published civil.Date
-	Content   bytes.Buffer
+	Content   *bytes.Buffer
 }
 
 const (
