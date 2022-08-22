@@ -71,6 +71,7 @@ func annotatePost(post *Post, data []byte) func(ast.Node, bool) (ast.WalkStatus,
 						tags[ix] = strings.TrimSpace(tags[ix])
 					}
 					post.Tags = tags
+					state = STATE_DATE
 				}
 				return ast.WalkStatus(ast.WalkSkipChildren), nil
 			}
@@ -84,6 +85,7 @@ func annotatePost(post *Post, data []byte) func(ast.Node, bool) (ast.WalkStatus,
 						return ast.WalkStatus(ast.WalkStop), err
 					}
 					post.Published = civil.DateOf(d)
+					state = STATE_DONE
 				}
 				return ast.WalkStatus(ast.WalkSkipChildren), nil
 			}
