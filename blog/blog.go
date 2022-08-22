@@ -5,6 +5,7 @@ import (
 	"context"
 	"io/fs"
 	"os"
+	"strings"
 	"time"
 
 	"cloud.google.com/go/civil"
@@ -65,7 +66,7 @@ func annotatePost(post *Post, data []byte) func(ast.Node, bool) (ast.WalkStatus,
 			if n.Kind() == ast.KindHeading && entering {
 				hn := n.(*ast.Heading)
 				if hn.Level == 2 {
-					// split text by ,
+					post.Tags = strings.Split(string(n.Text(data)), ",")
 				}
 				return ast.WalkStatus(ast.WalkSkipChildren), nil
 			}
