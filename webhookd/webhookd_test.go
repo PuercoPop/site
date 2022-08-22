@@ -8,22 +8,22 @@ import (
 )
 
 func TestParse(t *testing.T) {
-	// tests := []struct {
-	// 	description string
-	// 	headers     http.Header
-	// }{
-	// 	{description: "X-GitHub-Event should be present",
-	// 		headers: http.Header{}},
-	// 	{
-	// 		description: "request method should be POST",
-	// 	},
-	// 	{description: "X-Hub-Signature-256 header should be present"},
-	// }
-	// for _, tc := range tests {
-	// 	t.Run(tc.description, func(t *testing.T) {
-	// 		t.Parallel()
-	// 	})
-	// }
+	tests := []struct {
+		description string
+		headers     http.Header
+	}{
+		{description: "X-GitHub-Event should be present",
+			headers: http.Header{}},
+		{
+			description: "request method should be POST",
+		},
+		{description: "X-Hub-Signature-256 header should be present"},
+	}
+	for _, tc := range tests {
+		t.Run(tc.description, func(t *testing.T) {
+			t.Parallel()
+		})
+	}
 	t.Run("parses requests into a WebhookEvent", func(t *testing.T) {
 		body, err := os.Open("./webhookbody.sample")
 		if err != nil {
