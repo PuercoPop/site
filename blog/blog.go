@@ -79,8 +79,8 @@ func annotatePost(post *Post, data []byte) func(ast.Node, bool) (ast.WalkStatus,
 			if n.Kind() == ast.KindHeading && entering {
 				hn := n.(*ast.Heading)
 				if hn.Level == 2 {
-					fmt := "2006-01-02"
-					d, err := time.Parse(fmt, string(n.Text(data)))
+					timefmt := "2006-2-1"
+					d, err := time.Parse(timefmt, string(n.Text(data)))
 					if err != nil {
 						return ast.WalkStatus(ast.WalkStop), err
 					}
@@ -111,8 +111,10 @@ func ReadPost(fpath string) (*Post, error) {
 	md := goldmark.New(goldmark.WithRendererOptions(html.WithUnsafe()))
 	doc := md.Parser().Parse(reader)
 	visitor := annotatePost(post, data)
-	// TODO(javier): Error check.
-	ast.Walk(doc, visitor)
+	err = ast.Walk(doc, visitor)
+	if err != nil {
+		return nil, err
+	}
 	// post.Content = md.Renderer().Render(d)
 
 	// var buf bytes.Buffer
