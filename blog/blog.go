@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io/fs"
 	"log"
-	"os"
 	"strings"
 	"time"
 
@@ -25,8 +24,8 @@ import (
 
 type Site struct {
 	ByTitle map[string]*Post // TODO(javier: probably should be slug instead)
-	ByDate  map[civil.Date][]Post
-	ByTag   map[string][]Post
+	ByDate  map[civil.Date][]*Post
+	ByTag   map[string][]*Post
 }
 
 // Post represents a blog post written in markdown. Some metadata is embedded in
@@ -102,8 +101,8 @@ func annotatePost(post *Post, data []byte) func(ast.Node, bool) (ast.WalkStatus,
 }
 
 // ReadPost reads a markdown file file and returns a Post.
-func ReadPost(fpath string) (*Post, error) {
-	data, err := os.ReadFile(fpath)
+func ReadPost(fpath string, fsys fs.FS) (*Post, error) {
+	data, err := fs.ReadFile(fsys, fpath)
 	if err != nil {
 		return nil, err
 	}
@@ -129,26 +128,25 @@ func ReadPost(fpath string) (*Post, error) {
 // New initializes a new blog.
 func New(blogFS fs.FS) *Site {
 	site := &Site{}
-	site.ByTag = make(map[string][]Post)
+	site.ByTag = make(map[string][]*Post)
 	// TODO(javier): Walk the file-system for posts, loads them into memory
 	// and build an index.
 	// TODO(javier): Replace the testdata with .
-	fs.WalkDir(blogFS, "testdata", func(path string, d fs.DirEntry, err error) error {
+	fs.WalkDir(blogFS, ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			log.Fatalf("[blog.New]: %s", err)
 		}
+		fmt.Printf("=> %s\n", path)
 		// TODO Check it ends in markdown?
 		if !d.IsDir() {
-			post, err := ReadPost(path)
+			post, err := ReadPost(path, blogFS)
 			if err != nil {
 				log.Fatalf("[blog.New]: %s", err)
 			}
-			for ix, t := range post.Tags {
+			for _, t := range post.Tags {
 				xs := site.ByTag[t]
 				site.ByTag[t] = append(xs, post)
 			}
-			fmt.Printf("=> %s\n", post.Title)
-
 		}
 		return nil
 	})

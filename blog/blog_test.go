@@ -3,6 +3,7 @@ package blog
 import (
 	"bytes"
 	"embed"
+	"io/fs"
 	"testing"
 	"time"
 
@@ -10,6 +11,9 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 )
+
+//go:embed testdata/*.md
+var FSBlog embed.FS
 
 func TestReadPost(t *testing.T) {
 	tt := []struct {
@@ -28,7 +32,7 @@ func TestReadPost(t *testing.T) {
 	}}
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
-			got, err := ReadPost(tc.path)
+			got, err := ReadPost(tc.path, FSBlog)
 			if err != nil {
 				t.Errorf("Could not read post successfully. %s", err)
 			}
@@ -42,11 +46,12 @@ func TestReadPost(t *testing.T) {
 	}
 }
 
-//go:embed testdata/*.md
-var FSBlog embed.FS
-
 func TestSite(t *testing.T) {
-	site := New(FSBlog)
+	blogdir, err := fs.Sub(FSBlog, "testdata")
+	if err != nil {
+		t.Fatalf("Could not access subdirectory: %s", err)
+	}
+	site := New(blogdir)
 	// assert tags
 	// The tags are en es testing and blog.
 	var tags []string
