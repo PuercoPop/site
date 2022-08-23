@@ -3,7 +3,9 @@ package blog
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"io/fs"
+	"log"
 	"os"
 	"strings"
 	"time"
@@ -22,9 +24,9 @@ import (
 // - [ ] Atom feed
 
 type Site struct {
-	fsys   fs.FS // TODO(javier): Should I use embed.FS instead?
-	ByDate map[civil.Date]*Post
-	ByTag  map[string]*Post
+	ByTitle map[string]*Post // TODO(javier: probably should be slug instead)
+	ByDate  map[civil.Date][]Post
+	ByTag   map[string][]Post
 }
 
 // Post represents a blog post written in markdown. Some metadata is embedded in
@@ -125,10 +127,31 @@ func ReadPost(fpath string) (*Post, error) {
 }
 
 // New initializes a new blog.
-func New(posts fs.FS) *Site {
+func New(blogFS fs.FS) *Site {
 	site := &Site{}
+	site.ByTag = make(map[string][]Post)
 	// TODO(javier): Walk the file-system for posts, loads them into memory
 	// and build an index.
+	// TODO(javier): Replace the testdata with .
+	fs.WalkDir(blogFS, "testdata", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			log.Fatalf("[blog.New]: %s", err)
+		}
+		// TODO Check it ends in markdown?
+		if !d.IsDir() {
+			post, err := ReadPost(path)
+			if err != nil {
+				log.Fatalf("[blog.New]: %s", err)
+			}
+			for ix, t := range post.Tags {
+				xs := site.ByTag[t]
+				site.ByTag[t] = append(xs, post)
+			}
+			fmt.Printf("=> %s\n", post.Title)
+
+		}
+		return nil
+	})
 	return site
 }
 
