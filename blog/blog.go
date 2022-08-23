@@ -79,7 +79,7 @@ func annotatePost(post *Post, data []byte) func(ast.Node, bool) (ast.WalkStatus,
 			if n.Kind() == ast.KindHeading && entering {
 				hn := n.(*ast.Heading)
 				if hn.Level == 2 {
-					timefmt := "2006-2-1"
+					timefmt := "2006-1-2"
 					d, err := time.Parse(timefmt, string(n.Text(data)))
 					if err != nil {
 						return ast.WalkStop, err

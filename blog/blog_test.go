@@ -23,7 +23,7 @@ func TestReadPost(t *testing.T) {
 			Tags:      []string{"en", "testing"},
 			Published: civil.Date{Year: 2022, Month: time.March, Day: 30},
 			// TODO(javier): Move to reading from file
-			Content: bytes.NewBufferString("<h1>Some title</h1>\n<h2>en, testing</h2>\n<h2>2022-30-3</h2>\n<h1>Preface</h1>\n<p>Here is some content</p>\n<h1>Another header</h1>\n"),
+			Content: bytes.NewBufferString("<h1>Some title</h1>\n<h2>en, testing</h2>\n<h2>2022-3-30</h2>\n<h1>Preface</h1>\n<p>Here is some content</p>\n<h1>Another header</h1>\n"),
 		},
 	}}
 	for _, tc := range tt {
@@ -46,7 +46,7 @@ func TestReadPost(t *testing.T) {
 var FSBlog embed.FS
 
 func TestSite(t *testing.T) {
-	site := New(FSBlog)
+	// site := New(FSBlog)
 	// assert tags
 	// The tags are en es testing and blog.
 	// The en tag has two posts, titled 'Some title' and 'Another title'.
