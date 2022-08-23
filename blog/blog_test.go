@@ -2,6 +2,7 @@ package blog
 
 import (
 	"bytes"
+	"embed"
 	"testing"
 	"time"
 
@@ -39,4 +40,18 @@ func TestReadPost(t *testing.T) {
 			}
 		})
 	}
+}
+
+//go:embed testdata/*.md
+var FSBlog embed.FS
+
+func TestSite(t *testing.T) {
+	site := New(FSBlog)
+	// assert tags
+	// The tags are en es testing and blog.
+	// The en tag has two posts, titled 'Some title' and 'Another title'.
+	// assert posts in date
+	// 2022-30-3 TODO: switch to YYYY-M-D
+	// There are three posts under date, tittled 'Some title', 'Another
+	// title' and 'Yet another title'.
 }

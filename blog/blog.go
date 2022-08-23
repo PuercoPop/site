@@ -124,6 +124,14 @@ func ReadPost(fpath string) (*Post, error) {
 	return post, nil
 }
 
+// New initializes a new blog.
+func New(posts fs.FS) *Site {
+	site := &Site{}
+	// TODO(javier): Walk the file-system for posts, loads them into memory
+	// and build an index.
+	return site
+}
+
 // Posts know how to render themselves as HTML
 // func (p *Post)ServeHTTP(w httpResponseWriter, r *http.Request){}
 
