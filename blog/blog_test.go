@@ -58,7 +58,8 @@ func TestSite(t *testing.T) {
 	for t := range site.ByTag {
 		tags = append(tags, t)
 	}
-	if diff := cmp.Diff([]string{"en", "es", "testing", "blog"}, tags); diff != "" {
+	less := func(a, b string) bool { return a < b }
+	if diff := cmp.Diff([]string{"en", "es", "testing", "blog"}, tags, cmpopts.SortSlices(less)); diff != "" {
 		t.Errorf("Tag list mismatch (-want, +got): %s", diff)
 
 	}
