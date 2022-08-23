@@ -46,9 +46,17 @@ func TestReadPost(t *testing.T) {
 var FSBlog embed.FS
 
 func TestSite(t *testing.T) {
-	// site := New(FSBlog)
+	site := New(FSBlog)
 	// assert tags
 	// The tags are en es testing and blog.
+	var tags []string
+	for t := range site.ByTag {
+		tags = append(tags, t)
+	}
+	if diff := cmp.Diff([]string{"en", "es", "testing", "blog"}, tags); diff != "" {
+		t.Errorf("Tag list mismatch (-want, +got): %s", diff)
+
+	}
 	// The en tag has two posts, titled 'Some title' and 'Another title'.
 	// assert posts in date
 	// 2022-30-3 TODO: switch to YYYY-M-D
