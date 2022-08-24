@@ -64,14 +64,21 @@ func TestSite(t *testing.T) {
 
 	}
 	// The en tag has two posts, titled 'Some title' and 'Another title'.
-	var titles []string
+	var tagtitles []string
 	for _, p := range site.ByTag["en"] {
-		titles = append(titles, p.Title)
+		tagtitles = append(tagtitles, p.Title)
 	}
-	if diff := cmp.Diff([]string{"Some title", "Another title"}, titles, cmpopts.SortSlices(less)); diff != "" {
+	if diff := cmp.Diff([]string{"Some title", "Another title"}, tagtitles, cmpopts.SortSlices(less)); diff != "" {
 		t.Errorf("en tag content mismatch (-want, +got): %s", diff)
 	}
 	// assert posts in date
+	var datetitles []string
+	for _, p := range site.ByDate[civil.Date{Year: 2022, Month: time.March, Day: 30}] {
+		datetitles = append(datetitles, p.Title)
+	}
+	if diff := cmp.Diff([]string{"Some title", "Another title", "Yet another title"}, datetitles, cmpopts.SortSlices(less)); diff != "" {
+		t.Errorf("2022-3-30 date content mismatch (-want, +got): %s", diff)
+	}
 	// 2022-30-3 TODO: switch to YYYY-M-D
 	// There are three posts under date, titled 'Some title', 'Another
 	// title' and 'Yet another title'.

@@ -3,7 +3,6 @@ package blog
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"io/fs"
 	"log"
 	"strings"
@@ -129,6 +128,7 @@ func ReadPost(fpath string, fsys fs.FS) (*Post, error) {
 func New(blogFS fs.FS) *Site {
 	site := &Site{}
 	site.ByTag = make(map[string][]*Post)
+	site.ByDate = make(map[civil.Date][]*Post)
 	// TODO(javier): Walk the file-system for posts, loads them into memory
 	// and build an index.
 	// TODO(javier): Replace the testdata with .
@@ -136,7 +136,6 @@ func New(blogFS fs.FS) *Site {
 		if err != nil {
 			log.Fatalf("[blog.New]: %s", err)
 		}
-		fmt.Printf("=> %s\n", path)
 		// TODO Check it ends in markdown?
 		if !d.IsDir() {
 			post, err := ReadPost(path, blogFS)
@@ -147,6 +146,8 @@ func New(blogFS fs.FS) *Site {
 				xs := site.ByTag[t]
 				site.ByTag[t] = append(xs, post)
 			}
+			xs := site.ByDate[post.Published]
+			site.ByDate[post.Published] = append(xs, post)
 		}
 		return nil
 	})
