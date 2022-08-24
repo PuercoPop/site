@@ -5,6 +5,7 @@ import (
 	"context"
 	"io/fs"
 	"log"
+	"net/http"
 	"strings"
 	"time"
 
@@ -162,6 +163,18 @@ func New(blogFS fs.FS) *Site {
 		return nil
 	})
 	return site
+}
+
+// ServeHTTP is the blogs entry point. The URL
+// - /           -> The last five posts, with preview.
+// - /tags       -> Renders an alphabetical list of tags.
+// - /t/:tag     -> Renders an alphabetical list of posts tagged by :tag.
+// - /p/:slug    -> Shows the post with :slug.
+// - /archives/  -> A reverse chronological list of the posts.
+// - /d/YYYY-M-D -> Renders an alphabetical list of posts published on YYYY-M-D.
+// -> /atom.xml  -> The atom feed.
+func (blog *Site) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+
 }
 
 // Posts know how to render themselves as HTML
