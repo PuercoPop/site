@@ -22,9 +22,9 @@ import (
 // - [ ] Atom feed
 
 type Site struct {
-	ByTitle map[string]*Post // TODO(javier: probably should be slug instead)
-	ByDate  map[civil.Date][]*Post
-	ByTag   map[string][]*Post
+	BySlug map[string]*Post
+	ByDate map[civil.Date][]*Post
+	ByTag  map[string][]*Post
 }
 
 // Post represents a blog post written in markdown. Some metadata is embedded in
@@ -124,9 +124,14 @@ func ReadPost(fpath string, fsys fs.FS) (*Post, error) {
 	return post, nil
 }
 
+func slugify(title string) string {
+	return strings.ToLower(strings.ReplaceAll(title, " ", "-"))
+}
+
 // New initializes a new blog.
 func New(blogFS fs.FS) *Site {
 	site := &Site{}
+	site.BySlug = make(map[string]*Post)
 	site.ByTag = make(map[string][]*Post)
 	site.ByDate = make(map[civil.Date][]*Post)
 	// TODO(javier): Walk the file-system for posts, loads them into memory
@@ -146,8 +151,13 @@ func New(blogFS fs.FS) *Site {
 				xs := site.ByTag[t]
 				site.ByTag[t] = append(xs, post)
 			}
-			xs := site.ByDate[post.Published]
-			site.ByDate[post.Published] = append(xs, post)
+			ds := site.ByDate[post.Published]
+			site.ByDate[post.Published] = append(ds, post)
+			slug := slugify(post.Title)
+			if site.BySlug[slug] != nil {
+				log.Fatalf("Duplicated slug detected: %s", slug)
+			}
+			site.BySlug[slug] = post
 		}
 		return nil
 	})

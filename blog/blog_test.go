@@ -63,7 +63,7 @@ func TestSite(t *testing.T) {
 		t.Errorf("Tag list mismatch (-want, +got): %s", diff)
 
 	}
-	// The en tag has two posts, titled 'Some title' and 'Another title'.
+	// Test ByTag index
 	var tagtitles []string
 	for _, p := range site.ByTag["en"] {
 		tagtitles = append(tagtitles, p.Title)
@@ -71,7 +71,7 @@ func TestSite(t *testing.T) {
 	if diff := cmp.Diff([]string{"Some title", "Another title"}, tagtitles, cmpopts.SortSlices(less)); diff != "" {
 		t.Errorf("en tag content mismatch (-want, +got): %s", diff)
 	}
-	// assert posts in date
+	// Test ByDate index
 	var datetitles []string
 	for _, p := range site.ByDate[civil.Date{Year: 2022, Month: time.March, Day: 30}] {
 		datetitles = append(datetitles, p.Title)
@@ -79,7 +79,13 @@ func TestSite(t *testing.T) {
 	if diff := cmp.Diff([]string{"Some title", "Another title", "Yet another title"}, datetitles, cmpopts.SortSlices(less)); diff != "" {
 		t.Errorf("2022-3-30 date content mismatch (-want, +got): %s", diff)
 	}
-	// 2022-30-3 TODO: switch to YYYY-M-D
-	// There are three posts under date, titled 'Some title', 'Another
-	// title' and 'Yet another title'.
+	// Test BySlug index
+	slug := "yet-another-title"
+	p := site.BySlug[slug]
+	if p == nil {
+		t.Fatalf("Byslug index mismatch. No post found under '%s'", slug)
+	}
+	if diff := cmp.Diff(p.Title, "Yet another title"); diff != "" {
+		t.Errorf("BySlug index mismatch (-want, +got): %s", diff)
+	}
 }
