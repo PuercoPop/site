@@ -23,7 +23,7 @@ func main() {
 		<-sc
 		os.Exit(0)
 	}()
-	srv := site.New(*dbpath)
+	srv := site.New()
 	// TODO(javier): Obtain addr and cert files from flags
-	log.Fatal(http.ListenAndServeTLS(":8080", *cert, *key, srv.Mux))
+	log.Fatal(http.ListenAndServeTLS(":8080", *cert, *key, srv))
 }
