@@ -193,7 +193,7 @@ func (blog *Site) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // shiftPath splits the given path into the first segment (head) and
 // the rest (tail). For example, "/foo/bar/baz" gives "foo", "/bar/baz".
-// h/t: https://benhoyt.com/writings/go-routing/
+// h/t: https://blog.merovius.de/posts/2017-06-18-how-not-to-use-an-http-router/
 func shiftPath(p string) (head, tail string) {
 	p = path.Clean("/" + p)
 	i := strings.Index(p[1:], "/") + 1
