@@ -3,9 +3,11 @@ package blog
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"io/fs"
 	"log"
 	"net/http"
+	"path"
 	"strings"
 	"time"
 
@@ -174,7 +176,46 @@ func New(blogFS fs.FS) *Site {
 // - /d/YYYY-M-D -> Renders an alphabetical list of posts published on YYYY-M-D.
 // -> /atom.xml  -> The atom feed.
 func (blog *Site) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	var head string
+	head, r.URL.Path = shiftPath(r.URL.Path)
+	switch head {
+	case "":
+		blog.serveIndex(w, r)
+	// case "tags":
+	// 	serveTagList(w, r)
+	// case "t":
+	// 	serveTag(w, r)
+	default:
+		w.WriteHeader(404)
 
+	}
+}
+
+// shiftPath splits the given path into the first segment (head) and
+// the rest (tail). For example, "/foo/bar/baz" gives "foo", "/bar/baz".
+// h/t: https://benhoyt.com/writings/go-routing/
+func shiftPath(p string) (head, tail string) {
+	p = path.Clean("/" + p)
+	i := strings.Index(p[1:], "/") + 1
+	if i <= 0 {
+		return p[1:], "/"
+	}
+	return p[1:i], p[i:]
+}
+
+func (blog *Site) serveIndex(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	posts, err := blog.ListRecentPosts(ctx, 5)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+	}
+	w.Write([]byte("<ol>"))
+	for _, p := range posts {
+		l := fmt.Sprintf("<li>%s published on %v</li>\n", p.Title, p.Published)
+		w.Write([]byte(l))
+	}
+	w.Write([]byte("</ol>"))
 }
 
 // Posts know how to render themselves as HTML
@@ -184,6 +225,31 @@ type PostRepository interface {
 	// Return the N most recent posts
 	ListRecentPosts(ctx context.Context, n int) ([]*Post, error)
 	Save(ctx context.Context, post Post) error
+}
+
+func (blog *Site) ListRecentPosts(ctx context.Context, n int) ([]*Post, error) {
+	var posts []*Post
+	// TODO(javier): Replace with blog.ByDate.Keys once we have access to
+	// generics.
+	dates := make([]civil.Date, len(blog.ByDate))
+	// We may need an array of dates with hits
+	ix := 0
+	for d := range blog.ByDate {
+		// Does range start at 1?
+		dates[ix] = d
+	}
+	// dates = sort.Sort(dates)
+	postCount := 0
+	for _, d := range dates {
+		for _, post := range blog.ByDate[d] {
+			posts = append(posts, post)
+			postCount++
+			if postCount >= n {
+				return posts, nil
+			}
+		}
+	}
+	return posts, nil
 }
 
 type PostMemRepository struct {
