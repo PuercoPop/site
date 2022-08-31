@@ -137,14 +137,13 @@ func New(blogFS fs.FS) *Site {
 	site.BySlug = make(map[string]*Post)
 	site.ByTag = make(map[string][]*Post)
 	site.ByDate = make(map[civil.Date][]*Post)
-	// TODO(javier): Walk the file-system for posts, loads them into memory
-	// and build an index.
-	// TODO(javier): Replace the testdata with .
+	// Walk the file-system for posts, loads them into memory and build an
+	// index.
 	fs.WalkDir(blogFS, ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			log.Fatalf("[blog.New]: %s", err)
 		}
-		// TODO Check it ends in markdown?
+		// TODO(javier): Check it ends in markdown?
 		if !d.IsDir() {
 			post, err := ReadPost(path, blogFS)
 			if err != nil {
