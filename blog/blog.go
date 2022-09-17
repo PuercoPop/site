@@ -3,7 +3,9 @@ package blog
 import (
 	"bytes"
 	"context"
+	"embed"
 	"fmt"
+	"html/template"
 	"io/fs"
 	"log"
 	"net/http"
@@ -18,6 +20,9 @@ import (
 	"github.com/yuin/goldmark/text"
 )
 
+//go:embed template/*.tmpl
+var FSTemplates embed.FS
+
 // TODO(javier): Initialize the blog from a embed.Fs
 // - [ ] reverse-chronological index
 // - [ ] an about page
@@ -28,6 +33,8 @@ type Site struct {
 	BySlug map[string]*Post
 	ByDate map[civil.Date][]*Post
 	ByTag  map[string][]*Post
+	// templates
+	IndexTmpl *template.Template
 }
 
 // Post represents a blog post written in markdown. Some metadata is embedded in
@@ -163,6 +170,7 @@ func New(blogFS fs.FS) *Site {
 		}
 		return nil
 	})
+	site.IndexTmpl = template.Must(template.ParseFS(FSTemplates, "templates/index.html.tmpl"))
 	return site
 }
 
@@ -208,7 +216,11 @@ func (blog *Site) serveIndex(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
+		return
 	}
+
+	// Use index templates here
+
 	w.Write([]byte("<ol>"))
 	for _, p := range posts {
 		l := fmt.Sprintf("<li>%s published on %v</li>\n", p.Title, p.Published)
