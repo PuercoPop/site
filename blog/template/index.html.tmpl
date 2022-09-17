@@ -1,0 +1,9 @@
+{{define "title"}}Latest Posts{{end}
+{{define "main"}}
+<h2> Latest Posts</h2>
+<ol>
+  {{range .LatestPosts}}
+  <li>{{.Title}}</li>
+  {{end}}
+</ol>
+{{end}}
