@@ -1,9 +1,9 @@
-{{define "title"}}Latest Posts{{end}
+{{define "title"}}Latest Posts{{end}}
 {{define "main"}}
 <h2> Latest Posts</h2>
 <ol>
   {{range .LatestPosts}}
-  <li>{{.Title}}</li>
+  <li><a href="{{.Title}}">{{.Title}}</a> published on {{.Published}}></li>
   {{end}}
 </ol>
 {{end}}

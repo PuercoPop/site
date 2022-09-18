@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"embed"
-	"fmt"
 	"html/template"
 	"io/fs"
 	"log"
@@ -170,7 +169,7 @@ func New(blogFS fs.FS) *Site {
 		}
 		return nil
 	})
-	site.IndexTmpl = template.Must(template.ParseFS(FSTemplates, "templates/index.html.tmpl"))
+	site.IndexTmpl = template.Must(template.ParseFS(FSTemplates, "template/index.html.tmpl", "template/index.html.tmpl"))
 	return site
 }
 
@@ -220,13 +219,14 @@ func (blog *Site) serveIndex(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Use index templates here
-
-	w.Write([]byte("<ol>"))
-	for _, p := range posts {
-		l := fmt.Sprintf("<li>%s published on %v</li>\n", p.Title, p.Published)
-		w.Write([]byte(l))
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	data := struct{ LatestPosts []*Post }{LatestPosts: posts}
+	err = blog.IndexTmpl.ExecuteTemplate(w, "main", data)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
 	}
-	w.Write([]byte("</ol>"))
 }
 
 // Posts know how to render themselves as HTML
