@@ -169,7 +169,8 @@ func New(blogFS fs.FS) *Site {
 		}
 		return nil
 	})
-	site.IndexTmpl = template.Must(template.ParseFS(FSTemplates, "template/index.html.tmpl", "template/index.html.tmpl"))
+	site.IndexTmpl = template.Must(template.ParseFS(FSTemplates,
+		"template/index.html.tmpl", "template/layout.html.tmpl"))
 	return site
 }
 
@@ -221,7 +222,7 @@ func (blog *Site) serveIndex(w http.ResponseWriter, r *http.Request) {
 	// Use index templates here
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	data := struct{ LatestPosts []*Post }{LatestPosts: posts}
-	err = blog.IndexTmpl.ExecuteTemplate(w, "main", data)
+	err = blog.IndexTmpl.ExecuteTemplate(w, "layout", data)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
