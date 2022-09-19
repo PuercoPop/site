@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"embed"
+	"fmt"
 	"html/template"
 	"io/fs"
 	"log"
@@ -135,6 +136,10 @@ func ReadPost(fpath string, fsys fs.FS) (*Post, error) {
 
 func slugify(title string) string {
 	return strings.ToLower(strings.ReplaceAll(title, " ", "-"))
+}
+
+func (post *Post) URL() string {
+	return fmt.Sprintf("/p/%s", slugify(post.Title))
 }
 
 // New initializes a new blog.
