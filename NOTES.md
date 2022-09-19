@@ -16,3 +16,19 @@ I like write.as approach of a subdomain for each feature
 - tweet.puercopop.com: microblogging
 - snap.puercopop.com: photos
 - read.puercopop.com: RSS Reader
+
+## Process Supervision
+
+We want to have the application supervised for two reasons.
+
+We want to supervise the process to make sure it is running. If it exits with a
+non zero code we restart it. If we receive sighup we reload.
+
+See littleboss for an example of how to do this in the same executable.
+
+We also want the supervisor to hold the sockets open while we reload the
+application.
+
+The related projects section of socket masters' documentation
+
+https://zimbatm.github.io/socketmaster/#RELATED-PROJECTS
