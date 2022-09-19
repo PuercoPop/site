@@ -33,7 +33,7 @@ type Site struct {
 	ByDate map[civil.Date][]*Post
 	ByTag  map[string][]*Post
 	// templates
-	IndexTmpl *template.Template
+	indextmpl *template.Template
 }
 
 // Post represents a blog post written in markdown. Some metadata is embedded in
@@ -169,7 +169,7 @@ func New(blogFS fs.FS) *Site {
 		}
 		return nil
 	})
-	site.IndexTmpl = template.Must(template.ParseFS(FSTemplates,
+	site.indextmpl = template.Must(template.ParseFS(FSTemplates,
 		"template/index.html.tmpl", "template/layout.html.tmpl"))
 	return site
 }
@@ -222,7 +222,7 @@ func (blog *Site) serveIndex(w http.ResponseWriter, r *http.Request) {
 	// Use index templates here
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	data := struct{ LatestPosts []*Post }{LatestPosts: posts}
-	err = blog.IndexTmpl.ExecuteTemplate(w, "layout", data)
+	err = blog.indextmpl.ExecuteTemplate(w, "layout", data)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
