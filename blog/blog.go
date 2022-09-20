@@ -199,6 +199,8 @@ func (blog *Site) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch head {
 	case "":
 		blog.serveIndex(w, r)
+	case "archives":
+		blog.serveIndex(w, r)
 	case "p":
 		blog.servePost(w, r)
 	case "tags":
