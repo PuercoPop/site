@@ -35,6 +35,7 @@ type Site struct {
 	ByTag  map[string][]*Post
 	// templates
 	indextmpl *template.Template
+	postTmpl  *template.Template
 }
 
 // Post represents a blog post written in markdown. Some metadata is embedded in
@@ -176,6 +177,8 @@ func New(blogFS fs.FS) *Site {
 	})
 	site.indextmpl = template.Must(template.ParseFS(FSTemplates,
 		"template/index.html.tmpl", "template/layout.html.tmpl"))
+	site.postTmpl = template.Must(template.ParseFS(FSTemplates,
+		"template/post.html.tmpl", "template/layout.html.tmpl"))
 	return site
 }
 
@@ -193,6 +196,8 @@ func (blog *Site) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch head {
 	case "":
 		blog.serveIndex(w, r)
+	case "p":
+		blog.servePost(w, r)
 	// case "tags":
 	// 	serveTagList(w, r)
 	// case "t":
@@ -233,6 +238,28 @@ func (blog *Site) serveIndex(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(err.Error()))
 		return
 	}
+}
+
+func (blog *Site) servePost(w http.ResponseWriter, r *http.Request) {
+	var head string
+	head, r.URL.Path = shiftPath(r.URL.Path)
+	post := blog.BySlug[head]
+	if post == nil {
+		http.NotFound(w, r)
+		return
+	}
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	data := struct {
+		Title   string
+		Content template.HTML
+	}{Title: post.Title, Content: template.HTML(string(post.Content.Bytes()))}
+	err := blog.postTmpl.ExecuteTemplate(w, "layout", data)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
 }
 
 // Posts know how to render themselves as HTML
