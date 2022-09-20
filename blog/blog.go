@@ -268,8 +268,12 @@ func (blog *Site) servePost(w http.ResponseWriter, r *http.Request) {
 }
 
 type tag struct {
-	name  string
-	count int
+	Name  string
+	Count int
+}
+
+func (t tag) url() string {
+	return fmt.Sprintf("/t/%s", t.Name)
 }
 
 // tagList returns a list of tags
@@ -283,16 +287,11 @@ func tagList(byTag map[string][]*Post) []tag {
 	sort.Strings(tags)
 	tagList := make([]tag, len(tags))
 	for ix, t := range tags {
-		tagList[ix].name = t
-		tagList[ix].count = len(byTag[t])
+		tagList[ix].Name = t
+		tagList[ix].Count = len(byTag[t])
 
 	}
 	return tagList
-
-	// tagList := make([]tag, len(tags))
-	// for ix, t := range tags {
-
-	// }
 }
 
 func (blog *Site) serveTagList(w http.ResponseWriter, r *http.Request) {

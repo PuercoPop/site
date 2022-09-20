@@ -117,13 +117,13 @@ func TestTagList(t *testing.T) {
 				"en": []*Post{{Title: "hello"}},
 				"es": []*Post{{Title: "hola"}, {Title: "mundo"}},
 			},
-			want: []tag{{name: "en", count: 1}, {name: "es", count: 2}},
+			want: []tag{{Name: "en", Count: 1}, {Name: "es", Count: 2}},
 		},
 	}
 	for _, tc := range tt {
 		t.Run(tc.description, func(t *testing.T) {
 			got := tagList(tc.tagIndex)
-			if diff := cmp.Diff(tc.want, got, cmp.AllowUnexported(tag{})); diff != "" {
+			if diff := cmp.Diff(tc.want, got); diff != "" {
 				t.Errorf("tag list did not match (-want, +got): %s", diff)
 			}
 		})
