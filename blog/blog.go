@@ -34,8 +34,9 @@ type Site struct {
 	ByDate map[civil.Date][]*Post
 	ByTag  map[string][]*Post
 	// templates
-	indextmpl *template.Template
-	postTmpl  *template.Template
+	indextmpl   *template.Template
+	postTmpl    *template.Template
+	tagListTmpl *template.Template
 }
 
 // Post represents a blog post written in markdown. Some metadata is embedded in
@@ -179,6 +180,8 @@ func New(blogFS fs.FS) *Site {
 		"template/index.html.tmpl", "template/layout.html.tmpl"))
 	site.postTmpl = template.Must(template.ParseFS(FSTemplates,
 		"template/post.html.tmpl", "template/layout.html.tmpl"))
+	site.tagListTmpl = template.Must(template.ParseFS(FSTemplates,
+		"template/tag-list.html.tmpl", "template/layout.html.tmpl"))
 	return site
 }
 
@@ -198,8 +201,8 @@ func (blog *Site) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		blog.serveIndex(w, r)
 	case "p":
 		blog.servePost(w, r)
-	// case "tags":
-	// 	serveTagList(w, r)
+	case "tags":
+		blog.serveTagList(w, r)
 	// case "t":
 	// 	serveTag(w, r)
 	default:
@@ -259,11 +262,16 @@ func (blog *Site) servePost(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(err.Error()))
 		return
 	}
-
 }
 
-// Posts know how to render themselves as HTML
-// func (p *Post)ServeHTTP(w httpResponseWriter, r *http.Request){}
+func (blog *Site) serveTagList(w http.ResponseWriter, r *http.Request) {
+	tags := make([]string, len(blog.ByTag))
+	for t, _ := range blog.ByTag {
+		tags = append(tags, t)
+	}
+	data := struct{ Tags []string }{Tags: tags}
+	blog.tagListTmpl.ExecuteTemplate(w, "layout", data)
+}
 
 type PostRepository interface {
 	// Return the N most recent posts

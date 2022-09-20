@@ -1,0 +1,10 @@
+{{template "layout" .}}
+{{define "title"}}Tags{{end}}
+{{define "main"}}
+<h2> Tags</h2>
+<ol>
+  {{range .Tags}}
+  <li><a href="{{.URL}}">{{.Name}} ({{.Count}})</a></li>
+  {{end}}
+</ol>
+{{end}}
