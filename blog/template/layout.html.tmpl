@@ -4,12 +4,23 @@
   <head>
         <meta charset='utf-8'>
         <title>{{template "title" .}} — Serious Trolling</title>
+        <style>
+          nav ul {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            justify-content: space-evenly;
+            border: 1px solid gray;
+          }
+        </style>
   </head>
   <body>
     <nav>
-      <ol>
-        <li><a href="/tags/">Tags</a></li>
-      </ol>
+      <ul>
+        <li><a href="/archives/"> Archive</a></li>
+        <li><a href="/tags/"> Tags</a></li>
+        <li><a href="/p/about/"> About</a></li>
+      </ul>
     </nav>
     <main>
       {{template "main" .}}
