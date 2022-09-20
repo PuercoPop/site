@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"path"
+	"sort"
 	"strings"
 	"time"
 
@@ -266,12 +267,37 @@ func (blog *Site) servePost(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (blog *Site) serveTagList(w http.ResponseWriter, r *http.Request) {
-	tags := make([]string, len(blog.ByTag))
-	for t, _ := range blog.ByTag {
-		tags = append(tags, t)
+type tag struct {
+	name  string
+	count int
+}
+
+// tagList returns a list of tags
+func tagList(byTag map[string][]*Post) []tag {
+	tags := make([]string, len(byTag))
+	i := 0
+	for t := range byTag {
+		tags[i] = t
+		i++
 	}
-	data := struct{ Tags []string }{Tags: tags}
+	sort.Strings(tags)
+	tagList := make([]tag, len(tags))
+	for ix, t := range tags {
+		tagList[ix].name = t
+		tagList[ix].count = len(byTag[t])
+
+	}
+	return tagList
+
+	// tagList := make([]tag, len(tags))
+	// for ix, t := range tags {
+
+	// }
+}
+
+func (blog *Site) serveTagList(w http.ResponseWriter, r *http.Request) {
+	tags := tagList(blog.ByTag)
+	data := struct{ Tags []tag }{Tags: tags}
 	blog.tagListTmpl.ExecuteTemplate(w, "layout", data)
 }
 
