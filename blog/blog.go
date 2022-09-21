@@ -313,8 +313,8 @@ func (blog *Site) ListRecentPosts(ctx context.Context, n int) ([]*Post, error) {
 	// We may need an array of dates with hits
 	ix := 0
 	for d := range blog.ByDate {
-		// Does range start at 1?
 		dates[ix] = d
+		ix++
 	}
 	// dates = sort.Sort(dates)
 	postCount := 0
