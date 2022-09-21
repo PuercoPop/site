@@ -235,7 +235,6 @@ func (blog *Site) serveIndex(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Use index templates here
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	data := struct{ LatestPosts []*Post }{LatestPosts: posts}
 	err = blog.indextmpl.ExecuteTemplate(w, "layout", data)
