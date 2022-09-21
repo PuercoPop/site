@@ -1,6 +1,6 @@
 # In Defense of the Alist
-# lisp, en
-# 2018-05-24
+## lisp, en
+## 2018-05-24
 
 Lisp is a well designed language, but sometimes its good design comes off as
 cruft at first sight. This is the case with [association lists] (alists from

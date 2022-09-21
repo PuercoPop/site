@@ -84,8 +84,8 @@ func annotatePost(post *Post, data []byte) func(ast.Node, bool) (ast.WalkStatus,
 						tags[ix] = strings.TrimSpace(tags[ix])
 					}
 					post.Tags = tags
-					state = STATE_DATE
 				}
+				state = STATE_DATE
 				return ast.WalkSkipChildren, nil
 			}
 		case STATE_DATE:

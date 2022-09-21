@@ -1,6 +1,6 @@
 # Per-project org-agenda
-# en,emacs,org-mode
-# 2020-12-28
+## en,emacs,org-mode
+## 2020-12-28
 
 For my personal projects I tend to keep a HACKING.org file where I write down
 project specific stuff. Adding each of those files to org-agenda-files would be

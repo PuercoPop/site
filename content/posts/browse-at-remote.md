@@ -1,7 +1,6 @@
 # browse-at-remote snippet
-# 2020-10-12
-# en, emacs, protip
-
+## en, emacs, protip
+## 2020-10-12
 
 ```elisp
 (use-package browse-at-remote
