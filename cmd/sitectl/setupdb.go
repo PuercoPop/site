@@ -26,7 +26,7 @@ func setupdb(ctx context.Context, dbpath string) error {
 			fmt.Printf("Deleting %s\n", dbpath)
 			err := os.Remove(dbpath)
 			if err != nil {
-				log.Fatalf("Could not delete #{dbpath}", dbpath, err)
+				log.Fatalf("Could not delete %s. %s", dbpath, err)
 			}
 		}
 	}
