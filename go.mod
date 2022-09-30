@@ -1,6 +1,6 @@
 module github.com/PuercoPop/site
 
-go 1.17
+go 1.19
 
 require (
 	cloud.google.com/go v0.103.0
