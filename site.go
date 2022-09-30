@@ -33,9 +33,24 @@ func New() *site {
 	return h
 }
 
+func host(r *http.Request) string {
+	if h := r.Header.Get("X-Forwarded-Host"); h != "" {
+		return h
+	}
+	if h := r.Header.Get("Forwarded"); h != "" {
+		return h
+	}
+	return r.Host
+}
+
 func (svc *site) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// redirect to blog
-	svc.Blog.ServeHTTP(w, r)
+	switch h := host(r); h {
+	case "blog":
+		svc.Blog.ServeHTTP(w, r)
+	default:
+		// TODO(javier): Replace with "www" handler when we add one.
+		svc.Blog.ServeHTTP(w, r)
+	}
 }
 
 // func New(dbpath string) *site {
