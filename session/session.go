@@ -1,9 +1,10 @@
-package site
+package session
 
 import (
 	"context"
 	"crypto/rand"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -21,6 +22,9 @@ func randomBytes(n int) []byte {
 	return buf
 
 }
+
+// TODO(javier): Fuse SessionMiddlware and Service into one. There is no need for them to be different.
+// func New() *SessionMiddleware {}
 
 type SessionMiddleware struct {
 	svc SessionService
@@ -46,6 +50,21 @@ func (m *SessionMiddleware) wrap(f http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
+// augment reads the session id cookie and adds the associated user to the
+// request context.
+func (m *SessionMiddleware) augment(w http.ResponseWriter, r *http.Request) error {
+	u, err := m.svc.Lookup(r)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return fmt.Errorf("[SessionMiddleware.wrap]: %w.", err)
+	}
+	if u != 0 {
+		ctx := context.WithValue(r.Context(), userkey, u)
+		r = r.WithContext(ctx)
+	}
+	return nil
+}
+
 type SessionService interface {
 	// New returns a new session id.
 	New(ctx context.Context, email string, password string) ([]byte, error)
@@ -54,7 +73,7 @@ type SessionService interface {
 }
 
 type SessionStore struct {
-	db *pgxpool.Pool
+	DB *pgxpool.Pool
 }
 
 // Authenticate checks the user credentials. If valid the session id is returned. If not an error is returned.

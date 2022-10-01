@@ -11,12 +11,13 @@ import (
 	"path"
 	"strings"
 
+	"github.com/PuercoPop/site"
 	"github.com/PuercoPop/site/blog"
 	"github.com/PuercoPop/site/database"
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
-type site struct {
+type www struct {
 	t               *template.Template
 	db              *pgxpool.Pool
 	sm              *site.SessionMiddleware
@@ -24,8 +25,8 @@ type site struct {
 	ResourceHandler http.Handler
 }
 
-func New(dbpath string, FSResources *embed.FS, FSTemplates embed.FS) (*site, error) {
-	h := &site{}
+func New(dbpath string, FSResources *embed.FS, FSTemplates embed.FS) (*www, error) {
+	h := &www{}
 	h.ResourceHandler = http.FileServer(http.FS(FSResources))
 	t, err := template.ParseFS(FSTemplates, "template/*.tmpl")
 	if err != nil {
@@ -37,29 +38,32 @@ func New(dbpath string, FSResources *embed.FS, FSTemplates embed.FS) (*site, err
 		return nil, fmt.Errorf("Could not connect to database: %w", err)
 	}
 	h.sessionsvc = &site.SessionStore{db: db}
-	sm := &site.SessionMiddleware{svc: h.sessionsvc}
+	h.sm = &site.SessionMiddleware{svc: h.sessionsvc}
 	return h, nil
 }
 
-func (svc *site) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (www *www) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var head string
-	head, r.URL.Path = shift(r.URL.Path)
+	head, r.URL.Path = shiftPath(r.URL.Path)
 	switch head {
 	case "":
-		svc.serveIndex(w, r)
+		www.serveIndex(w, r)
 	case "resources":
-		svc.ResourcesHandler.ServeHTTP(w, r)
+		www.ResourcesHandler.ServeHTTP(w, r)
 	case "sign-in":
-		svc.serveSignIn(w, r)
+		www.serveSignIn(w, r)
 
 	}
 }
 
-// h.Mux.HandleFunc("/", sm.wrap(h.indexFunc()))
-func (h *site) serveIndex(w http.ResponseWriter, r *http.Request) {
+func (h *www) serveIndex(w http.ResponseWriter, r *http.Request) {
 	type data struct {
 		LatestPosts []blog.Post
 		CurrentUser *site.User
+	}
+	if err := h.sm.agument; err != nil {
+		log.Fatalf(err)
+		return
 	}
 	posts := []blog.Post{
 		{
@@ -76,7 +80,7 @@ func (h *site) serveIndex(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *site) serveSignIn(w http.ResponseWriter, r *http.Request) {
+func (h *www) serveSignIn(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	switch r.Method {
 	case http.MethodGet:
