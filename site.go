@@ -2,20 +2,15 @@ package site
 
 import (
 	"embed"
-	"html/template"
 	"net/http"
 
 	"github.com/PuercoPop/site/blog"
-	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 // site is the top level handler
 type site struct {
-	Mux        *http.ServeMux
-	Blog       *blog.Site
-	t          *template.Template
-	db         *pgxpool.Pool
-	sessionsvc SessionService
+	WWW  *www
+	Blog *blog.Site
 }
 
 //go:embed template/*.tmpl
@@ -49,30 +44,9 @@ func (svc *site) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		svc.Blog.ServeHTTP(w, r)
 	default:
 		// TODO(javier): Replace with "www" handler when we add one.
-		svc.Blog.ServeHTTP(w, r)
+		svc.WWW.ServeHTTP(w, r)
 	}
 }
-
-// func New(dbpath string) *site {
-// 	h := &site{}
-// 	t, err := template.ParseFS(FSTemplates, "template/*.tmpl")
-// 	if err != nil {
-// 		log.Fatalf("Could not pare the templates: %s", err)
-// 	}
-// 	h.t = t
-// 	db, err := NewDB(context.Background(), dbpath)
-// 	if err != nil {
-// 		log.Fatalf("Could not connect to database: %s", err)
-// 	}
-// 	h.sessionsvc = &SessionStore{db: db}
-// 	sm := &SessionMiddleware{svc: h.sessionsvc}
-// 	h.Mux = http.NewServeMux()
-// 	h.Mux.HandleFunc("/", sm.wrap(h.indexFunc()))
-// 	h.Mux.Handle("/resources/", http.StripPrefix("/resources/", http.FileServer(http.FS(FSResources))))
-// 	h.Mux.HandleFunc("/sign-in/", h.handleSignin())
-
-// 	return h
-// }
 
 // Add an html/template here
 

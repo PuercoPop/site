@@ -210,7 +210,6 @@ func (blog *Site) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// 	serveTag(w, r)
 	default:
 		w.WriteHeader(404)
-
 	}
 }
 

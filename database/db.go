@@ -1,4 +1,4 @@
-package site
+package database
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
-func NewDB(ctx context.Context, url string) (*pgxpool.Pool, error) {
+func New(ctx context.Context, url string) (*pgxpool.Pool, error) {
 	conf, err := pgxpool.ParseConfig(url)
 	if err != nil {
 		return nil, fmt.Errorf("Could not parse the PG connection URL. %w", err)
