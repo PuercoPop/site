@@ -1,4 +1,7 @@
-// webhookd contains the code to process webhooks from GitHub.
+// webhookd contains the code to process webhooks from GitHub. The entry point
+// is Server struct, it listens for webhook events. It collaborates with the
+// Bouncer to determine if the event is one of interested and if it is it tells
+// the worker to update the site.
 package webhookd
 
 import (
