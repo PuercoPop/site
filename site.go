@@ -45,6 +45,8 @@ func (svc *site) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch h := host(r); h {
 	case "blog":
 		svc.Blog.ServeHTTP(w, r)
+	case "finsta":
+		svc.Finsta.ServeHTTP(w, r)
 	default:
 		// TODO(javier): Replace with "www" handler when we add one.
 		svc.WWW.ServeHTTP(w, r)
