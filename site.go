@@ -9,8 +9,11 @@ import (
 
 // site is the top level handler
 type site struct {
-	WWW  *www
-	Blog *blog.Site
+	// WWW *WWW
+	// Blog *blog.Site
+	WWW    http.Handler
+	Blog   http.Handler
+	Finsta http.Handler
 }
 
 //go:embed template/*.tmpl
