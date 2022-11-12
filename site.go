@@ -3,6 +3,7 @@ package site
 import (
 	"embed"
 	"net/http"
+	"strings"
 
 	"github.com/PuercoPop/site/blog"
 )
@@ -41,14 +42,19 @@ func host(r *http.Request) string {
 	return r.Host
 }
 
+func subdomain(r *http.Request) string {
+	h := host(r)
+	end := strings.Index(h, ".")
+	return h[:end]
+}
+
 func (svc *site) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	switch h := host(r); h {
+	switch h := subdomain(r); h {
 	case "blog":
 		svc.Blog.ServeHTTP(w, r)
 	case "finsta":
 		svc.Finsta.ServeHTTP(w, r)
 	default:
-		// TODO(javier): Replace with "www" handler when we add one.
 		svc.WWW.ServeHTTP(w, r)
 	}
 }

@@ -22,7 +22,7 @@ func (blog *FakeBlog) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (finsta *FakeFinsta) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("reached finsta"))
+	w.Write([]byte("reached fakefinsta"))
 }
 
 func TestHostRoutuing(t *testing.T) {
