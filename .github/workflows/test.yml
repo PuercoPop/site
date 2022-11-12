@@ -4,10 +4,10 @@ on:
     branches:
       - default
   jobs:
-    test
-    name: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/setup-go@v3
-      - uses: actions/checkout@v3
-      - run: go test ./...
+    test:
+      name: test
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/setup-go@v3
+          - uses: actions/checkout@v3
+            - run: go test ./...
