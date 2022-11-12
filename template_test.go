@@ -1,9 +1,10 @@
 package site
 
 import (
-	"github.com/PuercoPop/site/blog"
 	"io"
 	"testing"
+
+	"github.com/PuercoPop/site/blog"
 )
 
 func TestRenderPostList(t *testing.T) {
@@ -27,7 +28,7 @@ func TestRenderPostList(t *testing.T) {
 		{
 			name: "One Post List",
 			args: args{
-				w:     nil,
+				w: nil,
 				posts: []blog.Post{
 					{
 						Title: "Test",
@@ -37,13 +38,13 @@ func TestRenderPostList(t *testing.T) {
 			want: "",
 		},
 	}
-	for _, tc := range tests {
+	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
 			r := &renderer{}
 			if err := r.RenderPostList(tc.args.w, tc.args.posts); err != nil {
-				t.Errorf("renderer.RenderPostList() error = %v, wantErr %v", err, tc.wantErr)
+				t.Errorf("renderer.RenderPostList() error = %v, wantErr %v", err, tc.want)
 			}
-		}
+		})
 	}
 
 }
