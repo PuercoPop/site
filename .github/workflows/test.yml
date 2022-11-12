@@ -1,13 +1,13 @@
-name: test
+name: Run test suite
 on:
   push:
     branches:
       - default
-  jobs:
-    test:
-      name: test
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/setup-go@v3
-        - uses: actions/checkout@v3
-        - run: go test ./...
+jobs:
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-go@v3
+      - uses: actions/checkout@v3
+      - run: go test ./...
