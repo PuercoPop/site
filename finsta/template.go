@@ -1,9 +1,10 @@
-package site
+package finsta
 
 import (
-	"github.com/PuercoPop/site/blog"
 	"html/template"
 	"io"
+
+	"github.com/PuercoPop/site/blog"
 )
 
 type renderer struct {
