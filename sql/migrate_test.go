@@ -68,18 +68,28 @@ func setupDB(t *testing.T) (*pgx.Conn, func()) {
 }
 
 func TestMigrator(t *testing.T) {
+	ctx := context.Background()
 	t.Run("A single migration", func(t *testing.T) {
 		conn, cleanup := setupDB(t)
 		defer cleanup()
 		m := migrator{}
-		err := conn.Ping(context.Background())
+		err := conn.Ping(ctx)
 		if err != nil {
 			t.Fatalf("Could not connect to the database%s", err)
 		}
 		// Run the migration
-		m.Run()
+		m.Run(ctx)
 		// Check that the table exists
-		conn.Query()
+
+		rows, err := conn.Query(ctx, "SELECT table_name from information_schema.tables where table_schema = 'public'")
+		if err != nil {
+			t.Fatalf("Failed to check the database state. %s", err)
+		}
+		tables, err := pgx.CollectRows(rows, pgx.RowTo[string])
+		if err != nil {
+			t.Fatalf("Failed to collect rows. %s", err)
+		}
+		fmt.Printf("Tables: %v", tables)
 		// select count(*) from information_schemata.tables where table_name = 'user' and schema = 'public'
 	})
 }
