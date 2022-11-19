@@ -75,10 +75,12 @@ func TestMigrator(t *testing.T) {
 		m := migrator{}
 		err := conn.Ping(ctx)
 		if err != nil {
-			t.Fatalf("Could not connect to the database%s", err)
+			t.Fatalf("Could not connect to the database. %s", err)
 		}
 		// Run the migration
-		m.Run(ctx)
+		if err := m.Run(ctx); err != nil {
+			t.Fatalf("Failed to run the migration.", err)
+		}
 		// Check that the table exists
 
 		rows, err := conn.Query(ctx, "SELECT table_name from information_schema.tables where table_schema = 'public'")
