@@ -13,7 +13,8 @@ import (
 type migration struct {
 	version int
 	// sql contains the sql code to run
-	sql string
+	sql      string
+	checksum string
 }
 
 type migrator struct {
@@ -57,6 +58,16 @@ func (m *migrator) Run(ctx context.Context) error {
 	// Check if any migrations have been executed or tampered with
 	// Execute migrations
 	return nil
+}
+
+func readMigration(path string) (*migration, error) {
+	m := &migration{}
+	version, err := strconv.Atoi(filepath.Base(path)[:4])
+	if err != nil {
+		return nil, fmt.Errorf("invalid version format: %w", err)
+	}
+	m.version = version
+	return m, nil
 }
 
 type byVersion []migration
