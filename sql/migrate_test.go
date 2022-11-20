@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"sort"
 	"testing"
 	"time"
 
@@ -94,4 +95,21 @@ func TestMigrator(t *testing.T) {
 		fmt.Printf("Tables: %v", tables)
 		// select count(*) from information_schemata.tables where table_name = 'user' and schema = 'public'
 	})
+}
+
+func TestSortMigrations(t *testing.T) {
+	migrations := byVersion{
+		migration{version: 3},
+		migration{version: 1},
+		migration{version: 2},
+	}
+	sort.Sort(migrations)
+	prevVersion := 0
+	for _, m := range migrations {
+		if prevVersion > m.version {
+			t.Errorf("Migrations are not ordered. %v was before %v", prevVersion, m.version)
+		}
+		prevVersion = m.version
+	}
+
 }

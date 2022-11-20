@@ -11,8 +11,8 @@ import (
 
 type migration struct {
 	version int
-	// TODO(javier): Should I use the path to the file or the contents?
-	file string
+	// sql contains the sql code to run
+	sql string
 }
 
 type migrator struct {
@@ -49,3 +49,8 @@ func (m *migrator) Run(ctx context.Context) error {
 	})
 	// Sort the migrations
 }
+type byVersion []migration
+
+func (xs byVersion) Len() int           { return len(xs) }
+func (xs byVersion) Swap(i, j int)      { xs[i], xs[j] = xs[j], xs[i] }
+func (xs byVersion) Less(i, j int) bool { return xs[i].version < xs[j].version }
