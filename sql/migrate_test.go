@@ -8,6 +8,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/jackc/pgx/v5"
 	"github.com/ory/dockertest/v3"
 )
@@ -94,6 +96,18 @@ func TestMigrator(t *testing.T) {
 		}
 		fmt.Printf("Tables: %v", tables)
 		// select count(*) from information_schemata.tables where table_name = 'user' and schema = 'public'
+		rows, err = conn.Query(ctx, "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'")
+		if err != nil {
+			t.Fatalf("Could not collect table names. %s", err)
+		}
+		got, err := pgx.CollectRows(rows, pgx.RowTo[string])
+		if err != nil {
+			t.Fatalf("Failed to collect got. %s", err)
+		}
+		less := func(a, b string) bool { return a < b }
+		if diff := cmp.Diff([]string{"users"}, got, cmpopts.SortSlices(less)); diff != "" {
+			t.Errorf("Schema mismatch: (-want, +got): %s", diff)
+		}
 	})
 }
 
