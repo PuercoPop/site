@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/fs"
 	"path/filepath"
+	"sort"
 	"strconv"
 )
 
@@ -31,7 +32,7 @@ func (m *migrator) Run(ctx context.Context) error {
 	// 1. List files in the dir, in lexicographical order.
 	// 2. Execute each file.
 	// 3. If there is an error running the file, return the error and exit.
-	var files []migrations
+	var files byVersion
 	err := fs.WalkDir(m.dir, ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
@@ -44,11 +45,18 @@ func (m *migrator) Run(ctx context.Context) error {
 			return fmt.Errorf("invalid version format: %w", err)
 		}
 		files = append(files, migration{version: version,
-			file: path})
+			sql: path})
 		return nil
 	})
+	if err != nil {
+		return fmt.Errorf("Could not load migrations %w", err)
+	}
 	// Sort the migrations
+	sort.Sort(files)
+	fmt.Printf("migrations: %v\n", files)
+	return nil
 }
+
 type byVersion []migration
 
 func (xs byVersion) Len() int           { return len(xs) }
