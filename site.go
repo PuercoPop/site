@@ -17,9 +17,6 @@ type site struct {
 	Finsta http.Handler
 }
 
-//go:embed template/*.tmpl
-var FSTemplates embed.FS
-
 //go:embed resources/*.js resources/*.css
 var FSResources embed.FS
 
