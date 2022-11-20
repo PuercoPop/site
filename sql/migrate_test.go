@@ -79,7 +79,7 @@ func TestMigrator(t *testing.T) {
 		}
 		// Run the migration
 		if err := m.Run(ctx); err != nil {
-			t.Fatalf("Failed to run the migration.", err)
+			t.Fatalf("Failed to run the migration. %s", err)
 		}
 		// Check that the table exists
 
