@@ -32,7 +32,7 @@ func (m *migrator) Run(ctx context.Context) error {
 	// 1. List files in the dir, in lexicographical order.
 	// 2. Execute each file.
 	// 3. If there is an error running the file, return the error and exit.
-	var files byVersion
+	var files byVersion = make([]migration, 0)
 	err := fs.WalkDir(m.dir, ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
