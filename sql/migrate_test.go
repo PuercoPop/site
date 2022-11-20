@@ -70,6 +70,44 @@ func setupDB(t *testing.T) (*pgx.Conn, func()) {
 	return conn, cleanup
 }
 
+func TestSortMigrations(t *testing.T) {
+	migrations := byVersion{
+		migration{version: 3},
+		migration{version: 1},
+		migration{version: 2},
+	}
+	sort.Sort(migrations)
+	prevVersion := 0
+	for _, m := range migrations {
+		if prevVersion > m.version {
+			t.Errorf("Migrations are not ordered. %v was before %v", prevVersion, m.version)
+		}
+		prevVersion = m.version
+	}
+
+}
+
+func TestReadMigration(t *testing.T) {
+	want := struct {
+		version  int
+		sql      string
+		checksum string
+	}{version: 1, sql: `CREATE TABLE users (
+  user_id integer GENERATED always AS IDENTITY PRIMARY KEY
+);`, checksum: ""}
+	m, err := readMigration("./testdata/1/0001_foo.sql")
+	if err != nil {
+		t.Fatalf("Could not read migration file. %s", err)
+	}
+	if m.version != want.version {
+		t.Errorf("Version number mismatch (-want, +got): -%v, +%v", want.version, m.version)
+	}
+	if diff := cmp.Diff(want.sql, m.sql); diff != "" {
+		t.Errorf("sql code mismatch (-want, +got): %s", diff)
+	}
+}
+
+// Integration Tests. Rename TestRun or TestMigratorRun.
 func TestMigrator(t *testing.T) {
 	ctx := context.Background()
 	t.Run("A single migration", func(t *testing.T) {
@@ -109,41 +147,4 @@ func TestMigrator(t *testing.T) {
 			t.Errorf("Schema mismatch: (-want, +got): %s", diff)
 		}
 	})
-}
-
-func TestSortMigrations(t *testing.T) {
-	migrations := byVersion{
-		migration{version: 3},
-		migration{version: 1},
-		migration{version: 2},
-	}
-	sort.Sort(migrations)
-	prevVersion := 0
-	for _, m := range migrations {
-		if prevVersion > m.version {
-			t.Errorf("Migrations are not ordered. %v was before %v", prevVersion, m.version)
-		}
-		prevVersion = m.version
-	}
-
-}
-
-func TestReadMigration(t *testing.T) {
-	want := struct {
-		version  int
-		sql      string
-		checksum string
-	}{version: 1, sql: `CREATE TABLE users (
-  user_id integer GENERATED always AS IDENTITY PRIMARY KEY
-);`, checksum: ""}
-	m, err := readMigration("./testdata/1/0001_foo.sql")
-	if err != nil {
-		t.Fatalf("Could not read migration file. %s", err)
-	}
-	if m.version != want.version {
-		t.Errorf("Version number mismatch (-want, +got): -%v, +%v", want.version, m.version)
-	}
-	if diff := cmp.Diff(want.sql, m.sql); diff != "" {
-		t.Errorf("sql code mismatch (-want, +got): %s", diff)
-	}
 }
