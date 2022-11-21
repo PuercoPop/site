@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"io/ioutil"
 	"path/filepath"
 	"sort"
 	"strconv"
@@ -67,6 +68,11 @@ func readMigration(path string) (*migration, error) {
 		return nil, fmt.Errorf("invalid version format: %w", err)
 	}
 	m.version = version
+	contents, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("could not read migration: %w", err)
+	}
+	m.sql = string(contents)
 	return m, nil
 }
 

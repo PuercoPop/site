@@ -94,7 +94,8 @@ func TestReadMigration(t *testing.T) {
 		checksum string
 	}{version: 1, sql: `CREATE TABLE users (
   user_id integer GENERATED always AS IDENTITY PRIMARY KEY
-);`, checksum: ""}
+);
+`, checksum: ""}
 	m, err := readMigration("./testdata/1/0001_foo.sql")
 	if err != nil {
 		t.Fatalf("Could not read migration file. %s", err)
