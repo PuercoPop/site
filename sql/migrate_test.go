@@ -105,6 +105,7 @@ func TestReadMigration(t *testing.T) {
 	if diff := cmp.Diff(want.sql, m.sql); diff != "" {
 		t.Errorf("sql code mismatch (-want, +got): %s", diff)
 	}
+	// TODO(javier): Check the checksum matches
 }
 
 // Integration Tests. Rename TestRun or TestMigratorRun.
