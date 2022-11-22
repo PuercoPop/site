@@ -38,7 +38,7 @@ func (www *www) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	head, r.URL.Path = shiftPath(r.URL.Path)
 	switch head {
 	case "resources":
-		www.ResourcesHandler.ServeHTTP(w, r)
+		www.ResourceHandler.ServeHTTP(w, r)
 	default:
 		www.serveIndex(w, r)
 	}
