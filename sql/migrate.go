@@ -59,6 +59,13 @@ func (m *migrator) Run(ctx context.Context) error {
 	fmt.Printf("migrations: %v\n", files)
 	// Check if any migrations have been executed or tampered with
 	// Execute migrations
+	for _, migration := range files {
+		err := m.executeMigration(ctx, migration)
+		if err != nil {
+			return fmt.Errorf("migrations failed: %w", err)
+		}
+	}
+
 	return nil
 }
 
@@ -77,7 +84,7 @@ func readMigration(dir fs.FS, path string) (*migration, error) {
 	return m, nil
 }
 
-func (svc *migrator) executeMigration(ctx context.Context, m *migration) error {
+func (svc *migrator) executeMigration(ctx context.Context, m migration) error {
 	tx, err := svc.conn.Begin(ctx)
 	if err != nil {
 		return fmt.Errorf("could not obtain transaction: %w", err)

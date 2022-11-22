@@ -115,7 +115,7 @@ func TestMigrator(t *testing.T) {
 	t.Run("A single migration", func(t *testing.T) {
 		conn, cleanup := setupDB(t)
 		defer cleanup()
-		m := migrator{dir: os.DirFS("./testdata/1")}
+		m := migrator{conn: conn, dir: os.DirFS("./testdata/1")}
 		err := conn.Ping(ctx)
 		if err != nil {
 			t.Fatalf("Could not connect to the database. %s", err)
