@@ -1,4 +1,4 @@
-package session
+package finsta
 
 import (
 	"context"
@@ -23,7 +23,9 @@ func (store *SessionMemStore) New(ctx context.Context, email string, password st
 	// How do I get th euser id?
 	return sid, nil
 }
-func (store *SessionMemStore) Lookup(r *http.Request) (int, error) {}
+func (store *SessionMemStore) Lookup(r *http.Request) (int, error) {
+	return 0, nil
+}
 func TestSessionMiddleware(t *testing.T) {
 
 }
