@@ -56,7 +56,6 @@ func (m *migrator) Run(ctx context.Context) error {
 	}
 	// Sort the migrations
 	sort.Sort(files)
-	fmt.Printf("migrations: %v\n", files)
 	// Check if any migrations have been executed or tampered with
 	// Execute migrations
 	for _, migration := range files {
