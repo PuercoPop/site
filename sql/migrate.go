@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
-	"os"
 	"path/filepath"
 	"sort"
 	"strconv"
@@ -42,12 +41,11 @@ func (m *migrator) Run(ctx context.Context) error {
 		if d.IsDir() {
 			return nil
 		}
-		version, err := strconv.Atoi(filepath.Base(path)[:4])
+		m, err := readMigration(m.dir, path)
 		if err != nil {
-			return fmt.Errorf("invalid version format: %w", err)
+			return fmt.Errorf("Unable to read migration at %s. %w", path, err)
 		}
-		files = append(files, migration{version: version,
-			sql: path})
+		files = append(files, *m)
 		return nil
 	})
 	if err != nil {
@@ -61,14 +59,14 @@ func (m *migrator) Run(ctx context.Context) error {
 	return nil
 }
 
-func readMigration(path string) (*migration, error) {
+func readMigration(dir fs.FS, path string) (*migration, error) {
 	m := &migration{}
 	version, err := strconv.Atoi(filepath.Base(path)[:4])
 	if err != nil {
 		return nil, fmt.Errorf("invalid version format: %w", err)
 	}
 	m.version = version
-	contents, err := os.ReadFile(path)
+	contents, err := fs.ReadFile(dir, path)
 	if err != nil {
 		return nil, fmt.Errorf("could not read migration: %w", err)
 	}

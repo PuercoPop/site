@@ -96,7 +96,7 @@ func TestReadMigration(t *testing.T) {
   user_id integer GENERATED always AS IDENTITY PRIMARY KEY
 );
 `, checksum: ""}
-	m, err := readMigration("./testdata/1/0001_foo.sql")
+	m, err := readMigration(os.DirFS("./testdata/1/"), "0001_foo.sql")
 	if err != nil {
 		t.Fatalf("Could not read migration file. %s", err)
 	}
