@@ -2,7 +2,6 @@ package www
 
 import (
 	"bytes"
-	"context"
 	"embed"
 	"fmt"
 	"html/template"
@@ -11,17 +10,12 @@ import (
 	"path"
 	"strings"
 
-	"github.com/PuercoPop/site"
 	"github.com/PuercoPop/site/blog"
-	"github.com/PuercoPop/site/database"
-	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/PuercoPop/site/finsta"
 )
 
 type www struct {
 	t               *template.Template
-	db              *pgxpool.Pool
-	sm              *site.SessionMiddleware
-	sessionsvc      site.SessionService
 	ResourceHandler http.Handler
 }
 
@@ -33,12 +27,9 @@ func New(dbpath string, FSResources *embed.FS, FSTemplates embed.FS) (*www, erro
 		return nil, fmt.Errorf("Could not pare the templates: %w", err)
 	}
 	h.t = t
-	db, err := database.New(context.Background(), dbpath)
 	if err != nil {
 		return nil, fmt.Errorf("Could not connect to database: %w", err)
 	}
-	h.sessionsvc = &site.SessionStore{db: db}
-	h.sm = &site.SessionMiddleware{svc: h.sessionsvc}
 	return h, nil
 }
 
@@ -46,24 +37,17 @@ func (www *www) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var head string
 	head, r.URL.Path = shiftPath(r.URL.Path)
 	switch head {
-	case "":
-		www.serveIndex(w, r)
 	case "resources":
 		www.ResourcesHandler.ServeHTTP(w, r)
-	case "sign-in":
-		www.serveSignIn(w, r)
-
+	default:
+		www.serveIndex(w, r)
 	}
 }
 
 func (h *www) serveIndex(w http.ResponseWriter, r *http.Request) {
 	type data struct {
 		LatestPosts []blog.Post
-		CurrentUser *site.User
-	}
-	if err := h.sm.agument; err != nil {
-		log.Fatalf(err)
-		return
+		CurrentUser *finsta.User
 	}
 	posts := []blog.Post{
 		{
@@ -77,46 +61,6 @@ func (h *www) serveIndex(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Printf("Error rendering tempalte. %s", err)
 		return
-	}
-}
-
-func (h *www) serveSignIn(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	switch r.Method {
-	case http.MethodGet:
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		err := h.t.ExecuteTemplate(w, "sign-in.html.tmpl", nil)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Printf("Error rendering tempalte. %s", err)
-			return
-		}
-	case http.MethodPost:
-		// todo(javier): check credentials
-		err := r.ParseForm()
-		if err != nil {
-			log.Fatalf("Could not parse form. %s", err)
-		}
-		email := r.PostForm.Get("email")
-		password := r.PostForm.Get("password")
-		sid, err := h.sessionsvc.New(ctx, email, password)
-		if err != nil {
-			w.Header().Set("Content-Type", "text/html; charset=utf-8")
-			// TODO(javier): Add an error to the template
-			err := h.t.ExecuteTemplate(w, "sign-in.html.tmpl", nil)
-			if err != nil {
-				w.WriteHeader(http.StatusInternalServerError)
-				log.Printf("Could not render sign-in template. %s\n", err)
-			}
-		}
-		cookie := &http.Cookie{Name: "sid", Value: string(sid)}
-		http.SetCookie(w, cookie)
-		url := r.Form.Get("redirect_to")
-		if url == "" {
-			url = "/"
-		}
-		http.Redirect(w, r, url, http.StatusSeeOther)
-		w.Write([]byte("login successful."))
 	}
 }
 

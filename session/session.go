@@ -80,7 +80,7 @@ type SessionStore struct {
 func (svc *SessionStore) New(ctx context.Context, email string, password string) ([]byte, error) {
 	var userid int
 	var hashed []byte
-	err := svc.db.QueryRow(ctx, "SELECT user_id, password FROM users where email = $1", email).Scan(&userid, &hashed)
+	err := svc.DB.QueryRow(ctx, "SELECT user_id, password FROM users where email = $1", email).Scan(&userid, &hashed)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, err
 	}
@@ -91,7 +91,7 @@ func (svc *SessionStore) New(ctx context.Context, email string, password string)
 	// "The session ID should be at least 128 bits o prevent brute-force session guessing attacks."
 	// Ref: https://owasp.org/www-community/vulnerabilities/Insufficient_Session-ID_Length
 	sid := randomBytes(128)
-	_, err = svc.db.Exec(ctx, "INSERT INTO sessions (session_id, user_id) values ($1, $2)", sid, userid)
+	_, err = svc.DB.Exec(ctx, "INSERT INTO sessions (session_id, user_id) values ($1, $2)", sid, userid)
 	if err != nil {
 		return nil, err
 	}
