@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 	"sort"
 	"strconv"
+
+	"github.com/jackc/pgx/v5"
 )
 
 type migration struct {
@@ -20,7 +22,8 @@ type migration struct {
 type migrator struct {
 	// connection to database
 	// directory where migrations reside
-	dir fs.FS
+	dir  fs.FS
+	conn *pgx.Conn
 }
 
 func NewMigrator(migrationsDir fs.FS) *migrator {
@@ -72,6 +75,20 @@ func readMigration(dir fs.FS, path string) (*migration, error) {
 	}
 	m.sql = string(contents)
 	return m, nil
+}
+
+func (svc *migrator) executeMigration(ctx context.Context, m *migration) error {
+	tx, err := svc.conn.Begin(ctx)
+	if err != nil {
+		return fmt.Errorf("could not obtain transaction: %w", err)
+	}
+	defer tx.Rollback(ctx)
+	_, err = svc.conn.Exec(ctx, m.sql)
+	if err != nil {
+		return fmt.Errorf("failed to execute migration %v: %w", m.version, err)
+	}
+	tx.Commit(ctx)
+	return nil
 }
 
 type byVersion []migration
