@@ -2,6 +2,7 @@ package sql
 
 import (
 	"context"
+	"embed"
 	"errors"
 	"fmt"
 	"io/fs"
@@ -11,6 +12,9 @@ import (
 
 	"github.com/jackc/pgx/v5"
 )
+
+//go:embed migrations/*.sql
+var FSMigrations embed.FS
 
 type migration struct {
 	version int
@@ -26,8 +30,8 @@ type migrator struct {
 	conn *pgx.Conn
 }
 
-func NewMigrator(migrationsDir fs.FS) *migrator {
-	return &migrator{dir: migrationsDir}
+func NewMigrator(conn *pgx.Conn, migrationsDir fs.FS) *migrator {
+	return &migrator{conn: conn, dir: migrationsDir}
 }
 
 var MigrationError = errors.New("migration error")
