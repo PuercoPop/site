@@ -1,0 +1,3 @@
+* DRAFT Its not about the commit messages watson                     :en:git:
+
+Posts about better commit messages are missing the point. HISTORY VIEWING.

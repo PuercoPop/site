@@ -1,0 +1,2 @@
+#+TITLE: Using gnome-keyring from dbus
+#+KEYWORDS: en,dbus,lisp

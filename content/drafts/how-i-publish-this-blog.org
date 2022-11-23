@@ -1,0 +1,51 @@
+* DRAFT How I publish this blog                                :en:org:emacs:
+  :PROPERTIES:
+  :EXPORT_TROLL_FILE_NAME: how-i-publish-this-blog
+  :END:
+
+
+** Requirements
+ As I started
+
+ - It is important for the blog to be written in a single file.
+ - It is important that it doesn't require any other software other than Emacs.
+ - Handle code & code evaluation.
+ - Static site only.
+
+https://github.com/Malabarba/ox-jekyll-subtree/blob/master/ox-jekyll-subtree.el
+
+** Solution
+
+ The built-in [[https://orgmode.org/manual/Publishing.html][publish]] functionality of org mode meets all my requirements
+ except the single file one. Fortunately Emacs is great at manipulating text.
+ The only problem is that the publishing system is designed for multiple files.
+ But we can use to generate the 'front matter' from the heading
+
+ Bastibe's org-static-blog is almost what I want but again, no [[https://github.com/bastibe/org-static-blog/][org-static-blog]]
+
+ First we need to select all the posts. We can use =org-map-entries= for that.
+ We want to only select the posts that are already done. Headers we want to
+ avoid exporting we mark with the tag =noexport=.
+
+ #+begin_src elisp
+   (defun troll/prepare-blog (filename)
+     "Select all the headers to 'export'"
+     (org-map-entries 'troll/export-header "-noexport+TODO=\"DONE\""))
+ #+end_src
+
+ For each header we want to extract the title and the date it was finished. We replace white-space.
+
+** How do we enable comments?
+
+Use mail links in the footer as comments. Can use mu4e integration.
+
+** TODO check if tags map to keywords
+** TODO check if the description can be included on the index
+** TODO Write Index and about page
+** TODO Generate the code through tangle
+** TODO HTML theme that looks like Org-mode file
+https://github.com/praetoriansentry/tumblr-emacs-theme/blob/master/tumblr.html
+** TODO Post to Tumbler to keep the one post per file?
+
+https://github.com/gcr/tumblesocks
+https://github.com/febuiles/tumble

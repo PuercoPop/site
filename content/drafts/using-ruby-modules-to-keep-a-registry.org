@@ -1,0 +1,46 @@
+* One global registry
+Keep a registry of services/integrations. We want to use the module to iterate through them.
+
+https://mattbrictson.com/registry-pattern
+
+* Per class registry
+Keep a list of validators to apply to each class.
+
+#+begin_src ruby
+  module Validators
+    # Add class method register_validators(*)
+    module ClassMethods
+      def register_validators(*validators)
+        @validators = validators
+      end
+    end
+    def self.included(klass)
+      klass.extend(Validators::ClassMethods)
+      klass.class_eval do
+        def validate
+          @validators.collect(&:validate)
+        end
+      end
+    end
+
+  end
+
+  class FooValidator
+    def validate
+      puts "foo is valid!"
+    end
+  end
+
+  class BarValidator
+    def validate
+      puts "foo is valid!"
+    end
+  end
+
+  class Fubar
+    include Validators
+    register_validators(FooValidator, BarValidator)
+  end
+
+  Fubar.new.validate
+#+end_src

@@ -1,0 +1,5 @@
+* DRAFT Template for Git Capture                            :en:org:mode:git:
+
+Add a org-capture using function/file+function template that appends all the
+notes under the branch/ticket heading so I can take notes as I code about what
+should go in the commit message.

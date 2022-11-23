@@ -1,0 +1,103 @@
+#+TITLE: Working with Worktress
+#+SUBTITLE: Putting work tress to work
+#+KEYWORDS: en, git
+
+
+When I first learned about worktrees I thought neat and then barely used it for
+a couple of years. That changed last year.
+
+That changed a while ago when I coworker shared.  Working on multiple branches at the same
+
+repo-name
+  master
+
+** TODO A DB per Worktree
+
+ problem: tearing down and setting up the db every time we change branches.
+
+ solution: setup a =post-checkout= hook that updates the database name in the
+ =.env= file. Because I use worktrees I'll setup a =post-chechout= hook that
+ copies the env to the new worktree and update it.
+
+ step 1: obtain the current branch name
+
+ #+begin_src bash
+   git symbolic-ref --short HEAD
+ #+end_src
+
+ step 2: modify the database name
+
+ sed -e .env
+
+ we can't use sed or awk because we want to add the env variable in case it was unset. We'll roll a bash script.
+
+ #+begin_src bash
+   function edit-env(env_path, out_path, varname, default_value) {
+       while read line; do
+           echo ${line};
+       done; < env_path
+   }
+ #+end_src
+
+ step 3: setup post-checkout hook
+
+ #+begin_src bash
+   #!/usr/bin/env bash
+
+   prev=${1} # The previous head
+   curr=${2} # The head after the checkout
+   # 1 if the checkout is a branch checkout. This includes clones and
+   # worktrees
+   branch_co_p=${3}
+
+   if [ -z "${1}" ]
+   then
+       echo "worktree"
+   fi
+ #+end_src
+
+ step 4: Add worktrees to magit status section
+
+ Dave's solution
+   #+begin_src shell
+     alias c="cd ~/code"
+     alias cb="cd ~/code/connect-backend"
+
+     # from zsh git package
+     function current_branch() {
+         ref=$(git symbolic-ref HEAD 2> /dev/null) || \
+             ref=$(git rev-parse --short HEAD 2> /dev/null) || return
+         echo ${ref#refs/heads/}
+     }
+
+     underscore_current_branch() {
+         current_branch | sed -e 's/-/_/g'
+     }
+
+     write_cb_env() {
+         echo "CONNECT_DEVELOPMENT_DATABASE=connect_development_$(underscore_current_branch)\nCONNECT_TEST_DATABASE=connect_test_$(underscore_current_branch)" > .env.local
+     }
+
+     new_db() {
+         mysql -u rails -D connect_development --password={insert local password here} --execute="create database connect_development_$(underscore_current_branch);create database connect_test_$(underscore_current_branch)"
+     }
+
+     alias reset-db="rake connect:db:reset && rake connect:dev:seed"
+
+     cbgnb() {
+         cb;
+         git checkout origin/master -b $*;
+         new_db;
+         reset-db;
+         write_cb_env
+     }
+
+     unalias co
+     co() {
+         git checkout $*;[[ -e .env.local ]] && write_cb_env
+     }
+   #+end_src
+
+** Modula's use case
+
+https://twitter.com/defaultxr/status/1314748675193737217

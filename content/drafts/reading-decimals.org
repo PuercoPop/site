@@ -1,0 +1,26 @@
+* DRAFT Reading decimals                                            :en:lisp:
+Three approaches
+
+The straight forward one. Note that I don't have to map the index to power myself.
+
+#+BEGIN_SRC lisp
+(defun octet-to-decimal (octet)
+  (loop :for i :from 0 :upto 7
+        :for power :from -1 :downto -8
+        :when (logbitp i octet)
+          :sum (expt 2 power)))
+#+END_SRC
+
+The one middle ground one. Where we pre-compute every power at read time and just sum them.
+
+#+BEGIN_SRC lisp
+  (defun octet-to-decimal (octet)
+    (loop :for i :from 0 :upto 7
+       :for n :in #.(loop :for power :from -1 :downto -8
+                          :collect (expt 2 power))
+
+          :when (logbitp i octet)
+            :sum n))
+#+END_SRC
+
+The last one is a hash table for every possible combination.

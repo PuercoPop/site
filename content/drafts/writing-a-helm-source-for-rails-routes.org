@@ -1,0 +1,9 @@
+* DRAFT Writing a Helm source for Rails routes                :en:emacs:helm:
+
+We have =helm-source-in-buffer=.
+
+We also have =helm-source-sync= =helm-source-async=
+
+
+Which one is the better fit? I'll start with the helm-source-in-buffer as it is
+easier to build incrementally.
