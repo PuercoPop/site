@@ -36,6 +36,18 @@ func NewMigrator(conn *pgx.Conn, migrationsDir fs.FS) *migrator {
 
 var MigrationError = errors.New("migration error")
 
+var sqlVersionTable = `
+CREATE TABLE public.versions IF NOT EXISTS (
+  version INTEGER PRIMARY KEY NOT NULL,
+  checksum BYTEA NOT NULL
+);
+`
+
+func (m *migrator) Setup(ctx context.Context) error {
+	_, err := m.conn.Exec(ctx, sqlVersionTable)
+	return fmt.Errorf("migrator.Setup: %w", err)
+}
+
 func (m *migrator) Run(ctx context.Context) error {
 	// 1. List files in the dir, in lexicographical order.
 	// 2. Execute each file.
