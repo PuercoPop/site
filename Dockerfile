@@ -9,6 +9,6 @@ RUN go build ./...
 
 FROM golang:1.19.1-alpine
 WORKDIR /app
-COPY --from=builder /build/site /app
+COPY --from=builder /build/site /build/migrate /app
 CMD ["site"]
 EXPOSE 8080
