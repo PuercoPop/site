@@ -37,7 +37,7 @@ func NewMigrator(conn *pgx.Conn, migrationsDir fs.FS) *migrator {
 var MigrationError = errors.New("migration error")
 
 var sqlVersionTable = `
-CREATE TABLE public.versions IF NOT EXISTS (
+CREATE TABLE IF NOT EXISTS public.versions (
   version INTEGER PRIMARY KEY NOT NULL,
   checksum BYTEA NOT NULL
 );
