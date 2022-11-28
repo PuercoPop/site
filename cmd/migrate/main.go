@@ -17,7 +17,7 @@ func main() {
 	ctx := context.Background()
 	fs := flag.NewFlagSet("migrate", flag.ExitOnError)
 	var dburl = fs.String("dburl", defaultdburl, "URL of the database to connect to")
-	err := ff.Parse(fs, os.Args[1:])
+	err := ff.Parse(fs, os.Args[1:], ff.WithEnvVarNoPrefix())
 	if err != nil {
 		log.Fatalf("Could not parse flags: %s", err)
 	}
