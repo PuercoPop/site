@@ -33,14 +33,14 @@ CREATE TABLE blog.post_tags (
 );
 
 -- finsta
-CREATE TABLE users (
+CREATE TABLE finsta.users (
   user_id integer PRIMARY KEY GENERATED always AS IDENTITY,
   email text NOT NULL UNIQUE, -- todo(javier): we want uniqueness to be case-insensitive
   password BYTEA NOT NULL,
   admin boolean NOT NULL DEFAULT FALSE
 );
 
-CREATE TABLE sessions (
+CREATE TABLE finsta.sessions (
   session_id bytea PRIMARY KEY,
   user_id integer NOT NULL,
   created_at time WITH time zone NOT NULL DEFAULT NOW(),
