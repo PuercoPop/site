@@ -2,7 +2,6 @@ package blog
 
 import (
 	"bytes"
-	"context"
 	"embed"
 	"fmt"
 	"html/template"
@@ -30,14 +29,10 @@ var FSTemplates embed.FS
 // - [ ] taglists
 // - [ ] Atom feed
 
-type Site struct {
-	BySlug map[string]*Post
-	ByDate map[civil.Date][]*Post
-	ByTag  map[string][]*Post
-	// templates
-	indextmpl   *template.Template
-	postTmpl    *template.Template
-	tagListTmpl *template.Template
+// Handler exposes the blog over HTTP.
+type Handler struct {
+	repo     *repository
+	renderer *renderer
 }
 
 // Post represents a blog post written in markdown. Some metadata is embedded in
@@ -296,39 +291,4 @@ func (blog *Site) serveTagList(w http.ResponseWriter, r *http.Request) {
 	tags := tagList(blog.ByTag)
 	data := struct{ Tags []tag }{Tags: tags}
 	blog.tagListTmpl.ExecuteTemplate(w, "layout", data)
-}
-
-type PostRepository interface {
-	// Return the N most recent posts
-	ListRecentPosts(ctx context.Context, n int) ([]*Post, error)
-	Save(ctx context.Context, post Post) error
-}
-
-func (blog *Site) ListRecentPosts(ctx context.Context, n int) ([]*Post, error) {
-	var posts []*Post
-	// TODO(javier): Replace with blog.ByDate.Keys once we have access to
-	// generics.
-	dates := make([]civil.Date, len(blog.ByDate))
-	// We may need an array of dates with hits
-	ix := 0
-	for d := range blog.ByDate {
-		dates[ix] = d
-		ix++
-	}
-	// dates = sort.Sort(dates)
-	postCount := 0
-	for _, d := range dates {
-		for _, post := range blog.ByDate[d] {
-			posts = append(posts, post)
-			postCount++
-			if postCount >= n {
-				return posts, nil
-			}
-		}
-	}
-	return posts, nil
-}
-
-type PostMemRepository struct {
-	posts []Post
 }
