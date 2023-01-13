@@ -9,8 +9,8 @@ setup the project.
 
 The initial version of the site has the following components.
 
-- chasqui: A proxy whose main purpose is to upgrade other HTTP services w/o any
-  downtime.
+- ergo: A proxy whose main purpose is to upgrade other HTTP services w/o any
+  downtime and keep the SSL certificates up to date..
 - migrate: A database migration system.
 - blog: Where I write my thoughts.
 - finsta: An invite-only image board.
