@@ -12,13 +12,19 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 CREATE EXTENSION IF NOT EXISTS citext;
 
 -- create public.migrations ()
+-- blog
+
 CREATE TABLE blog.posts (
   post_id integer GENERATED always AS IDENTITY PRIMARY KEY,
   title text NOT NULL,
-  slug text NOT NULL,
-  path text NOT NULL,
+  slug text NOT NULL UNIQUE,
+  path text NOT NULL UNIQUE,
   published_at time WITH time zone
 );
+
+CREATE INDEX IF NOT EXISTS blog.post_slugs ON blog.posts (slug);
+
+CREATE INDEX IF NOT EXISTS blog.post_published_at ON blog.posts (published_at);
 
 CREATE TABLE blog.tags (
   tag text NOT NULL PRIMARY KEY

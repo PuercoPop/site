@@ -1,4 +1,4 @@
-package sql
+package migrate
 
 import (
 	"context"
@@ -107,6 +107,15 @@ func TestReadMigration(t *testing.T) {
 		t.Errorf("sql code mismatch (-want, +got): %s", diff)
 	}
 	// TODO(javier): Check the checksum matches
+}
+
+func TestMigratorSetup(t *testing.T) {
+	ctx := context.Background()
+	conn, cleanup := setupDB(t)
+	defer cleanup()
+	m := migrator{conn: conn}
+	m.Setup(ctx)
+
 }
 
 // Integration Tests. Rename TestRun or TestMigratorRun.
