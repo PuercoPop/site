@@ -2,21 +2,16 @@ package main
 
 import (
 	"context"
-	"embed"
 	"flag"
 	"log"
 	"os"
 
 	"github.com/PuercoPop/site/migrate"
-	"github.com/jackc/pgx"
+	"github.com/jackc/pgx/v5"
 	"github.com/peterbourgon/ff"
 )
 
-//go:embed ../../migrations/*.sql
-var FSMigrations embed.FS
-
 func main() {
-	ctx := context.Background()
 	fs := flag.NewFlagSet("migrate", flag.ExitOnError)
 	var dburl = fs.String("d", "", "URL of the database to connect to")
 	// var dir = fs.String("D", "", "The directory where the migrations are stored.")
@@ -24,6 +19,14 @@ func main() {
 	if err != nil {
 		log.Fatalf("Could not parse flags: %s", err)
 	}
+	dir := migrate.FSMigrations
+	// if *dir == "" {
+	// 	dir = migrate.FSMigrations
+	// }
+	if *dburl == "" {
+		log.Fatalf("Database URL must be provided.")
+	}
+	ctx := context.Background()
 	conn, err := pgx.Connect(ctx, *dburl)
 	if err != nil {
 		log.Fatalf("Could not connect to the database: %s", err)

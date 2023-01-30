@@ -30,7 +30,7 @@ type migrator struct {
 	conn *pgx.Conn
 }
 
-func NewMigrator(conn *pgx.Conn, migrationsDir fs.FS) *migrator {
+func New(conn *pgx.Conn, migrationsDir fs.FS) *migrator {
 	return &migrator{conn: conn, dir: migrationsDir}
 }
 
