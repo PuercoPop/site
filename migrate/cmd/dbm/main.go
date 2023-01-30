@@ -8,7 +8,7 @@ import (
 
 	"github.com/PuercoPop/site/migrate"
 	"github.com/jackc/pgx/v5"
-	"github.com/peterbourgon/ff"
+	"github.com/peterbourgon/ff/v3"
 )
 
 func main() {
@@ -19,10 +19,10 @@ func main() {
 	if err != nil {
 		log.Fatalf("Could not parse flags: %s", err)
 	}
-	dir := migrate.FSMigrations
+	FSDir := migrate.FSMigrations
 	// if *dir == "" {
-	// 	dir = migrate.FSMigrations
-	// }
+	// 	fs = migrate.FSMigrations
+	// } else { }
 	if *dburl == "" {
 		log.Fatalf("Database URL must be provided.")
 	}
@@ -31,7 +31,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Could not connect to the database: %s", err)
 	}
-	m := migrate.New(conn, FSMigrations)
+	m := migrate.New(conn, FSDir)
 	if err := m.Setup(ctx); err != nil {
 		log.Fatalf("%s", err)
 	}

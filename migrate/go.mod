@@ -6,7 +6,7 @@ require (
 	github.com/google/go-cmp v0.5.9
 	github.com/jackc/pgx/v5 v5.2.0
 	github.com/ory/dockertest/v3 v3.9.1
-	github.com/peterbourgon/ff v1.7.1
+	github.com/peterbourgon/ff/v3 v3.3.0
 )
 
 require (
@@ -39,5 +39,5 @@ require (
 	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2 // indirect
 	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
 	golang.org/x/text v0.3.8 // indirect
-	gopkg.in/yaml.v2 v2.3.0 // indirect
+	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
