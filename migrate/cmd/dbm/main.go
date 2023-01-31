@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"io/fs"
 	"log"
 	"os"
 
@@ -12,17 +13,19 @@ import (
 )
 
 func main() {
-	fs := flag.NewFlagSet("migrate", flag.ExitOnError)
-	var dburl = fs.String("d", "", "URL of the database to connect to")
-	// var dir = fs.String("D", "", "The directory where the migrations are stored.")
-	err := ff.Parse(fs, os.Args[1:], ff.WithEnvVarNoPrefix())
+	flagset := flag.NewFlagSet("migrate", flag.ExitOnError)
+	var dburl = flagset.String("d", "", "URL of the database to connect to")
+	var dir = flagset.String("D", "", "The directory where the migrations are stored.")
+	err := ff.Parse(flagset, os.Args[1:], ff.WithEnvVarNoPrefix())
 	if err != nil {
 		log.Fatalf("Could not parse flags: %s", err)
 	}
-	FSDir := migrate.FSMigrations
-	// if *dir == "" {
-	// 	fs = migrate.FSMigrations
-	// } else { }
+	var FSDir fs.FS
+	if *dir == "" {
+		FSDir = migrate.FSMigrations
+	} else {
+		FSDir = os.DirFS(*dir)
+	}
 	if *dburl == "" {
 		log.Fatalf("Database URL must be provided.")
 	}
