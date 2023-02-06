@@ -8,8 +8,9 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type RepositoryInterface interface {
-	Upsert(ctx context.Context, post Post) error
+type Repository interface {
+	// Store the Post using the filename as the key
+	Import(ctx context.Context, post Post) error
 	// Return the N most recent posts
 	ListRecentPosts(ctx context.Context, n int) ([]*Post, error)
 	FindBySlug(ctx context.Context, slug string) (*Post, error)
@@ -17,13 +18,17 @@ type RepositoryInterface interface {
 	GroupByDate(ctx context.Context) ([]*ByDate, error)
 }
 
-type Repository struct {
-	db *pgxpool.Pool
-}
-
 type ByDate struct {
 	date  *civil.Date
 	posts []*Post
+}
+
+type PGRepository struct {
+	db *pgxpool.Pool
+}
+
+func NewPGRespository(pool *pgxpool.Pool) *PGRepository {
+	return &PGRepository{db: pool}
 }
 
 var sqlRecentPosts = `
@@ -41,4 +46,16 @@ func (svc *Repository) ListRecentPosts(ctx context.Context, n int) ([]*Post, err
 		return nil, err
 	}
 	return posts, nil
+}
+
+var sqlFindBySlug = `
+SELECT * from blog.posts LIMIT $1
+`
+
+func (svc *Repository) FindBySlug(ctx context.Context, slug string) (*Post, error) {
+
+}
+
+func (svc *Repository) Import(ctx context.Context, post Post) error {
+
 }

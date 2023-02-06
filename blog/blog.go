@@ -31,8 +31,8 @@ var FSTemplates embed.FS
 
 // Handler exposes the blog over HTTP.
 type Handler struct {
-	repo     *repository
-	renderer *renderer
+	repo     Repository
+	renderer *Renderer
 }
 
 // Post represents a blog post written in markdown. Some metadata is embedded in
@@ -141,11 +141,9 @@ func (post *Post) URL() string {
 }
 
 // New initializes a new blog.
-func New(blogFS fs.FS) *Site {
-	site := &Site{}
-	site.BySlug = make(map[string]*Post)
-	site.ByTag = make(map[string][]*Post)
-	site.ByDate = make(map[civil.Date][]*Post)
+func New(ctx context.Context, blogFS fs.FS, repo Repository) *Handler {
+	site := &Handler{}
+	site.repo = repo
 	// Walk the file-system for posts, loads them into memory and build an
 	// index.
 	fs.WalkDir(blogFS, ".", func(path string, d fs.DirEntry, err error) error {
@@ -157,6 +155,9 @@ func New(blogFS fs.FS) *Site {
 			post, err := ReadPost(path, blogFS)
 			if err != nil {
 				log.Fatalf("[blog.New]: %s", err)
+			}
+			if err := site.repo.Upsert(ctx, post){
+				log.Fatalf("Could not insert post %s: %s", slugify(post.title), err)
 			}
 			for _, t := range post.Tags {
 				xs := site.ByTag[t]
@@ -189,7 +190,7 @@ func New(blogFS fs.FS) *Site {
 // - /archives/  -> A reverse chronological list of the posts.
 // - /d/YYYY-M-D -> Renders an alphabetical list of posts published on YYYY-M-D.
 // -> /atom.xml  -> The atom feed.
-func (blog *Site) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (blog *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var head string
 	head, r.URL.Path = shiftPath(r.URL.Path)
 	switch head {
@@ -220,7 +221,7 @@ func shiftPath(p string) (head, tail string) {
 	return p[1:i], p[i:]
 }
 
-func (blog *Site) serveIndex(w http.ResponseWriter, r *http.Request) {
+func (blog *Handler) serveIndex(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	posts, err := blog.ListRecentPosts(ctx, 5)
 	if err != nil {
@@ -239,7 +240,7 @@ func (blog *Site) serveIndex(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (blog *Site) servePost(w http.ResponseWriter, r *http.Request) {
+func (blog *Handler) servePost(w http.ResponseWriter, r *http.Request) {
 	var head string
 	head, r.URL.Path = shiftPath(r.URL.Path)
 	post := blog.BySlug[head]
@@ -252,7 +253,7 @@ func (blog *Site) servePost(w http.ResponseWriter, r *http.Request) {
 		Title   string
 		Content template.HTML
 	}{Title: post.Title, Content: template.HTML(string(post.Content.Bytes()))}
-	err := blog.postTmpl.ExecuteTemplate(w, "layout", data)
+	err := blog.renderer.postTmpl.ExecuteTemplate(w, "layout", data)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
@@ -287,7 +288,7 @@ func tagList(byTag map[string][]*Post) []tag {
 	return tagList
 }
 
-func (blog *Site) serveTagList(w http.ResponseWriter, r *http.Request) {
+func (blog *Handler) serveTagList(w http.ResponseWriter, r *http.Request) {
 	tags := tagList(blog.ByTag)
 	data := struct{ Tags []tag }{Tags: tags}
 	blog.tagListTmpl.ExecuteTemplate(w, "layout", data)
