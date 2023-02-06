@@ -6,7 +6,6 @@ import (
 	"io/fs"
 	"log"
 
-	"github.com/PuercoPop/site"
 	"github.com/PuercoPop/site/blog"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
