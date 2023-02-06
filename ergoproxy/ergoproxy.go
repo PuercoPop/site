@@ -5,6 +5,10 @@ import (
 	"strings"
 )
 
+type ServiceDesc struct {
+	Subdomain string
+}
+
 // site is the top level handler
 type site struct {
 	// WWW *WWW
