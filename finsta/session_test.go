@@ -30,6 +30,21 @@ package finsta
 
 // }
 
+// func sqltest.DB(ctx context, t *testing.T) (*pgx.Conn, func()) {
+// 	t.Helper()
+// 	_, ok := os.LookupEnv("DBURL")
+// 	if !ok {
+// 		t.Skipf("%t requries")
+// 	}
+// 	conf, err := pgxpool.ParseConfig(url)
+// 	pool, db := pgxpool.ConnectConfig(ctx, config)
+// 	close := func() {
+// 		conn.Close()
+// 	}
+// 	return db, close
+
+// }
+
 // func TestRetrieveUserFromSession(t *testing.T) {
 // 	ctx := context.Background()
 // 	db, close := sqltest.DB(t)
