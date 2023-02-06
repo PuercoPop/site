@@ -1,0 +1,7 @@
+* Check every sub-system works [0%]
+** TODO migrate
+** TODO finsta
+** TODO blog
+** TODO www
+** TODO webhookd
+** TODO ergoproxy

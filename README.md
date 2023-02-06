@@ -16,5 +16,6 @@ The initial version of the site has the following components.
 - finsta: An invite-only image board.
 - webhookd: updates and redeploys other components upon learning of a new
   version.
+- www: The landing page + webfinger endpoint.
 
 For now all the components are written in Go, but that may change in the future.
