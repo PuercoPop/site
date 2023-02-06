@@ -1,4 +1,4 @@
-module github.com/site/blog
+module github.com/PuercoPop/site/blog
 
 go 1.19
 
