@@ -1,0 +1,5 @@
+#+TITLE: Journal
+
+* <2023-02-05 Sun>
+
+Until I get the site deployed, I'll use a schema.sql + `psql -f schema.sql` for the schema.
