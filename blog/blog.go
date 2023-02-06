@@ -23,6 +23,9 @@ import (
 //go:embed template/*.tmpl
 var FSTemplates embed.FS
 
+//go:embed content/posts/*.md
+var FSBlog embed.FS
+
 // TODO(javier): Initialize the blog from a embed.Fs
 // - [ ] reverse-chronological index
 // - [ ] an about page
