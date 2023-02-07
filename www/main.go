@@ -15,13 +15,8 @@ type www struct {
 	ResourceHandler http.Handler
 }
 
-func New(FSResources *embed.FS) *www {
+func New(dir fs.FS) *www {
 	h := &www{}
-	// TODO(javier): Move it to the main
-	dir, err := fs.Sub(FSResources, "resources")
-	if err != nil {
-		log.Fatalf("Could not open resources directory: %s", err)
-	}
 	h.ResourceHandler = http.FileServer(http.FS(dir))
 	return h
 }
@@ -35,6 +30,10 @@ var key = flag.String("key", "../ergoproxy/localhost+2-key.pem", "The keyFile to
 
 func main() {
 	flag.Parse()
-	handler := New(&FSResources)
+	dir, err := fs.Sub(FSResources, "resources")
+	if err != nil {
+		log.Fatalf("Could not open resources directory: %s", err)
+	}
+	handler := New(dir)
 	log.Fatal(http.ListenAndServeTLS(":8080", *cert, *key, handler))
 }
