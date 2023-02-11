@@ -1,5 +1,11 @@
 # Finsta
 
+## Overview
+
+- Each user has a collection of private media, an archive, and a gallery where
+  they can share the media. The gallery can be organized into albums (rooms?,
+  expositions?).
+
 ## Affordances
 
 As a User I need to be able to:
