@@ -3,5 +3,6 @@
 \swikictl
 .idea/
 \site
+\blog/target/
 \finsta/target/
 \www/www
