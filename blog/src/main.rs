@@ -33,9 +33,10 @@ mod tests {
         let post = read_post(path).expect("Could not read post");
         assert_eq!(post.draft, true)
     }
-    // fn test_draft_2() {
-    //     path = Path::new("./testdata/post_01.md");
-    //     post = read_post(path);
-    //     assert_eq!(post.draft, false)
-    // }
+    #[test]
+    fn test_draft_2() {
+        let path = Path::new("./testdata/post_01.md");
+        let post = read_post(path).expect("Could not read post");;
+        assert_eq!(post.draft, false)
+    }
 }
