@@ -1,22 +1,19 @@
-use std::path::Path;
+use pulldown_cmark::{Event, Parser};
 use std::fs;
 use std::io::{self, BufRead, BufReader};
-use pulldown_cmark::{Event, Parser};
-
+use std::path::Path;
 
 #[derive(Debug)]
 pub struct Post {
     title: String,
     pubdate: chrono::NaiveDate,
     draft: bool,
-    tags: Vec<Tag>
-    // path: String
-
+    tags: Vec<Tag>, // path: String
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 struct Tag {
-    name: String
+    name: &'static str,
 }
 
 enum MetadataParseState {
@@ -39,20 +36,30 @@ fn read_title(line: &str) -> Result<String, io::Error> {
     for ev in parser {
         match ev {
             Event::Text(text) => return Ok(text.to_string()),
-                _ => ()
+            _ => (),
         }
-    };
+    }
     return Err(io::Error::from(io::ErrorKind::Other));
 }
 
 fn read_tags(line: &str) -> Result<Vec<Tag>, io::Error> {
     let parser = Parser::new(line);
+    let ret: Vec<Tag> = Vec::new();
     for ev in parser {
+        match ev {
+            Event::Text(text) => {
+                for tag in text.split(",") {
+                    // trim
+                    ret.push(Tag { name: tag })
+                }
+                return Ok(ret);
+            }
+            _ => (),
+        }
         println!("tags: {:#?}", ev);
     }
     return Err(io::Error::from(io::ErrorKind::Other));
 }
-
 
 // Reads the meta-data embedded in the markdown document and returns a Post.
 pub fn read_post(path: &Path) -> Result<Post, ()> {
@@ -83,7 +90,12 @@ pub fn read_post(path: &Path) -> Result<Post, ()> {
     // };
     let tags: Vec<Tag> = Vec::new();
     let pubdate = chrono::NaiveDate::from_ymd_opt(2023, 2, 15).unwrap();
-    return Ok(Post{title: "".to_string(), pubdate: pubdate, draft: true, tags: tags})
+    return Ok(Post {
+        title: "".to_string(),
+        pubdate: pubdate,
+        draft: true,
+        tags: tags,
+    });
 }
 
 fn main() {
@@ -103,14 +115,21 @@ mod tests {
     fn test_read_tags_1() {
         let line = "# en, Emacs, rant";
         let got = read_tags(line).unwrap();
-        let want: Vec<Tag> = vec![Tag{name: "en"}, Tag{name: "Emacs"}, Tag{name: "rant"}];
+        let want: Vec<Tag> = vec![
+            Tag { name: "en" },
+            Tag { name: "Emacs" },
+            Tag { name: "rant" },
+        ];
         assert_eq!(got, want);
+        // for (g, w) in got.iter().zip(want.iter_mut()) {
+        //     assert_eq!(g, w)
+        // }
     }
     #[test]
     fn test_read_tags_2() {
         let line = "# en";
         let got = read_tags(line).unwrap();
-        let want: Vec<Tag> = vec![Tag{name: "en"}];
+        let want: Vec<Tag> = vec![Tag { name: "en" }];
         assert_eq!(got, want);
     }
     #[test]
