@@ -45,6 +45,14 @@ fn read_title(line: &str) -> Result<String, io::Error> {
     return Err(io::Error::from(io::ErrorKind::Other));
 }
 
+fn read_tags(line: &str) -> Result<Vec<Tag>, io::Error> {
+    let parser = Parser::new(line);
+    for ev in parser {
+        println!("tags: {:#?}", ev);
+    }
+    return Err(io::Error::from(io::ErrorKind::Other));
+}
+
 
 // Reads the meta-data embedded in the markdown document and returns a Post.
 pub fn read_post(path: &Path) -> Result<Post, ()> {
@@ -90,6 +98,20 @@ mod tests {
         let line = "# Some title";
         let got = read_title(line).unwrap();
         assert_eq!(got, "Some title");
+    }
+    #[test]
+    fn test_read_tags_1() {
+        let line = "# en, Emacs, rant";
+        let got = read_tags(line).unwrap();
+        let want: Vec<Tag> = vec![Tag{name: "en"}, Tag{name: "Emacs"}, Tag{name: "rant"}];
+        assert_eq!(got, want);
+    }
+    #[test]
+    fn test_read_tags_2() {
+        let line = "# en";
+        let got = read_tags(line).unwrap();
+        let want: Vec<Tag> = vec![Tag{name: "en"}];
+        assert_eq!(got, want);
     }
     #[test]
     fn test_draft_1() {
