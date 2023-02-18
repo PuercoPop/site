@@ -62,25 +62,30 @@ fn read_title(mut post: Post, line: &str) -> Result<Post, io::Error> {
     Err(io::Error::from(io::ErrorKind::Other))
 }
 
-fn read_tags(line: &'static str) -> Result<Vec<Tag>, io::Error> {
+fn read_tags(mut post: Post, line: &'static str) -> Result<Post, io::Error> {
     let parser = Parser::new(line);
-    let mut ret: Vec<Tag> = Vec::new();
+    let mut tags: Vec<Tag> = Vec::new();
     for ev in parser {
         match ev {
             Event::Text(text) => {
                 for tag in text.split(',') {
                     // trim
-                    ret.push(Tag {
+                    tags.push(Tag {
                         name: tag.trim().to_string(),
                     })
                 }
-                return Ok(ret);
+                post.tags = tags;
+                return Ok(post);
             }
             _ => (),
         }
     }
     Err(io::Error::from(io::ErrorKind::Other))
 }
+
+// fn read_pubdate(post: Post, line &'static str) -> Result<Post, io::Error> {
+//     todo!();
+// }
 
 // Reads the meta-data embedded in the markdown document and returns a Post.
 pub fn read_post(path: &Path) -> Result<Post, ()> {
@@ -144,8 +149,9 @@ mod tests {
     }
     #[test]
     fn test_read_tags_1() {
+        let post = Post::new();
         let line = "# en, Emacs, rant";
-        let got = read_tags(line).unwrap();
+        let got = read_tags(post, line).unwrap();
         let want: Vec<Tag> = vec![
             Tag {
                 name: "en".to_string(),
@@ -157,16 +163,17 @@ mod tests {
                 name: "rant".to_string(),
             },
         ];
-        assert_eq!(got, want);
+        assert_eq!(got.tags, want);
     }
     #[test]
     fn test_read_tags_2() {
+        let post = Post::new();
         let line = "# en";
-        let got = read_tags(line).unwrap();
+        let got = read_tags(post, line).unwrap();
         let want: Vec<Tag> = vec![Tag {
             name: "en".to_string(),
         }];
-        assert_eq!(got, want);
+        assert_eq!(got.tags, want);
     }
     // #[test]
     // fn test_draft_1() {
