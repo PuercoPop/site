@@ -1,14 +1,22 @@
+use chrono::NaiveDate;
 use pulldown_cmark::{Event, Parser};
+use regex::Regex;
 use std::fs;
 use std::io::{self, BufRead, BufReader};
 use std::path::Path;
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Post {
     title: String,
-    pubdate: chrono::NaiveDate,
+    pubdate: NaiveDate,
     draft: bool,
-    tags: Vec<Tag>, // path: String
+    tags: Vec<Tag>,
+    // path: String
+}
+impl Post {
+    pub(crate) fn new() -> Post {
+        Post::default()
+    }
 }
 
 #[derive(Debug, PartialEq)]
@@ -31,11 +39,24 @@ type FSM = MetadataParseState;
 //     BadFormat // Or maybe use std::io::Error::other instead
 // }
 
-fn read_title(line: &str) -> Result<String, io::Error> {
+fn read_title(mut post: Post, line: &str) -> Result<Post, io::Error> {
+    let re = Regex::new(r"^(?:\s+)*Draft: (.*)")
+        .expect("I need to update the error type so I can use ? ");
     let parser = Parser::new(line);
     for ev in parser {
         if let Event::Text(text) = ev {
-            return Ok(text.to_string());
+            // Check if the title starts with Draft
+            if re.is_match(&text) {
+                let cap = re.captures(&text).expect("I suck");
+                println!("cap: {cap:#?}");
+                post.title = cap[1].to_string();
+                post.draft = true;
+            } else {
+                post.title = text.to_string();
+                post.draft = false;
+            }
+
+            return Ok(post);
         }
     }
     Err(io::Error::from(io::ErrorKind::Other))
@@ -80,7 +101,7 @@ pub fn read_post(path: &Path) -> Result<Post, ()> {
         if l.is_empty() {
             println!("End of front-matter")
         }
-        println!("line: {l:#?}")
+        // println!("line: {l:#?}")
     }
 
     // let input = fs::read_to_string(path).expect("Could not read file");
@@ -89,7 +110,7 @@ pub fn read_post(path: &Path) -> Result<Post, ()> {
     //     println!("ev: {:#?}", ev)
     // };
     let tags: Vec<Tag> = Vec::new();
-    let pubdate = chrono::NaiveDate::from_ymd_opt(2023, 2, 15).unwrap();
+    let pubdate = NaiveDate::from_ymd_opt(2023, 2, 15).unwrap();
     Ok(Post {
         title: "".to_string(),
         pubdate,
@@ -107,9 +128,19 @@ mod tests {
     use super::*;
     #[test]
     fn test_read_title_1() {
+        let post = Post::new();
         let line = "# Some title";
-        let got = read_title(line).unwrap();
-        assert_eq!(got, "Some title");
+        let got = read_title(post, line).unwrap();
+        assert_eq!(got.title, "Some title");
+        assert_eq!(got.draft, false);
+    }
+    #[test]
+    fn test_read_title_2() {
+        let post = Post::new();
+        let line = "# Draft: Some title";
+        let got = read_title(post, line).unwrap();
+        assert_eq!(got.title, "Some title");
+        assert_eq!(got.draft, true);
     }
     #[test]
     fn test_read_tags_1() {
@@ -127,9 +158,6 @@ mod tests {
             },
         ];
         assert_eq!(got, want);
-        // for (g, w) in got.iter().zip(want.iter_mut()) {
-        //     assert_eq!(g, w)
-        // }
     }
     #[test]
     fn test_read_tags_2() {
@@ -140,14 +168,20 @@ mod tests {
         }];
         assert_eq!(got, want);
     }
+    // #[test]
+    // fn test_draft_1() {
+    //     let line = "# DRAFT Some title";
+    //     let got = read_draft(line).unwrap();
+    // }
+    // TODO(javier): Move this tests to integration
     #[test]
-    fn test_draft_1() {
+    fn test_integration_1() {
         let path = Path::new("./testdata/draft_01.md");
         let post = read_post(path).expect("Could not read post");
         assert_eq!(post.draft, true)
     }
     #[test]
-    fn test_draft_2() {
+    fn test_integration_2() {
         let path = Path::new("./testdata/post_01.md");
         let post = read_post(path).expect("Could not read post");
         assert_eq!(post.draft, false)
