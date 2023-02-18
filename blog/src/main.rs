@@ -13,7 +13,7 @@ pub struct Post {
 
 #[derive(Debug, PartialEq)]
 struct Tag {
-    name: &'static str,
+    name: String,
 }
 
 enum MetadataParseState {
@@ -50,7 +50,7 @@ fn read_tags(line: &'static str) -> Result<Vec<Tag>, io::Error> {
             Event::Text(text) => {
                 for tag in text.split(",") {
                     // trim
-                    ret.push(Tag { name: tag })
+                    ret.push(Tag { name: tag.to_string() })
                 }
                 return Ok(ret);
             }
@@ -92,9 +92,9 @@ pub fn read_post(path: &Path) -> Result<Post, ()> {
     let pubdate = chrono::NaiveDate::from_ymd_opt(2023, 2, 15).unwrap();
     return Ok(Post {
         title: "".to_string(),
-        pubdate: pubdate,
+        pubdate,
         draft: true,
-        tags: tags,
+        tags,
     });
 }
 
@@ -116,9 +116,9 @@ mod tests {
         let line = "# en, Emacs, rant";
         let got = read_tags(line).unwrap();
         let want: Vec<Tag> = vec![
-            Tag { name: "en" },
-            Tag { name: "Emacs" },
-            Tag { name: "rant" },
+            Tag { name: "en".to_string() },
+            Tag { name: "Emacs".to_string() },
+            Tag { name: "rant".to_string() },
         ];
         assert_eq!(got, want);
         // for (g, w) in got.iter().zip(want.iter_mut()) {
@@ -129,7 +129,7 @@ mod tests {
     fn test_read_tags_2() {
         let line = "# en";
         let got = read_tags(line).unwrap();
-        let want: Vec<Tag> = vec![Tag { name: "en" }];
+        let want: Vec<Tag> = vec![Tag { name: "en".to_string() }];
         assert_eq!(got, want);
     }
     #[test]
