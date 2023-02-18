@@ -83,9 +83,9 @@ fn read_tags(mut post: Post, line: &'static str) -> Result<Post, io::Error> {
     Err(io::Error::from(io::ErrorKind::Other))
 }
 
-// fn read_pubdate(post: Post, line &'static str) -> Result<Post, io::Error> {
-//     todo!();
-// }
+fn read_pubdate(mut post: Post, line &'static str) -> Result<Post, io::Error> {
+
+}
 
 // Reads the meta-data embedded in the markdown document and returns a Post.
 pub fn read_post(path: &Path) -> Result<Post, ()> {
@@ -150,7 +150,7 @@ mod tests {
     #[test]
     fn test_read_tags_1() {
         let post = Post::new();
-        let line = "# en, Emacs, rant";
+        let line = "## en, Emacs, rant";
         let got = read_tags(post, line).unwrap();
         let want: Vec<Tag> = vec![
             Tag {
@@ -168,18 +168,23 @@ mod tests {
     #[test]
     fn test_read_tags_2() {
         let post = Post::new();
-        let line = "# en";
+        let line = "## en";
         let got = read_tags(post, line).unwrap();
         let want: Vec<Tag> = vec![Tag {
             name: "en".to_string(),
         }];
         assert_eq!(got.tags, want);
     }
-    // #[test]
-    // fn test_draft_1() {
-    //     let line = "# DRAFT Some title";
-    //     let got = read_draft(line).unwrap();
-    // }
+    #[test]
+    fn test_read_pubdate_1() {
+        let post = Post::new();
+        let line = "## 2022-02-15";
+        let got = read_pubdate(post, line).unwrap();
+        let want NaiveDate::from_ymd_opt(2022, 2, 15).unwrap();
+        assert_eq!(got, want);
+    }
+    // "## 2022-2-15"; // w/o leading 0
+    // "## 2022-2-31"; // impossible date
     // TODO(javier): Move this tests to integration
     #[test]
     fn test_integration_1() {
