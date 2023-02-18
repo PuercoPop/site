@@ -50,14 +50,13 @@ fn read_tags(line: &'static str) -> Result<Vec<Tag>, io::Error> {
                 for tag in text.split(',') {
                     // trim
                     ret.push(Tag {
-                        name: tag.to_string(),
+                        name: tag.trim().to_string(),
                     })
                 }
                 return Ok(ret);
             }
             _ => (),
         }
-        println!("tags: {ev:#?}");
     }
     Err(io::Error::from(io::ErrorKind::Other))
 }
