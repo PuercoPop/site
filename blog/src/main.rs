@@ -42,9 +42,9 @@ fn read_title(line: &str) -> Result<String, io::Error> {
     return Err(io::Error::from(io::ErrorKind::Other));
 }
 
-fn read_tags(line: &str) -> Result<Vec<Tag>, io::Error> {
+fn read_tags(line: &'static str) -> Result<Vec<Tag>, io::Error> {
     let parser = Parser::new(line);
-    let ret: Vec<Tag> = Vec::new();
+    let mut ret: Vec<Tag> = Vec::new();
     for ev in parser {
         match ev {
             Event::Text(text) => {
@@ -65,7 +65,7 @@ fn read_tags(line: &str) -> Result<Vec<Tag>, io::Error> {
 pub fn read_post(path: &Path) -> Result<Post, ()> {
     let fd = fs::File::open(path).expect("Could not open file");
     let reader = BufReader::new(fd);
-    let state = FSM::TitleLine;
+    let _state = FSM::TitleLine;
     for line in reader.lines() {
         let l = line.expect("Could not extract line contents");
         // match state {
