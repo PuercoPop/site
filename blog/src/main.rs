@@ -34,9 +34,8 @@ type FSM = MetadataParseState;
 fn read_title(line: &str) -> Result<String, io::Error> {
     let parser = Parser::new(line);
     for ev in parser {
-        match ev {
-            Event::Text(text) => return Ok(text.to_string()),
-            _ => (),
+        if let Event::Text(text) = ev {
+            return Ok(text.to_string());
         }
     }
     Err(io::Error::from(io::ErrorKind::Other))
@@ -50,15 +49,17 @@ fn read_tags(line: &'static str) -> Result<Vec<Tag>, io::Error> {
             Event::Text(text) => {
                 for tag in text.split(',') {
                     // trim
-                    ret.push(Tag { name: tag.to_string() })
+                    ret.push(Tag {
+                        name: tag.to_string(),
+                    })
                 }
                 return Ok(ret);
             }
             _ => (),
         }
-        println!("tags: {:#?}", ev);
+        println!("tags: {ev:#?}");
     }
-    return Err(io::Error::from(io::ErrorKind::Other));
+    Err(io::Error::from(io::ErrorKind::Other))
 }
 
 // Reads the meta-data embedded in the markdown document and returns a Post.
@@ -80,7 +81,7 @@ pub fn read_post(path: &Path) -> Result<Post, ()> {
         if l.is_empty() {
             println!("End of front-matter")
         }
-        println!("line: {:#?}", l)
+        println!("line: {l:#?}")
     }
 
     // let input = fs::read_to_string(path).expect("Could not read file");
@@ -90,12 +91,12 @@ pub fn read_post(path: &Path) -> Result<Post, ()> {
     // };
     let tags: Vec<Tag> = Vec::new();
     let pubdate = chrono::NaiveDate::from_ymd_opt(2023, 2, 15).unwrap();
-    return Ok(Post {
+    Ok(Post {
         title: "".to_string(),
         pubdate,
         draft: true,
         tags,
-    });
+    })
 }
 
 fn main() {
@@ -116,9 +117,15 @@ mod tests {
         let line = "# en, Emacs, rant";
         let got = read_tags(line).unwrap();
         let want: Vec<Tag> = vec![
-            Tag { name: "en".to_string() },
-            Tag { name: "Emacs".to_string() },
-            Tag { name: "rant".to_string() },
+            Tag {
+                name: "en".to_string(),
+            },
+            Tag {
+                name: "Emacs".to_string(),
+            },
+            Tag {
+                name: "rant".to_string(),
+            },
         ];
         assert_eq!(got, want);
         // for (g, w) in got.iter().zip(want.iter_mut()) {
@@ -129,7 +136,9 @@ mod tests {
     fn test_read_tags_2() {
         let line = "# en";
         let got = read_tags(line).unwrap();
-        let want: Vec<Tag> = vec![Tag { name: "en".to_string() }];
+        let want: Vec<Tag> = vec![Tag {
+            name: "en".to_string(),
+        }];
         assert_eq!(got, want);
     }
     #[test]
