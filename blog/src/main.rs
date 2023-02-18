@@ -39,7 +39,7 @@ fn read_title(line: &str) -> Result<String, io::Error> {
             _ => (),
         }
     }
-    return Err(io::Error::from(io::ErrorKind::Other));
+    Err(io::Error::from(io::ErrorKind::Other))
 }
 
 fn read_tags(line: &'static str) -> Result<Vec<Tag>, io::Error> {
@@ -48,7 +48,7 @@ fn read_tags(line: &'static str) -> Result<Vec<Tag>, io::Error> {
     for ev in parser {
         match ev {
             Event::Text(text) => {
-                for tag in text.split(",") {
+                for tag in text.split(',') {
                     // trim
                     ret.push(Tag { name: tag.to_string() })
                 }
@@ -77,7 +77,7 @@ pub fn read_post(path: &Path) -> Result<Post, ()> {
         // We need to add a case using the state enum
 
         // TODO(javier): Handle EOF?
-        if l == "" {
+        if l.is_empty() {
             println!("End of front-matter")
         }
         println!("line: {:#?}", l)
