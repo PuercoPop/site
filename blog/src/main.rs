@@ -34,10 +34,23 @@ enum MetadataParseState {
 type FSM = MetadataParseState;
 
 // Error return when read_post fails, explaining why it wasn't possible to read the post.
-// type PostParseError {
-//     std::io::Error,
-//     BadFormat // Or maybe use std::io::Error::other instead
-// }
+#[derive(Debug)]
+enum PostParseError {
+    IO(io::Error),
+    CHRONO(chrono::ParseError),
+    BadFormat
+}
+
+impl From<io::Error> for PostParseError {
+    fn from(err: io::Error) -> PostParseError {
+        PostParseError::IO(err)
+    }
+}
+impl From<chrono::ParseError> for PostParseError {
+    fn from(err: chrono::ParseError) -> PostParseError {
+        PostParseError::CHRONO(err)
+    }
+}
 
 fn read_title(mut post: Post, line: &str) -> Result<Post, io::Error> {
     let re = Regex::new(r"^(?:\s+)*Draft: (.*)")
@@ -83,37 +96,38 @@ fn read_tags(mut post: Post, line: &'static str) -> Result<Post, io::Error> {
     Err(io::Error::from(io::ErrorKind::Other))
 }
 
-fn read_pubdate(mut post: Post, line: &'static str) -> Result<Post, io::Error> {
+fn read_pubdate(mut post: Post, line: &'static str) -> Result<Post, PostParseError> {
     let parser = Parser::new(line);
     for ev in parser {
         if let Event::Text(text) = ev {
-            let pubdate = NaiveDate::parse_from_str(&text, "%Y-%m-%d").expect("I should use ?");
+            let pubdate = NaiveDate::parse_from_str(&text, "%Y-%m-%d")?;
             post.pubdate = pubdate;
             return Ok(post);
         }
     }
-    Err(io::Error::from(io::ErrorKind::Other))
+    Err(PostParseError::BadFormat)
 }
 
 // Reads the meta-data embedded in the markdown document and returns a Post.
 pub fn read_post(path: &Path) -> Result<Post, ()> {
     let fd = fs::File::open(path).expect("Could not open file");
     let reader = BufReader::new(fd);
-    let _state = FSM::TitleLine;
+    let post = Post::new();
+    let state = FSM::TitleLine;
     for line in reader.lines() {
-        let l = line.expect("Could not extract line contents");
+        // let l = line.expect("Could not extract line contents");
         // match state {
-        //     FSM::TitleLine => read_title(l),
-        //     FSM::Tags => read_tag(l),
-        //     FSM::DateLine => read_date(l),
+        //     FSM::TitleLine => read_title(post, &l),
+        //     FSM::Tags => read_tags(post, &l),
+        //     FSM::DateLine => read_pubdate(post, &l),
         //     FSM::End => break;
         // }
         // We need to add a case using the state enum
 
         // TODO(javier): Handle EOF?
-        if l.is_empty() {
-            println!("End of front-matter")
-        }
+        // if l.is_empty() {
+        //     println!("End of front-matter")
+        // }
         // println!("line: {l:#?}")
     }
 
@@ -200,23 +214,21 @@ mod tests {
         assert_eq!(got.pubdate, want);
     }
     #[test]
-    #[ignore]
     fn test_read_pubdate_3() {
         let post = Post::new();
         let line = "## 2022-2-31"; // impossible date
-        let got = read_pubdate(post, line).unwrap();
-        let want = NaiveDate::from_ymd_opt(2022, 2, 15).unwrap();
-        assert_eq!(got.pubdate, want);
+        let got = read_pubdate(post, line);
+        assert!(got.is_err());
     }
-    // TODO(javier): Move this tests to integration
+
     #[test]
-    fn test_integration_1() {
+    fn test_read_post_1() {
         let path = Path::new("./testdata/draft_01.md");
         let post = read_post(path).expect("Could not read post");
         assert_eq!(post.draft, true)
     }
     #[test]
-    fn test_integration_2() {
+    fn test_read_post_2() {
         let path = Path::new("./testdata/post_01.md");
         let post = read_post(path).expect("Could not read post");
         assert_eq!(post.draft, false)
