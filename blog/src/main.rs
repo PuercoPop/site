@@ -87,7 +87,7 @@ fn read_pubdate(mut post: Post, line: &'static str) -> Result<Post, io::Error> {
     let parser = Parser::new(line);
     for ev in parser {
         if let Event::Text(text) = ev {
-            let pubdate = NaiveDate::parse_from_str(&text, "YYYY-MM-DD").expect("I should use ?");
+            let pubdate = NaiveDate::parse_from_str(&text, "%Y-%m-%d").expect("I should use ?");
             post.pubdate = pubdate;
             return Ok(post);
         }
@@ -191,8 +191,23 @@ mod tests {
         let want = NaiveDate::from_ymd_opt(2022, 2, 15).unwrap();
         assert_eq!(got.pubdate, want);
     }
-    // "## 2022-2-15"; // w/o leading 0
-    // "## 2022-2-31"; // impossible date
+    #[test]
+    fn test_read_pubdate_2() {
+        let post = Post::new();
+        let line = "## 2022-2-15"; // w/o leading 0
+        let got = read_pubdate(post, line).unwrap();
+        let want = NaiveDate::from_ymd_opt(2022, 2, 15).unwrap();
+        assert_eq!(got.pubdate, want);
+    }
+    #[test]
+    #[ignore]
+    fn test_read_pubdate_3() {
+        let post = Post::new();
+        let line = "## 2022-2-31"; // impossible date
+        let got = read_pubdate(post, line).unwrap();
+        let want = NaiveDate::from_ymd_opt(2022, 2, 15).unwrap();
+        assert_eq!(got.pubdate, want);
+    }
     // TODO(javier): Move this tests to integration
     #[test]
     fn test_integration_1() {
