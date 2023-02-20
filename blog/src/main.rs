@@ -11,7 +11,7 @@ pub struct Post {
     pubdate: NaiveDate,
     draft: bool,
     tags: Vec<Tag>,
-    // path: String
+    path: String,
 }
 impl Post {
     pub(crate) fn new() -> Post {
@@ -35,10 +35,10 @@ type FSM = MetadataParseState;
 
 // Error return when read_post fails, explaining why it wasn't possible to read the post.
 #[derive(Debug)]
-enum PostParseError {
+pub enum PostParseError {
     IO(io::Error),
     CHRONO(chrono::ParseError),
-    BadFormat
+    BadFormat,
 }
 
 impl From<io::Error> for PostParseError {
@@ -79,18 +79,15 @@ fn read_tags(mut post: Post, line: &'static str) -> Result<Post, io::Error> {
     let parser = Parser::new(line);
     let mut tags: Vec<Tag> = Vec::new();
     for ev in parser {
-        match ev {
-            Event::Text(text) => {
-                for tag in text.split(',') {
-                    // trim
-                    tags.push(Tag {
-                        name: tag.trim().to_string(),
-                    })
-                }
-                post.tags = tags;
-                return Ok(post);
+        if let Event::Text(text) = ev {
+            for tag in text.split(',') {
+                // trim
+                tags.push(Tag {
+                    name: tag.trim().to_string(),
+                })
             }
-            _ => (),
+            post.tags = tags;
+            return Ok(post);
         }
     }
     Err(io::Error::from(io::ErrorKind::Other))
@@ -138,12 +135,7 @@ pub fn read_post(path: &Path) -> Result<Post, ()> {
     // };
     let tags: Vec<Tag> = Vec::new();
     let pubdate = NaiveDate::from_ymd_opt(2023, 2, 15).unwrap();
-    Ok(Post {
-        title: "".to_string(),
-        pubdate,
-        draft: true,
-        tags,
-    })
+    Ok(post)
 }
 
 fn main() {
