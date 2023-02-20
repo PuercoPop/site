@@ -52,7 +52,7 @@ impl From<chrono::ParseError> for PostParseError {
     }
 }
 
-fn read_title(mut post: Post, line: &str) -> Result<Post, io::Error> {
+fn read_title(mut post: Post, line: &str) -> Result<Post, PostParseError> {
     let re = Regex::new(r"^(?:\s+)*Draft: (.*)")
         .expect("I need to update the error type so I can use ? ");
     let parser = Parser::new(line);
@@ -72,10 +72,10 @@ fn read_title(mut post: Post, line: &str) -> Result<Post, io::Error> {
             return Ok(post);
         }
     }
-    Err(io::Error::from(io::ErrorKind::Other))
+    Err(PostParseError::BadFormat)
 }
 
-fn read_tags(mut post: Post, line: &'static str) -> Result<Post, io::Error> {
+fn read_tags(mut post: Post, line: &'static str) -> Result<Post, PostParseError> {
     let parser = Parser::new(line);
     let mut tags: Vec<Tag> = Vec::new();
     for ev in parser {
@@ -90,7 +90,7 @@ fn read_tags(mut post: Post, line: &'static str) -> Result<Post, io::Error> {
             return Ok(post);
         }
     }
-    Err(io::Error::from(io::ErrorKind::Other))
+    Err(PostParseError::BadFormat)
 }
 
 fn read_pubdate(mut post: Post, line: &'static str) -> Result<Post, PostParseError> {
