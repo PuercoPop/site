@@ -75,7 +75,7 @@ fn read_title(mut post: Post, line: &str) -> Result<Post, PostParseError> {
     Err(PostParseError::BadFormat)
 }
 
-fn read_tags(mut post: Post, line: &'static str) -> Result<Post, PostParseError> {
+fn read_tags<'a>(mut post: Post, line: &'a str) -> Result<Post, PostParseError> {
     let parser = Parser::new(line);
     let mut tags: Vec<Tag> = Vec::new();
     for ev in parser {
@@ -93,7 +93,7 @@ fn read_tags(mut post: Post, line: &'static str) -> Result<Post, PostParseError>
     Err(PostParseError::BadFormat)
 }
 
-fn read_pubdate(mut post: Post, line: &'static str) -> Result<Post, PostParseError> {
+fn read_pubdate<'a>(mut post: Post, line: &'a str) -> Result<Post, PostParseError> {
     let parser = Parser::new(line);
     for ev in parser {
         if let Event::Text(text) = ev {
@@ -121,7 +121,7 @@ pub fn read_post(path: &Path) -> Result<Post, PostParseError> {
             }
             FSM::Tags => {
                 post = read_tags(post, &l)?;
-                FSM::DateLine;
+                state = FSM::DateLine;
             }
             FSM::DateLine => {
                 post = read_pubdate(post, &l)?;
