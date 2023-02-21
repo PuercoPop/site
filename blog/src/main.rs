@@ -106,36 +106,31 @@ fn read_pubdate(mut post: Post, line: &'static str) -> Result<Post, PostParseErr
 }
 
 // Reads the meta-data embedded in the markdown document and returns a Post.
-pub fn read_post(path: &Path) -> Result<Post, ()> {
-    let fd = fs::File::open(path).expect("Could not open file");
+pub fn read_post(path: &Path) -> Result<Post, PostParseError> {
+    let fd = fs::File::open(path)?;
     let reader = BufReader::new(fd);
-    let post = Post::new();
-    let state = FSM::TitleLine;
+    let mut post = Post::new();
+    let mut state: FSM = FSM::TitleLine;
+    // TODO(javier): Handle EOF?
     for line in reader.lines() {
-        // let l = line.expect("Could not extract line contents");
-        // match state {
-        //     FSM::TitleLine => read_title(post, &l),
-        //     FSM::Tags => read_tags(post, &l),
-        //     FSM::DateLine => read_pubdate(post, &l),
-        //     FSM::End => break;
-        // }
-        // We need to add a case using the state enum
-
-        // TODO(javier): Handle EOF?
-        // if l.is_empty() {
-        //     println!("End of front-matter")
-        // }
-        // println!("line: {l:#?}")
+        let l = line?;
+        match state {
+            FSM::TitleLine => {
+                post = read_title(post, &l)?;
+                state = FSM::Tags;
+            }
+            FSM::Tags => {
+                post = read_tags(post, &l)?;
+                FSM::DateLine;
+            }
+            FSM::DateLine => {
+                post = read_pubdate(post, &l)?;
+                state = FSM::End;
+            }
+            FSM::End => return Ok(post),
+        }
     }
-
-    // let input = fs::read_to_string(path).expect("Could not read file");
-    // let parser = Parser::new(input.as_str());
-    // for ev in parser {
-    //     println!("ev: {:#?}", ev)
-    // };
-    let tags: Vec<Tag> = Vec::new();
-    let pubdate = NaiveDate::from_ymd_opt(2023, 2, 15).unwrap();
-    Ok(post)
+    Err(PostParseError::BadFormat)
 }
 
 fn main() {
@@ -211,6 +206,27 @@ mod tests {
         let line = "## 2022-2-31"; // impossible date
         let got = read_pubdate(post, line);
         assert!(got.is_err());
+    }
+
+    #[test]
+    fn test_read_post_0() {
+        let path = Path::new("./testdata/post.md");
+        let post = read_post(path).expect("Could not read post");
+        assert_eq!(post.title, "Some title");
+        assert_eq!(post.draft, false);
+        assert_eq!(post.pubdate, NaiveDate::from_ymd_opt(2022, 3, 30).unwrap());
+        assert_eq!(
+            post.tags,
+            vec![
+                Tag {
+                    name: "en".to_string(),
+                },
+                Tag {
+                    name: "testing".to_string(),
+                },
+            ]
+        );
+        // assert_eq!(post.path, path.to_string());
     }
 
     #[test]
