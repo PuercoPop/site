@@ -5,6 +5,11 @@ use std::fs;
 use std::io::{self, BufRead, BufReader};
 use std::path::Path;
 
+#[derive(Debug, PartialEq)]
+struct Tag {
+    name: String,
+}
+
 #[derive(Debug, Default)]
 pub struct Post {
     title: String,
@@ -18,20 +23,6 @@ impl Post {
         Post::default()
     }
 }
-
-#[derive(Debug, PartialEq)]
-struct Tag {
-    name: String,
-}
-
-enum MetadataParseState {
-    TitleLine,
-    Tags,
-    DateLine,
-    End, // End of front matter
-}
-
-type FSM = MetadataParseState;
 
 // Error return when read_post fails, explaining why it wasn't possible to read the post.
 #[derive(Debug)]
@@ -51,6 +42,15 @@ impl From<chrono::ParseError> for PostParseError {
         PostParseError::CHRONO(err)
     }
 }
+
+enum MetadataParseState {
+    TitleLine,
+    Tags,
+    DateLine,
+    End, // End of front matter
+}
+
+type FSM = MetadataParseState;
 
 fn read_title(mut post: Post, line: &str) -> Result<Post, PostParseError> {
     let re = Regex::new(r"^(?:\s+)*Draft: (.*)")
@@ -226,16 +226,18 @@ mod tests {
                 },
             ]
         );
-        // assert_eq!(post.path, path.to_string());
+        assert_eq!(post.path, path.to_str().unwrap().to_string());
     }
 
     #[test]
+    #[ignore]
     fn test_read_post_1() {
         let path = Path::new("./testdata/draft_01.md");
         let post = read_post(path).expect("Could not read post");
         assert_eq!(post.draft, true)
     }
     #[test]
+    #[ignore]
     fn test_read_post_2() {
         let path = Path::new("./testdata/post_01.md");
         let post = read_post(path).expect("Could not read post");

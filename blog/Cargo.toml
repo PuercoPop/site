@@ -7,5 +7,7 @@ edition = "2021"
 
 [dependencies]
 chrono = "0.4.23"
+clap = { version = "4.1.6", features = ["derive", "env", "unicode"] }
 pulldown-cmark = "0.9.2"
 regex = "1"
+tokio-postgres = { version = "0.7.7", features = ["with-chrono-0_4", "runtime"]}
