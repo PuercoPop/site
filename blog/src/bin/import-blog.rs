@@ -4,6 +4,7 @@ use clap::Parser;
 use std::fs;
 use std::io;
 use std::path::Path;
+use postgres::{Client, NoTls};
 
 #[derive(Parser, Debug)]
 struct Opts {
@@ -11,8 +12,8 @@ struct Opts {
     // well.
     #[arg(short = 'D')]
     dir: String,
-    // #[arg(short = 'd')]
-    // dburl: String,
+    #[arg(short = 'd')]
+    dburl: String,
 }
 
 fn main() -> Result<(), io::Error> {
@@ -33,6 +34,8 @@ fn main() -> Result<(), io::Error> {
         }
     }
 
-    // let (client, conn) = tokio_postgres::connect("", ).await?;
+    let dburl = args.dburl;
+    // TODO(javier): Enable TLS
+    let mut _client = Client::connect(&dburl, NoTls).expect("Could not connect");
     Ok(())
 }

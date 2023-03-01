@@ -133,10 +133,6 @@ pub fn read_post(path: &Path) -> Result<Post, PostParseError> {
     Err(PostParseError::BadFormat)
 }
 
-fn main() {
-    println!("Hello, world!");
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
