@@ -16,6 +16,11 @@ struct Opts {
     dburl: String,
 }
 
+// TODO(javier): Where does this function blog to?
+fn store_post(client: Client, post blog::Post) -> bool {
+
+}
+
 fn main() -> Result<(), io::Error> {
     // 1. Iterate over the directory
     // 2. Filter out the posts that start with draft: in the header

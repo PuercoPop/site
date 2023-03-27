@@ -3,11 +3,16 @@ begin;
 
 drop schema finsta cascade all;
 create schema finsta if not exists;
+
 CREATE TABLE finsta.users (
   user_id integer PRIMARY KEY GENERATED always AS IDENTITY,
   email text NOT NULL UNIQUE, -- todo(javier): we want uniqueness to be case-insensitive
   password BYTEA NOT NULL,
-  admin boolean NOT NULL DEFAULT FALSE
+);
+
+CREATE TABLE finsta.admins (
+       user_id INTEGER PRIMARY KEY,
+       FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
 
 CREATE TABLE finsta.sessions (
@@ -35,5 +40,7 @@ CREATE TABLE finsta.sessions (
 --     CREATED_AT DATETIME NOT NULL DEFAULT NOW()
 --     -- author_id integer references
 -- )
-create table finsta.media ();
+create table finsta.media (
+       checksum bytea not null
+);
 commit;
