@@ -23,6 +23,13 @@ CREATE TABLE finsta.sessions (
   FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
 
+CREATE TABLE finsta.known_media (
+       user_id integer NOT NULL,
+       checksum BYTEA NOT NULL,
+       FOREIGN KEY (user_id) REFERENCES users (user_id),
+       UNIQUE(user_id, checksum)
+);
+
 --- Use cases
 -- 1. Upload an image to the archive of the user
 
