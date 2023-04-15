@@ -15,3 +15,9 @@ https://developer.android.com/guide/background/persistent#workmanager-features
 The application should consist of a screen to choose which folders we want to
 backup media from. One control to add a new folder. And a list/grid showing the
 folders already being backed up. We also need a setting screen.
+
+
+## Questions
+
+### How should we handle templates
+https://github.com/Altair-Bueno/axum-template
