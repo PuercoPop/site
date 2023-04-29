@@ -1,5 +1,5 @@
 // import-blog [directory]
-use blog::read_post;
+use blog::{read_post, PostParseError};
 use clap::Parser;
 use postgres::{Client, NoTls};
 use std::fs;
@@ -17,11 +17,29 @@ struct Opts {
 }
 
 // TODO(javier): Where does this function blog to?
-fn store_post(client: Client, post: blog::Post) -> bool {
+fn store_post(client: &Client, post: blog::Post) -> bool {
     false
 }
 
-fn main() -> Result<(), io::Error> {
+#[derive(Debug)]
+enum Error {
+    IoError(io::Error),
+    InvalidPost(PostParseError)
+}
+
+impl From<std::io::Error> for Error {
+    fn from(err: std::io::Error) -> Self {
+        Error::IoError(err)
+    }
+}
+
+impl From<PostParseError> for Error {
+    fn from(err: PostParseError) -> Self {
+        Error::InvalidPost(err)
+    }
+}
+
+fn main() -> Result<(), Error> {
     // 1. Iterate over the directory
     // 2. Filter out the posts that start with draft: in the header
     // 3. Insert the remaining posts using the path to determine whether the
@@ -38,7 +56,7 @@ fn main() -> Result<(), io::Error> {
         // TODO(javier): Replace with is_post()
         if !metadata.is_dir() {
             let post = read_post(&entry.path())?;
-            store_post(client, post);
+            store_post(&client, post);
         }
     }
 
