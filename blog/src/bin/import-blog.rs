@@ -17,8 +17,8 @@ struct Opts {
 }
 
 // TODO(javier): Where does this function blog to?
-fn store_post(client: Client, post blog::Post) -> bool {
-
+fn store_post(client: Client, post: blog::Post) -> bool {
+    false
 }
 
 fn main() -> Result<(), io::Error> {
