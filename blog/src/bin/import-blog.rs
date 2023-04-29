@@ -1,10 +1,10 @@
 // import-blog [directory]
 use blog::read_post;
 use clap::Parser;
+use postgres::{Client, NoTls};
 use std::fs;
 use std::io;
 use std::path::Path;
-use postgres::{Client, NoTls};
 
 #[derive(Parser, Debug)]
 struct Opts {
@@ -27,6 +27,9 @@ fn main() -> Result<(), io::Error> {
     // 3. Insert the remaining posts using the path to determine whether the
     //    post already exists in the database.
     let args = Opts::parse();
+    let dburl = args.dburl;
+    // TODO(javier): Enable TLS
+    let mut client = Client::connect(&dburl, NoTls).expect("Could not connect");
     let dir = &args.dir.to_owned();
     let path = Path::new(dir);
     for entry in fs::read_dir(path)? {
@@ -34,13 +37,10 @@ fn main() -> Result<(), io::Error> {
         let metadata = entry.metadata()?;
         // TODO(javier): Replace with is_post()
         if !metadata.is_dir() {
-            let post = read_post(&entry.path());
-            println!("post: {post:#?}");
+            let post = read_post(&entry.path())?;
+            store_post(client, post);
         }
     }
 
-    let dburl = args.dburl;
-    // TODO(javier): Enable TLS
-    let mut _client = Client::connect(&dburl, NoTls).expect("Could not connect");
     Ok(())
 }
