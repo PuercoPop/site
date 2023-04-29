@@ -19,3 +19,22 @@ The initial version of the site has the following components.
 - www: The landing page + webfinger endpoint.
 
 For now all the components are written in Go, but that may change in the future.
+
+# Development
+
+## Setup
+
+We can use docker for the database:
+
+```shell
+docker compose up -d postgres
+```
+
+Until we are live in production the we setup the database from a single
+`schema.sql` file as opposed to migrations. Each project has a `sql/schema.sql`
+file. TO setup the database schema we can use `psql -f`.. Ej. For the blog
+project one can setup the database with:
+
+```shell
+psql -h locoalhost -U postgres -f blog/sql/schema.sql
+```
