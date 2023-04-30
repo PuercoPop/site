@@ -17,14 +17,15 @@ struct Opts {
 }
 
 // TODO(javier): Where does this function blog to?
-fn store_post(client: &Client, post: blog::Post) -> bool {
-    false
+fn store_post(client: &mut Client, post: blog::Post) {
+    let _ret = client.execute("INSERT INTO blog.posts (title, pubdate, path) VALUES ($1, $2, $3) ON CONFLICT DO UPDATE", &[&post.title, &post.pubdate, &post.path]).expect("Unable to insert post entry.");
+    // TODO: then insert each tag
 }
 
 #[derive(Debug)]
 enum Error {
     IoError(io::Error),
-    InvalidPost(PostParseError)
+    InvalidPost(PostParseError),
 }
 
 impl From<std::io::Error> for Error {
@@ -56,7 +57,9 @@ fn main() -> Result<(), Error> {
         // TODO(javier): Replace with is_post()
         if !metadata.is_dir() {
             let post = read_post(&entry.path())?;
-            store_post(&client, post);
+            if !post.draft {
+                store_post(&mut client, post);
+            }
         }
     }
 

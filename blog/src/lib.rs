@@ -12,11 +12,11 @@ struct Tag {
 
 #[derive(Debug, Default)]
 pub struct Post {
-    title: String,
-    pubdate: NaiveDate,
-    draft: bool,
+    pub title: String,
+    pub pubdate: NaiveDate,
+    pub draft: bool,
     tags: Vec<Tag>,
-    path: String,
+    pub path: String,
 }
 impl Post {
     pub(crate) fn new() -> Post {
