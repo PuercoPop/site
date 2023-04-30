@@ -30,11 +30,17 @@ We can use docker for the database:
 docker compose up -d postgres
 ```
 
+Then we create the database for the entire site:
+
+```shell
+createdb -h localhost -U postgres site
+```
+
 Until we are live in production the we setup the database from a single
 `schema.sql` file as opposed to migrations. Each project has a `sql/schema.sql`
 file. TO setup the database schema we can use `psql -f`.. Ej. For the blog
 project one can setup the database with:
 
 ```shell
-psql -h locoalhost -U postgres -f blog/sql/schema.sql
+psql -h locoalhost -U postgres -d site -f blog/sql/schema.sql
 ```
