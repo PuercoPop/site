@@ -8,7 +8,7 @@ CREATE TABLE blog.posts (
   title text NOT NULL,
   slug text NOT NULL UNIQUE,
   path text NOT NULL UNIQUE,
-  published_at time WITH time zone
+  published_at DATE
 );
 
 CREATE INDEX IF NOT EXISTS index_blog_posts_slugs ON blog.posts(slug);
