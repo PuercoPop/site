@@ -6,7 +6,7 @@ CREATE SCHEMA IF NOT EXISTS blog ;
 CREATE TABLE blog.posts (
   post_id integer GENERATED always AS IDENTITY PRIMARY KEY,
   title text NOT NULL,
-  slug text NOT NULL UNIQUE,
+  slug text NOT NULL UNIQUE GENERATED ALWAYS AS (regexp_replace(title,' ', '-','g')) STORED,
   path text NOT NULL UNIQUE,
   published_at DATE
 );
