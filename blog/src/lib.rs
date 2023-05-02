@@ -110,6 +110,7 @@ pub fn read_post(path: &Path) -> Result<Post, PostParseError> {
     let fd = fs::File::open(path)?;
     let reader = BufReader::new(fd);
     let mut post = Post::new();
+    post.path = path.to_string_lossy().into_owned();
     let mut state: FSM = FSM::TitleLine;
     // TODO(javier): Handle EOF?
     for line in reader.lines() {
