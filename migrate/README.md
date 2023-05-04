@@ -8,6 +8,18 @@ included in the executable, making it easy to deploy at the expense of flexibili
 $ ./migrate -d DBURL
 ```
 
+# Principles
+
+Give you the basic machinery but trust the developer knows what they are
+doing. Keep things simple.
+
+# Features
+
+- Migrations only roll forward.
+- The author of the migration is responsible for choosing and setting up the
+  transactions they want to use.
+
+
 # Build
 
 ```shell
