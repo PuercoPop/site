@@ -13,3 +13,4 @@ regex = "1"
 postgres = "0.19.4"
 tokio-postgres = { version = "0.7.7", features = ["with-chrono-0_4", "runtime"]}
 postgres-native-tls = "0.5.0"
+axum = "0.6.18"

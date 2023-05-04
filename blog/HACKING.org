@@ -1,0 +1,5 @@
+* TODO Do we want to enable the following axum feature flags?
+https://docs.rs/axum/latest/axum/#feature-flags
+- headers	Enables extracting typed headers via TypedHeader
+- multipart	Enables parsing multipart/form-data requests with Multipart
+- macros	Enables optional utility macros
