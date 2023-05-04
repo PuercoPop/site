@@ -1,4 +1,4 @@
-use axum::{Router, routing::get};
+use axum::{routing::get, Router};
 use chrono::NaiveDate;
 use pulldown_cmark::{Event, Parser};
 use regex::Regex;
@@ -135,15 +135,10 @@ pub fn read_post(path: &Path) -> Result<Post, PostParseError> {
     Err(PostParseError::BadFormat)
 }
 
-/// The main application server
-pub struct App {}
-
-impl App {
-    /// Initializes the application. Takes the URL of the database to use.
-    pub fn new(dburl: String) -> Router {
-        let app = Router::new().route("/", get(|| async { "hello woorld"}));
-        app
-    }
+/// Initializes the application. Takes the URL of the database to use.
+pub fn new(dburl: String) -> Router {
+    let app = Router::new().route("/", get(|| async { "hello world" }));
+    app
 }
 
 #[cfg(test)]
