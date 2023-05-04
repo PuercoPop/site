@@ -3,3 +3,11 @@ https://docs.rs/axum/latest/axum/#feature-flags
 - headers	Enables extracting typed headers via TypedHeader
 - multipart	Enables parsing multipart/form-data requests with Multipart
 - macros	Enables optional utility macros
+* TODO Setup server with PostgreSQL connection
+* TODO Chose template
+* TODO Homepage endpoint                                           :endpoint:
+* TODO Render single post by slug                                  :endpoint:
+* TODO List of all the tags tags                                   :endpoint:
+* TODO List posts with the same tag                                :endpoint:
+* TODO atom.xml                                                    :endpoint:
+* TODO How do we want to handle date indexes?
