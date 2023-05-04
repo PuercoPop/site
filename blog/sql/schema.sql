@@ -1,6 +1,7 @@
 -- -*- sql-product: postgres -*-
 BEGIN;
 
+DROP SCHEMA IF EXISTS blog CASCADE;
 CREATE SCHEMA IF NOT EXISTS blog ;
 
 CREATE TABLE blog.posts (
