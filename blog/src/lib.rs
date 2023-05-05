@@ -6,6 +6,8 @@ use std::fs;
 use std::io::{self, BufRead, BufReader};
 use std::path::Path;
 
+pub mod view;
+
 #[derive(Debug, PartialEq)]
 struct Tag {
     name: String,
@@ -133,6 +135,11 @@ pub fn read_post(path: &Path) -> Result<Post, PostParseError> {
         }
     }
     Err(PostParseError::BadFormat)
+}
+
+struct AppState {
+    /// The template engine
+    templates: Environment,
 }
 
 /// Initializes the application. Takes the URL of the database to use.
