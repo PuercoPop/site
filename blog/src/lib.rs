@@ -1,23 +1,24 @@
-use axum::{routing::get, Router, extract::State, response::Html};
+use axum::{extract::State, response::Html, routing::get, Router};
 use chrono::NaiveDate;
 use minijinja::{context, Environment, Source};
+use postgres::{Client, NoTls};
 use pulldown_cmark::{Event, Parser};
 use regex::Regex;
-use postgres::{Client, NoTls};
+use serde::Serialize;
+use std::fmt;
 use std::fs;
 use std::io::{self, BufRead, BufReader};
 use std::path::Path;
 use std::sync::Arc;
-use std::fmt;
 
 // pub mod view;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize)]
 struct Tag {
     name: String,
 }
 
-#[derive(Debug, Default)]
+#[derive(Serialize, Debug, Default)]
 pub struct Post {
     pub title: String,
     pub pubdate: NaiveDate,
@@ -25,6 +26,7 @@ pub struct Post {
     tags: Vec<Tag>,
     pub path: String,
 }
+
 impl Post {
     pub(crate) fn new() -> Post {
         Post::default()
@@ -153,7 +155,7 @@ struct Context {
 #[derive(thiserror::Error, Debug)]
 enum StartupError {
     /// Returned when we were unable to connect to the database
-    DBerror(#[from] postgres::Error)
+    DBerror(#[from] postgres::Error),
 }
 
 impl fmt::Display for StartupError {
@@ -167,7 +169,10 @@ pub fn new_ctx(dburl: String, template_dir: String) -> Result<Context, StartupEr
     let mut env = Environment::new();
     env.set_source(source);
     let client = Client::connect(&dburl, NoTls)?;
-    Ok(Context { templates: env, db: client})
+    Ok(Context {
+        templates: env,
+        db: client,
+    })
 }
 
 /// Initializes the application. Takes the URL of the database to use.
@@ -183,11 +188,14 @@ async fn index(State(state): State<Arc<Context>>) -> Html<String> {
         .templates
         .get_template("index.html")
         .expect("Unable to get template");
-    let posts = recent_posts(state.db);
-    Html(tmpl.render(context!()).expect("Unable to render template"))
+    let posts = recent_posts(&state.db);
+    Html(
+        tmpl.render(context!(latest_posts => posts))
+            .expect("Unable to render template"),
+    )
 }
 
-fn recent_posts(client: Client) -> Vec<Post> {
+fn recent_posts(client: &Client) -> Vec<Post> {
     let stmt = client.prepare("SELECT * from blog.posts limit 5");
     client.query(&stmt);
 }
