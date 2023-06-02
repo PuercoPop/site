@@ -15,7 +15,7 @@ fn main() {
     tokio::runtime::Builder::new_multi_thread()
         .enable_all()
         .build()
-        .expect("")
+        .expect("[serve-blog]: Unable to build the tokio runtime")
         .block_on(async {
             axum::Server::bind(&"0.0.0.0:3000".parse().unwrap())
                 .serve(app.into_make_service())

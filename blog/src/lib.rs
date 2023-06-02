@@ -1,12 +1,13 @@
 use axum::{routing::get, Router};
 use chrono::NaiveDate;
+use minijinja::{Environment, Source, context};
 use pulldown_cmark::{Event, Parser};
 use regex::Regex;
 use std::fs;
 use std::io::{self, BufRead, BufReader};
 use std::path::Path;
 
-pub mod view;
+// pub mod view;
 
 #[derive(Debug, PartialEq)]
 struct Tag {
@@ -138,13 +139,20 @@ pub fn read_post(path: &Path) -> Result<Post, PostParseError> {
 }
 
 struct AppState {
-    /// The template engine
-    templates: Environment,
+    // The template engine
+    // templates: Environment,
 }
 
 /// Initializes the application. Takes the URL of the database to use.
-pub fn new(dburl: String) -> Router {
-    let app = Router::new().route("/", get(|| async { "hello world" }));
+pub fn new(_dburl: String) -> Router {
+    let source = Source::from_path("./templates");
+    let mut env = Environment::new();
+    env.set_source(source);
+    let app = Router::new().route("/", get(|| async move {
+    let tmpl = env.get_template("index.html").expect("Unable to get template");
+    tmpl.render(context!()).expect("Unable to render tempalte")
+
+    }));
     app
 }
 
