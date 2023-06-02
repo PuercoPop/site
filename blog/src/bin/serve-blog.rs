@@ -6,11 +6,14 @@ use clap::Parser;
 struct Opts {
     #[arg(short = 'd')]
     dburl: String,
+    #[arg(short = 'D')]
+    templates_dir: String
 }
 
 fn main() {
     let args = Opts::parse();
-    let app = blog::new(args.dburl);
+    let ctx = blog::new_ctx(args.dburl, args.templates)?
+    let app = blog::new();
 
     tokio::runtime::Builder::new_multi_thread()
         .enable_all()

@@ -3,10 +3,12 @@ use chrono::NaiveDate;
 use minijinja::{context, Environment, Source};
 use pulldown_cmark::{Event, Parser};
 use regex::Regex;
+use postgres::{Client, NoTls};
 use std::fs;
 use std::io::{self, BufRead, BufReader};
 use std::path::Path;
 use std::sync::Arc;
+use std::fmt;
 
 // pub mod view;
 
@@ -139,27 +141,55 @@ pub fn read_post(path: &Path) -> Result<Post, PostParseError> {
     Err(PostParseError::BadFormat)
 }
 
-struct AppState {
+/// Holds to the global resources the application depends on
+struct Context {
     /// The template engine
     templates: Environment<'static>,
+    /// A connection to the database
+    db: Client,
 }
 
-/// Initializes the application. Takes the URL of the database to use.
-pub fn new(_dburl: String) -> Router {
+/// Errors that can happen during the start up process of the application.
+#[derive(thiserror::Error, Debug)]
+enum StartupError {
+    /// Returned when we were unable to connect to the database
+    DBerror(#[from] postgres::Error)
+}
+
+impl fmt::Display for StartupError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:#}", self)
+    }
+}
+
+pub fn new_ctx(dburl: String, template_dir: String) -> Result<Context, StartupError> {
     let source = Source::from_path("./templates");
     let mut env = Environment::new();
     env.set_source(source);
-    let app_state = Arc::new(AppState { templates: env });
-    let app = Router::new().route("/", get(index)).with_state(app_state);
+    let client = Client::connect(&dburl, NoTls)?;
+    Ok(Context { templates: env, db: client})
+}
+
+/// Initializes the application. Takes the URL of the database to use.
+pub fn new(ctx: Context) -> Router {
+    // TODO: Can I remove the Arc wrapper?
+    let ctx = Arc::new(ctx);
+    let app = Router::new().route("/", get(index)).with_state(ctx);
     app
 }
 
-async fn index(State(state): State<Arc<AppState>>) -> Html<String> {
+async fn index(State(state): State<Arc<Context>>) -> Html<String> {
     let tmpl = state
         .templates
         .get_template("index.html")
         .expect("Unable to get template");
+    let posts = recent_posts(state.db);
     Html(tmpl.render(context!()).expect("Unable to render template"))
+}
+
+fn recent_posts(client: Client) -> Vec<Post> {
+    let stmt = client.prepare("SELECT * from blog.posts limit 5");
+    client.query(&stmt);
 }
 
 #[cfg(test)]
