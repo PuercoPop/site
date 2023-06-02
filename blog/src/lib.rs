@@ -1,6 +1,6 @@
 use axum::{routing::get, Router};
 use chrono::NaiveDate;
-use minijinja::{Environment, Source, context};
+use minijinja::{context, Environment, Source};
 use pulldown_cmark::{Event, Parser};
 use regex::Regex;
 use std::fs;
@@ -148,11 +148,15 @@ pub fn new(_dburl: String) -> Router {
     let source = Source::from_path("./templates");
     let mut env = Environment::new();
     env.set_source(source);
-    let app = Router::new().route("/", get(|| async move {
-    let tmpl = env.get_template("index.html").expect("Unable to get template");
-    tmpl.render(context!()).expect("Unable to render tempalte")
-
-    }));
+    let app = Router::new().route(
+        "/",
+        get(|| async move {
+            let tmpl = env
+                .get_template("index.html")
+                .expect("Unable to get template");
+            tmpl.render(context!()).expect("Unable to render template")
+        }),
+    );
     app
 }
 
