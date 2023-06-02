@@ -1,5 +1,4 @@
-use axum::extract::State;
-use axum::{routing::get, Router};
+use axum::{routing::get, Router, extract::State, response::Html};
 use chrono::NaiveDate;
 use minijinja::{context, Environment, Source};
 use pulldown_cmark::{Event, Parser};
@@ -155,12 +154,12 @@ pub fn new(_dburl: String) -> Router {
     app
 }
 
-async fn index(State(state): State<Arc<AppState>>) -> String {
+async fn index(State(state): State<Arc<AppState>>) -> Html<String> {
     let tmpl = state
         .templates
         .get_template("index.html")
         .expect("Unable to get template");
-    tmpl.render(context!()).expect("Unable to render template")
+    Html(tmpl.render(context!()).expect("Unable to render template"))
 }
 
 #[cfg(test)]
