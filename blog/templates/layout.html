@@ -1,9 +1,8 @@
-{{define "layout"}}
 <!doctype html>
 <html>
   <head>
         <meta charset='utf-8'>
-        <title>{{template "title" .}} — Serious Trolling</title>
+        <title>{% block title %}{% endblock %} — Serious Trolling</title>
         <style>
           nav ul {
             display: flex;
@@ -23,7 +22,7 @@
       </ul>
     </nav>
     <main>
-      {{template "main" .}}
+      {% block main %}{% endblock %}
     </main>
   </body>
 </html>

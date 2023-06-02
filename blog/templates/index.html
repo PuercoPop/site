@@ -1,15 +1,10 @@
-{# {% extends "base.html" %}
-{{define "title"}}Latest Posts{{end}}
-{{define "main"}}
+{% extends "layout.html" %}
+{% block title %}Latest Posts{% endblock %}
+{%block main %}
 <h2> Latest Posts</h2>
 <ol>
-  {{range .LatestPosts}}
-  <li><a href="{{.URL}}">{{.Title}}</a> published on {{.Published}}</li>
-  {{end}}
+  {% for post in lastest_posts %}
+  <li><a href="{{post.path}}">{{post.title}}</a> published on {{post.pubdate}}</li>
+  {% endfor %}
 </ol>
-{{end}}
-#}
-<title>Hello world</title>
-<body>
-  <p> Live from Rust👋
-</body>
+{% endblock %}
