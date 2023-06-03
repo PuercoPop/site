@@ -197,7 +197,7 @@ async fn index(State(state): State<Arc<Context>>) -> Html<String> {
 
 fn recent_posts(client: &Client) -> Vec<Post> {
     let stmt = client.prepare("SELECT * from blog.posts limit 5");
-    client.query(&stmt);
+    client.query(&stmt, ())?.into_iter().collect();
 }
 
 #[cfg(test)]
