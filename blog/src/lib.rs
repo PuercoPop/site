@@ -1,15 +1,14 @@
 use axum::{extract::State, response::Html, routing::get, Router};
 use chrono::NaiveDate;
 use minijinja::{context, Environment, Source};
-use postgres::{Client, NoTls};
 use pulldown_cmark::{Event, Parser};
 use regex::Regex;
 use serde::Serialize;
-use std::fmt;
 use std::fs;
 use std::io::{self, BufRead, BufReader};
 use std::path::Path;
 use std::sync::Arc;
+use tokio_postgres::Client;
 
 // pub mod view;
 
@@ -144,35 +143,22 @@ pub fn read_post(path: &Path) -> Result<Post, PostParseError> {
 }
 
 /// Holds to the global resources the application depends on
-struct Context {
+pub struct Context {
     /// The template engine
     templates: Environment<'static>,
     /// A connection to the database
     db: Client,
 }
 
-/// Errors that can happen during the start up process of the application.
-#[derive(thiserror::Error, Debug)]
-enum StartupError {
-    /// Returned when we were unable to connect to the database
-    DBerror(#[from] postgres::Error),
-}
-
-impl fmt::Display for StartupError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:#}", self)
-    }
-}
-
-pub fn new_ctx(dburl: String, template_dir: String) -> Result<Context, StartupError> {
-    let source = Source::from_path("./templates");
+pub fn new_ctx(client: Client, template_dir: String) -> Context {
+    let source = Source::from_path(template_dir);
     let mut env = Environment::new();
     env.set_source(source);
-    let client = Client::connect(&dburl, NoTls)?;
-    Ok(Context {
+
+    Context {
         templates: env,
         db: client,
-    })
+    }
 }
 
 /// Initializes the application. Takes the URL of the database to use.
@@ -183,22 +169,24 @@ pub fn new(ctx: Context) -> Router {
     app
 }
 
+#[axum::debug_handler]
 async fn index(State(state): State<Arc<Context>>) -> Html<String> {
     let tmpl = state
         .templates
         .get_template("index.html")
         .expect("Unable to get template");
-    let posts = recent_posts(&state.db);
+    // let posts = recent_posts(&state.db);
     Html(
-        tmpl.render(context!(latest_posts => posts))
-            .expect("Unable to render template"),
+        tmpl.render(context!(// latest_posts => posts
+        ))
+        .expect("Unable to render template"),
     )
 }
 
-fn recent_posts(client: &Client) -> Vec<Post> {
-    let stmt = client.prepare("SELECT * from blog.posts limit 5");
-    client.query(&stmt, ())?.into_iter().collect();
-}
+// fn recent_posts(client: &Client) -> Vec<Post> {
+//     let stmt = client.prepare("SELECT * from blog.posts limit 5");
+//     client.query(&stmt, ())?.into_iter().collect();
+// }
 
 #[cfg(test)]
 mod tests {
