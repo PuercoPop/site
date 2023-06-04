@@ -10,7 +10,12 @@
     in
       {
         devShells.${system}.default = pkgs.mkShell {
-          buildInputs = [pkgs.terraform pkgs.terraform-ls pkgs.nixos-rebuild];
+          buildInputs = [
+            pkgs.terraform
+            pkgs.terraform-providers.vultr
+            pkgs.terraform-ls
+            pkgs.nixos-rebuild
+          ];
         };
       };
 }
