@@ -8,7 +8,7 @@ use std::fs;
 use std::io::{self, BufRead, BufReader};
 use std::path::Path;
 use std::sync::Arc;
-use tokio_postgres::Client;
+use tokio_postgres::{Client, Error as PgError, Row};
 
 // pub mod view;
 
@@ -19,6 +19,7 @@ struct Tag {
 
 #[derive(Serialize, Debug, Default)]
 pub struct Post {
+    pub slug: String,
     pub title: String,
     pub pubdate: NaiveDate,
     pub draft: bool,
@@ -175,18 +176,34 @@ async fn index(State(state): State<Arc<Context>>) -> Html<String> {
         .templates
         .get_template("index.html")
         .expect("Unable to get template");
-    // let posts = recent_posts(&state.db);
+    let posts = recent_posts(&state.db).await.expect("IOU a ?");
     Html(
-        tmpl.render(context!(// latest_posts => posts
-        ))
-        .expect("Unable to render template"),
+        tmpl.render(context!(latest_posts => posts))
+            .expect("Unable to render template"),
     )
 }
 
-// fn recent_posts(client: &Client) -> Vec<Post> {
-//     let stmt = client.prepare("SELECT * from blog.posts limit 5");
-//     client.query(&stmt, ())?.into_iter().collect();
-// }
+async fn recent_posts(client: &Client) -> Result<Vec<Post>, PgError> {
+    // TODO(javier): Return tags as well
+    let stmt = client.prepare("SELECT slug, title, published_at from blog.posts limit 5").await?;
+    let rows: Vec<Row> = client.query(&stmt, &[]).await?;
+    let mut posts: Vec<Post> = Vec::new();
+    for row in rows {
+        let post = Post {
+            slug: row.get(0),
+            title: row.get(1),
+            pubdate: row.get(2),
+            // TODO(javier): We shouldn't need to specify this values
+            draft: false,
+            tags: Vec::new(),
+            path: "".to_string()
+        };
+        posts.push(post);
+    }
+    Ok(posts)
+}
+
+
 
 #[cfg(test)]
 mod tests {
