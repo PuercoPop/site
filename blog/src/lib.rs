@@ -1,4 +1,9 @@
-use axum::{extract::State, response::Html, routing::get, Router};
+use axum::{
+    extract::{Path as URLPath, State},
+    response::Html,
+    routing::get,
+    Router,
+};
 use chrono::NaiveDate;
 use minijinja::{context, Environment, Source};
 use pulldown_cmark::{Event, Parser};
@@ -166,7 +171,10 @@ pub fn new_ctx(client: Client, template_dir: String) -> Context {
 pub fn new(ctx: Context) -> Router {
     // TODO: Can I remove the Arc wrapper?
     let ctx = Arc::new(ctx);
-    let app = Router::new().route("/", get(index)).with_state(ctx);
+    let app = Router::new()
+        .route("/", get(index))
+        .route("/p/:slug", get(show_post))
+        .with_state(ctx);
     app
 }
 
@@ -181,6 +189,36 @@ async fn index(State(state): State<Arc<Context>>) -> Html<String> {
         tmpl.render(context!(latest_posts => posts))
             .expect("Unable to render template"),
     )
+}
+
+#[axum::debug_handler]
+async fn show_post(
+    State(state): State<Arc<Context>>,
+    URLPath(slug): URLPath<String>,
+) -> Html<String> {
+    let tmpl = state
+        .templates
+        .get_template("post.html")
+        .expect("Unable to get template");
+    let post = post_by_slug(&state.db, slug).await.expect("IOU a ?");
+    Html(tmpl.render(context!(post => post)).expect("Unable to render template"))
+}
+
+async fn post_by_slug(client: &Client, slug: String) -> Result<Post, PgError> {
+    let stmt = client
+        .prepare("SELECT slug, title, published_at, path from blog.posts where slug = $1")
+        .await?;
+    let row = client.query_one(&stmt, &[&slug]).await?;
+    let post = Post {
+        slug: row.get(0),
+        title: row.get(1),
+        pubdate: row.get(2),
+        path: row.get(3),
+        // TODO(javier): We shouldn't need to specify this values
+        draft: false,
+        tags: Vec::new(),
+    };
+    Ok(post)
 }
 
 async fn recent_posts(client: &Client) -> Result<Vec<Post>, PgError> {
