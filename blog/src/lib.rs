@@ -185,7 +185,9 @@ async fn index(State(state): State<Arc<Context>>) -> Html<String> {
 
 async fn recent_posts(client: &Client) -> Result<Vec<Post>, PgError> {
     // TODO(javier): Return tags as well
-    let stmt = client.prepare("SELECT slug, title, published_at from blog.posts limit 5").await?;
+    let stmt = client
+        .prepare("SELECT slug, title, published_at from blog.posts limit 5")
+        .await?;
     let rows: Vec<Row> = client.query(&stmt, &[]).await?;
     let mut posts: Vec<Post> = Vec::new();
     for row in rows {
@@ -196,14 +198,12 @@ async fn recent_posts(client: &Client) -> Result<Vec<Post>, PgError> {
             // TODO(javier): We shouldn't need to specify this values
             draft: false,
             tags: Vec::new(),
-            path: "".to_string()
+            path: "".to_string(),
         };
         posts.push(post);
     }
     Ok(posts)
 }
-
-
 
 #[cfg(test)]
 mod tests {

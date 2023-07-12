@@ -43,8 +43,12 @@ async fn main() -> Result<(), Error> {
         eprintln!("connection error: {}", err);
     }
 
-    axum::Server::bind(&"0.0.0.0:3000".parse().unwrap())
+    match axum::Server::bind(&"0.0.0.0:3000".parse().unwrap())
         .serve(app.into_make_service())
-        .await?;
+        .await
+    {
+        Ok(()) => (),
+        Err(err) => eprintln!("connection error: {}", err),
+    }
     Ok(())
 }
