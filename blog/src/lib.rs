@@ -201,7 +201,11 @@ async fn show_post(
         .get_template("post.html")
         .expect("Unable to get template");
     let post = post_by_slug(&state.db, slug).await.expect("IOU a ?");
-    Html(tmpl.render(context!(post => post)).expect("Unable to render template"))
+    let mut post_content = String::new();
+    let file_contents = std::fs::read_to_string(post.path.clone()).expect("Unable to read file.");
+    let parser = Parser::new(&file_contents);
+    pulldown_cmark::html::push_html(& mut post_content, parser);
+    Html(tmpl.render(context!(post => post, post_content=> post_content)).expect("Unable to render template"))
 }
 
 async fn post_by_slug(client: &Client, slug: String) -> Result<Post, PgError> {

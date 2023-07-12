@@ -8,8 +8,8 @@ CREATE TABLE blog.posts (
   post_id integer GENERATED always AS IDENTITY PRIMARY KEY,
   title text NOT NULL,
   slug text NOT NULL UNIQUE GENERATED ALWAYS AS (regexp_replace(title,' ', '-','g')) STORED,
-  path text NOT NULL UNIQUE,
-  published_at DATE
+  published_at DATE,
+  path text NOT NULL UNIQUE
 );
 
 CREATE INDEX IF NOT EXISTS index_blog_posts_slugs ON blog.posts(slug);
