@@ -2,9 +2,12 @@
 {% block title %}Latest Posts{% endblock %}
 {%block main %}
 <h2> Latest Posts</h2>
-<ol>
-  {% for post in lastest_posts %}
-  <li><a href="{{post.path}}">{{post.title}}</a> published on {{post.pubdate}}</li>
+  {% for post in latest_posts %}
+    {% if loop.first %}<ol>{% endif %}
+    <li><a href="{{post.path}}">{{post.title}}</a> published on {{post.pubdate}}</li>
+    {% if loop.last %}</ol>{% endif %}
+  {% else %}
+    <p>No posts</p>
   {% endfor %}
 </ol>
 {% endblock %}
