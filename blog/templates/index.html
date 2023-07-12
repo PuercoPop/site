@@ -4,7 +4,7 @@
 <h2> Latest Posts</h2>
   {% for post in latest_posts %}
     {% if loop.first %}<ol>{% endif %}
-    <li><a href="{{post.path}}">{{post.title}}</a> published on {{post.pubdate}}</li>
+    <li><a href="/p/{{post.slug}}">{{post.title}}</a> published on {{post.pubdate}}</li>
     {% if loop.last %}</ol>{% endif %}
   {% else %}
     <p>No posts</p>

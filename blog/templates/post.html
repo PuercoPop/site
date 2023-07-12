@@ -1,5 +1,7 @@
-{{template "layout" .}}
-{{define "title"}}{{.Title}}{{end}}
-{{define "main"}}
-{{.Content}}
-{{end}}
+{% extends "layout.html" %}
+{% block title %}{{post.slug}}{% endblock %}
+{% block main %}
+<h1>{{post.title}}</h1>
+<h3>{{post.pubdate}}</h3>
+<p>I need to render {{post.path}}</p>
+{% endblock %}
