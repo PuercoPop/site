@@ -39,9 +39,11 @@ async fn main() -> Result<(), Error> {
     let ctx = blog::new_ctx(client, args.templates_dir);
     let app = blog::new(ctx);
 
-    if let Err(err) = conn.await {
-        eprintln!("connection error: {}", err);
-    }
+    tokio::spawn(async move {
+        if let Err(err) = conn.await {
+            eprintln!("connection error: {}", err);
+        }
+    });
 
     match axum::Server::bind(&"0.0.0.0:3000".parse().unwrap())
         .serve(app.into_make_service())
