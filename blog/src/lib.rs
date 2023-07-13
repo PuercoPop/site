@@ -13,7 +13,7 @@ use std::fs;
 use std::io::{self, BufRead, BufReader};
 use std::path::Path;
 use std::sync::Arc;
-use tokio_postgres::{Client, Error as PgError, Row};
+use tokio_postgres::{Client, Error as PgError};
 
 // pub mod view;
 
@@ -233,20 +233,20 @@ select p.title, p.slug, pt.tags, p.published_at, p.path from posts p natural joi
 async fn recent_posts(client: &Client) -> Result<Vec<Post>, PgError> {
     // TODO(javier): Return tags as well
     let stmt = client.prepare(RECENT_POSTS_QUERY).await?;
-    let rows: Vec<Row> = client.query(&stmt, &[]).await?; // TODO: .iter().map(|row| Post {...}).collect()
-    let mut posts: Vec<Post> = Vec::new();
-    for row in rows {
-        let post = Post {
+    let posts: Vec<Post> = client
+        .query(&stmt, &[])
+        .await?
+        .iter()
+        .map(|row| Post {
             slug: row.get("slug"),
             title: row.get("title"),
             pubdate: row.get("published_at"),
             path: row.get("path"),
-            // TODO(javier): We shouldn't need to specify this values
-            draft: false,
             tags: row.get("tags"),
-        };
-        posts.push(post);
-    }
+            // TODO(javier): We shouldn't need to specify this value
+            draft: false,
+        })
+        .collect();
     Ok(posts)
 }
 
