@@ -17,10 +17,7 @@ use tokio_postgres::{Client, Error as PgError, Row};
 
 // pub mod view;
 
-#[derive(Debug, PartialEq, Serialize)]
-struct Tag {
-    name: String,
-}
+type Tag = String;
 
 #[derive(Serialize, Debug, Default)]
 pub struct Post {
@@ -96,9 +93,7 @@ fn read_tags<'a>(mut post: Post, line: &'a str) -> Result<Post, PostParseError> 
         if let Event::Text(text) = ev {
             for tag in text.split(',') {
                 // trim
-                tags.push(Tag {
-                    name: tag.trim().to_string(),
-                })
+                tags.push(tag.trim().to_string())
             }
             post.tags = tags;
             return Ok(post);
@@ -204,8 +199,11 @@ async fn show_post(
     let mut post_content = String::new();
     let file_contents = std::fs::read_to_string(post.path.clone()).expect("Unable to read file.");
     let parser = Parser::new(&file_contents);
-    pulldown_cmark::html::push_html(& mut post_content, parser);
-    Html(tmpl.render(context!(post => post, post_content=> post_content)).expect("Unable to render template"))
+    pulldown_cmark::html::push_html(&mut post_content, parser);
+    Html(
+        tmpl.render(context!(post => post, post_content=> post_content))
+            .expect("Unable to render template"),
+    )
 }
 
 async fn post_by_slug(client: &Client, slug: String) -> Result<Post, PgError> {
@@ -234,9 +232,7 @@ select p.title, p.slug, pt.tags, p.published_at, p.path from posts p natural joi
 
 async fn recent_posts(client: &Client) -> Result<Vec<Post>, PgError> {
     // TODO(javier): Return tags as well
-    let stmt = client
-        .prepare(RECENT_POSTS_QUERY)
-        .await?;
+    let stmt = client.prepare(RECENT_POSTS_QUERY).await?;
     let rows: Vec<Row> = client.query(&stmt, &[]).await?; // TODO: .iter().map(|row| Post {...}).collect()
     let mut posts: Vec<Post> = Vec::new();
     for row in rows {
@@ -247,7 +243,7 @@ async fn recent_posts(client: &Client) -> Result<Vec<Post>, PgError> {
             path: row.get("path"),
             // TODO(javier): We shouldn't need to specify this values
             draft: false,
-            tags: Vec::new(),
+            tags: row.get("tags"),
         };
         posts.push(post);
     }
