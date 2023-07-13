@@ -16,19 +16,14 @@ struct Opts {
     dburl: String,
 }
 
+static INSERT_POST_QUERY: &str = "INSERT INTO blog.posts (title, published_at, draft, content, path)
+VALUES ($1, $2, $3, $4, $5) ON CONFLICT (path) DO UPDATE SET
+title = EXCLUDED.title, published_at = EXCLUDED.published_at, draft = EXCLUDED.draft, content = EXCLUDED.content";
+
 // TODO(javier): Where does this function blog to?
 fn store_post(client: &mut Client, post: blog::Post) {
-    // TODO(javier): Extract query to constant
     let stmt = client
-        .prepare(
-            "INSERT INTO blog.posts (title, published_at, draft, content, path)
-      VALUES ($1, $2, $3, $4, $5) ON CONFLICT (path) DO UPDATE SET
-title = EXCLUDED.title,
-published_at = EXCLUDED.published_at,
-draft = EXCLUDED.draft,
-content = EXCLUDED.content
-",
-        )
+        .prepare(INSERT_POST_QUERY)
         .expect("Could not prepare the statement");
     let _ret = client
         .query(
