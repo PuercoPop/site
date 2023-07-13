@@ -225,19 +225,26 @@ async fn post_by_slug(client: &Client, slug: String) -> Result<Post, PgError> {
     Ok(post)
 }
 
+static RECENT_POSTS_QUERY: &str = "with posts as (
+  select * from blog.posts order by published_at desc limit 5
+), post_tags AS (
+select post_id, array_agg(tag) as tags from blog.post_tags where post_id IN (select post_id from posts) group by post_id
+)
+select p.title, p.slug, pt.tags, p.published_at, p.path from posts p natural join post_tags pt";
+
 async fn recent_posts(client: &Client) -> Result<Vec<Post>, PgError> {
     // TODO(javier): Return tags as well
     let stmt = client
-        .prepare("SELECT slug, title, published_at, path from blog.posts limit 5")
+        .prepare(RECENT_POSTS_QUERY)
         .await?;
-    let rows: Vec<Row> = client.query(&stmt, &[]).await?;
+    let rows: Vec<Row> = client.query(&stmt, &[]).await?; // TODO: .iter().map(|row| Post {...}).collect()
     let mut posts: Vec<Post> = Vec::new();
     for row in rows {
         let post = Post {
-            slug: row.get(0),
-            title: row.get(1),
-            pubdate: row.get(2),
-            path: row.get(3),
+            slug: row.get("slug"),
+            title: row.get("title"),
+            pubdate: row.get("published_at"),
+            path: row.get("path"),
             // TODO(javier): We shouldn't need to specify this values
             draft: false,
             tags: Vec::new(),
