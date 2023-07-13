@@ -274,17 +274,7 @@ mod tests {
         let post = Post::new();
         let line = "## en, Emacs, rant";
         let got = read_tags(post, line).unwrap();
-        let want: Vec<Tag> = vec![
-            Tag {
-                name: "en".to_string(),
-            },
-            Tag {
-                name: "Emacs".to_string(),
-            },
-            Tag {
-                name: "rant".to_string(),
-            },
-        ];
+        let want: Vec<Tag> = vec!["en".to_string(), "Emacs".to_string(), "rant".to_string()];
         assert_eq!(got.tags, want);
     }
     #[test]
@@ -292,9 +282,7 @@ mod tests {
         let post = Post::new();
         let line = "## en";
         let got = read_tags(post, line).unwrap();
-        let want: Vec<Tag> = vec![Tag {
-            name: "en".to_string(),
-        }];
+        let want: Vec<Tag> = vec!["en".to_string()];
         assert_eq!(got.tags, want);
     }
     #[test]
@@ -328,17 +316,7 @@ mod tests {
         assert_eq!(post.title, "Some title");
         assert_eq!(post.draft, false);
         assert_eq!(post.pubdate, NaiveDate::from_ymd_opt(2022, 3, 30).unwrap());
-        assert_eq!(
-            post.tags,
-            vec![
-                Tag {
-                    name: "en".to_string(),
-                },
-                Tag {
-                    name: "testing".to_string(),
-                },
-            ]
-        );
+        assert_eq!(post.tags, vec!["en".to_string(), "testing".to_string(),]);
         assert_eq!(post.path, path.to_str().unwrap().to_string());
     }
 
