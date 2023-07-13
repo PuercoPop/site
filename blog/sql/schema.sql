@@ -5,10 +5,12 @@ DROP SCHEMA IF EXISTS blog CASCADE;
 CREATE SCHEMA IF NOT EXISTS blog ;
 
 CREATE TABLE blog.posts (
-  post_id integer GENERATED always AS IDENTITY PRIMARY KEY,
-  title text NOT NULL,
-  slug text NOT NULL UNIQUE GENERATED ALWAYS AS (regexp_replace(title,' ', '-','g')) STORED,
+  post_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  title TEXT NOT NULL,
+  slug TEXT NOT NULL UNIQUE GENERATED ALWAYS AS (regexp_replace(title,' ', '-','g')) STORED,
   published_at DATE,
+  draft BOOLEAN NOT NULL,
+  content TEXT NOT NULL,
   path text NOT NULL UNIQUE
 );
 

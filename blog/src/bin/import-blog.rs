@@ -19,9 +19,24 @@ struct Opts {
 // TODO(javier): Where does this function blog to?
 fn store_post(client: &mut Client, post: blog::Post) {
     // TODO(javier): Set ON CONFLICT DO UPDATE
-    let stmt = client.prepare("INSERT INTO blog.posts (title, published_at, path)
-      VALUES ($1, $2, $3)").expect("Could not prepare the statement");
-    let _ret = client.query(&stmt, &[&post.title, &post.pubdate, &post.path]).expect("Unable to insert post entry.");
+    let stmt = client
+        .prepare(
+            "INSERT INTO blog.posts (title, published_at, draft, content, path)
+      VALUES ($1, $2, $3, $4, $5)",
+        )
+        .expect("Could not prepare the statement");
+    let _ret = client
+        .query(
+            &stmt,
+            &[
+                &post.title,
+                &post.pubdate,
+                &post.draft,
+                &post.content,
+                &post.path,
+            ],
+        )
+        .expect("Unable to insert post entry.");
     // TODO: then insert each tag
 }
 

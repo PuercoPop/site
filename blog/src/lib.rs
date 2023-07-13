@@ -9,7 +9,7 @@ use minijinja::{context, Environment, Source};
 use pulldown_cmark::{Event, Parser};
 use regex::Regex;
 use serde::Serialize;
-use std::fs;
+use std::{fs, io::Read};
 use std::io::{self, BufRead, BufReader};
 use std::path::Path;
 use std::sync::Arc;
@@ -26,6 +26,10 @@ pub struct Post {
     pub pubdate: NaiveDate,
     pub draft: bool,
     tags: Vec<Tag>,
+    // /// The markdown source
+    // pub source: String,
+    /// The rendered HTML, minutes the embedded metadata
+    pub content: String,
     pub path: String,
 }
 
@@ -57,8 +61,7 @@ impl From<chrono::ParseError> for PostParseError {
 enum MetadataParseState {
     TitleLine,
     Tags,
-    DateLine,
-    End, // End of front matter
+    DateLine
 }
 
 type FSM = MetadataParseState;
@@ -116,31 +119,38 @@ fn read_pubdate<'a>(mut post: Post, line: &'a str) -> Result<Post, PostParseErro
 
 // Reads the meta-data embedded in the markdown document and returns a Post.
 pub fn read_post(path: &Path) -> Result<Post, PostParseError> {
+    // TODO(javier): We need to update this method to switch from reading line
+    // by line, to reading the full content.
     let fd = fs::File::open(path)?;
-    let reader = BufReader::new(fd);
+    let mut reader = BufReader::new(fd);
     let mut post = Post::new();
     post.path = path.to_string_lossy().into_owned();
     let mut state: FSM = FSM::TitleLine;
     // TODO(javier): Handle EOF?
-    for line in reader.lines() {
-        let l = line?;
+    loop {
+        let mut line = String::new();
+        let _len = reader.read_line(&mut line)?;
         match state {
             FSM::TitleLine => {
-                post = read_title(post, &l)?;
+                post = read_title(post, &line)?;
                 state = FSM::Tags;
             }
             FSM::Tags => {
-                post = read_tags(post, &l)?;
+                post = read_tags(post, &line)?;
                 state = FSM::DateLine;
             }
             FSM::DateLine => {
-                post = read_pubdate(post, &l)?;
-                state = FSM::End;
+                post = read_pubdate(post, &line)?;
+                break;
             }
-            FSM::End => return Ok(post),
         }
     }
-    Err(PostParseError::BadFormat)
+    let mut content = String::new();
+    let mut body = String::new();
+    let _len = reader.read_to_string(& mut body)?;
+    let parser = Parser::new(&body);
+    pulldown_cmark::html::push_html(&mut content, parser);
+    return Ok(post)
 }
 
 /// Holds to the global resources the application depends on
@@ -218,6 +228,7 @@ async fn post_by_slug(client: &Client, slug: String) -> Result<Post, PgError> {
         path: row.get(3),
         // TODO(javier): We shouldn't need to specify this values
         draft: false,
+        content: String::new(),
         tags: Vec::new(),
     };
     Ok(post)
@@ -228,7 +239,7 @@ static RECENT_POSTS_QUERY: &str = "with posts as (
 ), post_tags AS (
 select post_id, array_agg(tag) as tags from blog.post_tags where post_id IN (select post_id from posts) group by post_id
 )
-select p.title, p.slug, pt.tags, p.published_at, p.path from posts p natural join post_tags pt";
+select p.title, p.slug, pt.tags, p.published_at, p.content, p.path from posts p natural join post_tags pt";
 
 async fn recent_posts(client: &Client) -> Result<Vec<Post>, PgError> {
     // TODO(javier): Return tags as well
@@ -241,6 +252,7 @@ async fn recent_posts(client: &Client) -> Result<Vec<Post>, PgError> {
             slug: row.get("slug"),
             title: row.get("title"),
             pubdate: row.get("published_at"),
+            content: row.get("content"),
             path: row.get("path"),
             tags: row.get("tags"),
             // TODO(javier): We shouldn't need to specify this value
