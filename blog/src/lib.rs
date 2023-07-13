@@ -150,6 +150,7 @@ pub fn read_post(path: &Path) -> Result<Post, PostParseError> {
     let _len = reader.read_to_string(& mut body)?;
     let parser = Parser::new(&body);
     pulldown_cmark::html::push_html(&mut content, parser);
+    post.content = content;
     return Ok(post)
 }
 

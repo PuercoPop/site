@@ -18,11 +18,16 @@ struct Opts {
 
 // TODO(javier): Where does this function blog to?
 fn store_post(client: &mut Client, post: blog::Post) {
-    // TODO(javier): Set ON CONFLICT DO UPDATE
+    // TODO(javier): Extract query to constant
     let stmt = client
         .prepare(
             "INSERT INTO blog.posts (title, published_at, draft, content, path)
-      VALUES ($1, $2, $3, $4, $5)",
+      VALUES ($1, $2, $3, $4, $5) ON CONFLICT (path) DO UPDATE SET
+title = EXCLUDED.title,
+published_at = EXCLUDED.published_at,
+draft = EXCLUDED.draft,
+content = EXCLUDED.content
+",
         )
         .expect("Could not prepare the statement");
     let _ret = client
