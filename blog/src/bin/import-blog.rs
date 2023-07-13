@@ -20,7 +20,12 @@ static INSERT_POST_QUERY: &str = "INSERT INTO blog.posts (title, published_at, d
 VALUES ($1, $2, $3, $4, $5) ON CONFLICT (path) DO UPDATE SET
 title = EXCLUDED.title, published_at = EXCLUDED.published_at, draft = EXCLUDED.draft, content = EXCLUDED.content";
 
-// TODO(javier): Where does this function blog to?
+static INSERT_TAGS_QUERY: &str = "INSERT INTO blog.tags (TAG) VALUES ($1) ON CONFLICT DO NOTHING";
+static _INSERT_POST_TAGS_QUERY: &str = "INSERT INTO blog.post_tags (post_id, tag) VALUES ($1, $2)";
+static _REMOVE_UNUSED_POST_TAGS_QUERY: &str = "DELETE FROM blog.tags WHERE";
+
+
+// TODO(javier): Move function to lib.rs
 fn store_post(client: &mut Client, post: blog::Post) {
     let stmt = client
         .prepare(INSERT_POST_QUERY)
@@ -38,6 +43,12 @@ fn store_post(client: &mut Client, post: blog::Post) {
         )
         .expect("Unable to insert post entry.");
     // TODO: then insert each tag
+    let stmt = client.prepare(INSERT_TAGS_QUERY).expect("Could not prepare second statement");
+    for tag in post.tags {
+        let _ret = client.query(&stmt, &[&tag]).expect("Could not insert tag");
+
+    }
+
 }
 
 #[derive(Debug)]
@@ -80,6 +91,6 @@ fn main() -> Result<(), Error> {
             }
         }
     }
-
+    // TODO(javier): Clean up any tags that are not used by any post.
     Ok(())
 }

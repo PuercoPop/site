@@ -25,7 +25,7 @@ pub struct Post {
     pub title: String,
     pub pubdate: NaiveDate,
     pub draft: bool,
-    tags: Vec<Tag>,
+    pub tags: Vec<Tag>,
     // /// The markdown source
     // pub source: String,
     /// The rendered HTML, minutes the embedded metadata
