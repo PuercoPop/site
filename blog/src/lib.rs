@@ -239,7 +239,6 @@ select post_id, array_agg(tag) as tags from blog.post_tags where post_id IN (sel
 select p.title, p.slug, p.draft, pt.tags, p.published_at, p.content, p.path from posts p natural join post_tags pt";
 
 async fn recent_posts(client: &Client) -> Result<Vec<Post>, PgError> {
-    // TODO(javier): Return tags as well
     let stmt = client.prepare(RECENT_POSTS_QUERY).await?;
     let posts: Vec<Post> = client
         .query(&stmt, &[])
