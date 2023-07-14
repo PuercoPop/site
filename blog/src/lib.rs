@@ -15,8 +15,6 @@ use std::sync::Arc;
 use std::{fs, io::Read};
 use tokio_postgres::{Client, Error as PgError};
 
-// pub mod view;
-
 type Tag = String;
 
 #[derive(Serialize, Debug, Default)]
