@@ -3,5 +3,10 @@
 {% block main %}
 <h1>{{post.title}}</h1>
 <h3>{{post.pubdate}}</h3>
+<ul>
+{% for tag in post.tags %}
+<li>{{tag}}</li>
+{% endfor %}
+</ul>
 {{post.content|safe}}
 {% endblock %}

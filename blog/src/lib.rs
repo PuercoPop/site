@@ -213,25 +213,33 @@ async fn show_post(
     )
 }
 
+static POST_BY_SLUG_QUERY: &str = "WITH posts AS (
+  SELECT * FROM blog.posts WHERE slug = $1
+), tags AS (
+  SELECT post_id, array_agg(tag) AS tags FROM blog.post_tags
+  WHERE post_id IN (SELECT post_id FROM posts) GROUP BY post_id
+)
+SELECT p.title, p.slug, p.draft, t.tags, p.published_at, p.content, p.path
+ FROM posts p
+NATURAL JOIN tags t
+WHERE p.slug = $1";
+
 async fn post_by_slug(client: &Client, slug: String) -> Result<Post, PgError> {
-    let stmt = client
-        .prepare("SELECT slug, title, published_at, draft, content, path from blog.posts where slug = $1")
-        .await?;
+    let stmt = client.prepare(POST_BY_SLUG_QUERY).await?;
     let row = client.query_one(&stmt, &[&slug]).await?;
     let post = Post {
         slug: row.get("slug"),
         title: row.get("title"),
         pubdate: row.get("published_at"),
+        tags: row.get("tags"),
         path: row.get("path"),
         draft: row.get("draft"),
         content: row.get("content"),
-        // TODO(javier): We shouldn't need to specify this values
-        tags: Vec::new(),
     };
     Ok(post)
 }
 
-static RECENT_POSTS_QUERY: &str = "with posts as (
+static RECENT_POSTS_QUERY: &str = "WITH posts AS (
   select * from blog.posts order by published_at desc limit 5
 ), post_tags AS (
 select post_id, array_agg(tag) as tags from blog.post_tags where post_id IN (select post_id from posts) group by post_id
