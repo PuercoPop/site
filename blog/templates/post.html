@@ -3,5 +3,5 @@
 {% block main %}
 <h1>{{post.title}}</h1>
 <h3>{{post.pubdate}}</h3>
-{{post_content|safe}}
+{{post.content|safe}}
 {% endblock %}

@@ -9,10 +9,10 @@ use minijinja::{context, Environment, Source};
 use pulldown_cmark::{Event, Parser};
 use regex::Regex;
 use serde::Serialize;
-use std::{fs, io::Read};
 use std::io::{self, BufRead, BufReader};
 use std::path::Path;
 use std::sync::Arc;
+use std::{fs, io::Read};
 use tokio_postgres::{Client, Error as PgError};
 
 // pub mod view;
@@ -61,7 +61,7 @@ impl From<chrono::ParseError> for PostParseError {
 enum MetadataParseState {
     TitleLine,
     Tags,
-    DateLine
+    DateLine,
 }
 
 type FSM = MetadataParseState;
@@ -147,11 +147,11 @@ pub fn read_post(path: &Path) -> Result<Post, PostParseError> {
     }
     let mut content = String::new();
     let mut body = String::new();
-    let _len = reader.read_to_string(& mut body)?;
+    let _len = reader.read_to_string(&mut body)?;
     let parser = Parser::new(&body);
     pulldown_cmark::html::push_html(&mut content, parser);
     post.content = content;
-    return Ok(post)
+    return Ok(post);
 }
 
 /// Holds to the global resources the application depends on
@@ -207,29 +207,25 @@ async fn show_post(
         .get_template("post.html")
         .expect("Unable to get template");
     let post = post_by_slug(&state.db, slug).await.expect("IOU a ?");
-    let mut post_content = String::new();
-    let file_contents = std::fs::read_to_string(post.path.clone()).expect("Unable to read file.");
-    let parser = Parser::new(&file_contents);
-    pulldown_cmark::html::push_html(&mut post_content, parser);
     Html(
-        tmpl.render(context!(post => post, post_content=> post_content))
+        tmpl.render(context!(post => post))
             .expect("Unable to render template"),
     )
 }
 
 async fn post_by_slug(client: &Client, slug: String) -> Result<Post, PgError> {
     let stmt = client
-        .prepare("SELECT slug, title, published_at, path from blog.posts where slug = $1")
+        .prepare("SELECT slug, title, published_at, draft, content, path from blog.posts where slug = $1")
         .await?;
     let row = client.query_one(&stmt, &[&slug]).await?;
     let post = Post {
-        slug: row.get(0),
-        title: row.get(1),
-        pubdate: row.get(2),
-        path: row.get(3),
+        slug: row.get("slug"),
+        title: row.get("title"),
+        pubdate: row.get("published_at"),
+        path: row.get("path"),
+        draft: row.get("draft"),
+        content: row.get("content"),
         // TODO(javier): We shouldn't need to specify this values
-        draft: false,
-        content: String::new(),
         tags: Vec::new(),
     };
     Ok(post)
@@ -240,7 +236,7 @@ static RECENT_POSTS_QUERY: &str = "with posts as (
 ), post_tags AS (
 select post_id, array_agg(tag) as tags from blog.post_tags where post_id IN (select post_id from posts) group by post_id
 )
-select p.title, p.slug, pt.tags, p.published_at, p.content, p.path from posts p natural join post_tags pt";
+select p.title, p.slug, p.draft, pt.tags, p.published_at, p.content, p.path from posts p natural join post_tags pt";
 
 async fn recent_posts(client: &Client) -> Result<Vec<Post>, PgError> {
     // TODO(javier): Return tags as well
@@ -252,12 +248,11 @@ async fn recent_posts(client: &Client) -> Result<Vec<Post>, PgError> {
         .map(|row| Post {
             slug: row.get("slug"),
             title: row.get("title"),
+            draft: row.get("draft"),
+            tags: row.get("tags"),
             pubdate: row.get("published_at"),
             content: row.get("content"),
             path: row.get("path"),
-            tags: row.get("tags"),
-            // TODO(javier): We shouldn't need to specify this value
-            draft: false,
         })
         .collect();
     Ok(posts)
