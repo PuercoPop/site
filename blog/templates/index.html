@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block title %}Latest Posts{% endblock %}
-{%block main %}
+{% block main %}
 <h2> Latest Posts</h2>
   {% for post in latest_posts %}
     {% if loop.first %}<ol>{% endif %}

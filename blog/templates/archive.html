@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+{% block title %}Archive{% endblock %}
+{% block main %}
+<h2> Archives </h2>
+{% for post in posts %}
+{% if loop.first %}<ol>{%endif%}
+  <li><a href="/p/{{post.slug}}">{{post.title}}</a></li>
+{% if loop.last %}</ol>{%endif%}
+{% endfor %}
+{% endblock %}
