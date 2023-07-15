@@ -12,11 +12,16 @@ provider "vultr" {
   # api_key = ""
 }
 
-resource "vultr_block_storage" "skull-island" {
-
-
+resource "vultr_iso_private" "nix_iso" {
+  url = "https://channels.nixos.org/nixos-23.05/latest-nixos-minimal-x86_64-linux.iso"
 }
 
-# resource "vultr_instance" "kraken" {
-#   enable_ipv6 = true
-# }
+# resource "vultr_block_storage" "skull-island" {}
+
+resource "vultr_instance" "kraken" {
+  iso_id      = "nix_iso"
+  enable_ipv6 = true
+  plan        = "vc2-1c-1gb"
+  region      = "seattle"
+  hostname    = "kraken"
+}
