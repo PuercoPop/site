@@ -7,22 +7,24 @@
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
-      iou = "setup nixops";
-      terraform = pkgs.writeShellScriptBin "terraform" ''
-      export TF_VAR_VULTR_API_KEY=${iou}
-      ${pkgs.terraform}/bin/terraform $@
-      '';
+      # iou = "setup nixops";
+      # terraform = pkgs.writeShellScriptBin "terraform" ''
+      #   export TF_VAR_VULTR_API_KEY=${iou}
+      #   ${pkgs.terraform}/bin/terraform $@
+      # '';
     in
       {
-        packages = {
-          terraform = terraform;
-        }
+        # packages = {
+        #   terraform = terraform;
+        # }
         devShells.${system}.default = pkgs.mkShell {
           buildInputs = [
-            terraform
+            # terraform
+            pkgs.terraform
             pkgs.terraform-providers.vultr
             pkgs.terraform-ls
             pkgs.nixos-rebuild
+            pkgs.age
           ];
         };
       };
