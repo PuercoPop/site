@@ -19,9 +19,13 @@ resource "vultr_iso_private" "nix_iso" {
 # resource "vultr_block_storage" "skull-island" {}
 
 resource "vultr_instance" "kraken" {
-  iso_id      = "nix_iso"
+  # TODO(javier): Show do I say the equivalent of nix_iso.id
+  iso_id      = "62950b1e-61e8-4020-ac4a-31c9f12b86ac"
   enable_ipv6 = true
   plan        = "vc2-1c-1gb"
-  region      = "seattle"
+  region      = "sea"
   hostname    = "kraken"
 }
+
+# How do I look at the data source
+# https://registry.terraform.io/providers/vultr/vultr/latest/docs/data-sources/plan
