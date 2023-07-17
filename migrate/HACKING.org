@@ -1,4 +1,8 @@
 
+* TODO Use =psql= to run the migrations
+
+We need to pipe the embedded file to standard in to pass it to =psql=.
+
 * TODO Rewrite in Rust
 
 ** TODO Check dockertest
