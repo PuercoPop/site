@@ -18,6 +18,12 @@ doing. Keep things simple.
 - Migrations only roll forward.
 - The author of the migration is responsible for choosing and setting up the
   transactions they want to use.
+- Each build of `migrate` bundles the migrations in the executable. Making
+  deployment easier.
+- `migrate` keeps track of which migrations have been run against the
+  database. Running the same version of `migrate` multiple times should be
+  idempotent.
+- Uses `psql` to run the migrations.
 
 
 # Build
