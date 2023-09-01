@@ -18,7 +18,7 @@ data "http" "github" {
 
 resource "vultr_ssh_key" "github" {
   name = "github"
-  ssh_key = chomp(data.htttp.github.response_body)
+  ssh_key = chomp(data.http.github.response_body)
 }
 
 resource "vultr_iso_private" "nix_iso" {

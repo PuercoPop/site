@@ -15,7 +15,9 @@ vCPU/s: 1 vCPU
 RAM: 1024.00 MB
 Storage: 25 GB SSD
 Bandwidth: 0 GB
+$ mkdir -p ~/.ssh
 $ curl -L https://github.com/PuercoPop.keys >~/.ssh/authorized_keys
+$ scp configuration.nix nixos@$IP:/etc/configuration.nix
 
 # References
 
