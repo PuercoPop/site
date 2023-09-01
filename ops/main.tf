@@ -9,7 +9,7 @@ terraform {
 
 provider "vultr" {
   # Ensure VULTR_API_KEY is set
-  # api_key = ""
+  # api_key = var.vultur_api_key
 }
 
 data "http" "github" {
@@ -29,8 +29,8 @@ resource "vultr_iso_private" "nix_iso" {
 
 resource "vultr_instance" "kraken" {
   # TODO(javier): Show do I say the equivalent of nix_iso.id
-  # iso_id      = vultr_iso_private.nix_iso.id
-  iso_id      = "62950b1e-61e8-4020-ac4a-31c9f12b86ac"
+  iso_id      = vultr_iso_private.nix_iso.id
+  # iso_id      = "62950b1e-61e8-4020-ac4a-31c9f12b86ac"
   enable_ipv6 = true
   plan        = "vc2-1c-1gb"
   region      = "sea"

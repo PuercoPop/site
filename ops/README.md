@@ -17,9 +17,18 @@ Storage: 25 GB SSD
 Bandwidth: 0 GB
 $ mkdir -p ~/.ssh
 $ curl -L https://github.com/PuercoPop.keys >~/.ssh/authorized_keys
+$ ssh nixos@$(terraform output -raw kraken_ip)
 $ scp configuration.nix nixos@$IP:/etc/configuration.nix
+
+## First deploy
+
+We use [cloud-init] to set the password and the a custom configuration.nix
+
+# Subsequent deploys
 
 # References
 
 - https://www.haskellforall.com/2023/01/announcing-nixos-rebuild-new-deployment.html?m=1
 - https://jonascarpay.com/posts/2022-09-19-declarative-deployment.html#writing-and-building-the-application.
+
+[cloud-init]: https://cloudinit.readthedocs.io/en/latest/
