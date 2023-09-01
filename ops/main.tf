@@ -12,6 +12,15 @@ provider "vultr" {
   # api_key = ""
 }
 
+data "http" "github" {
+  url = "https://github.com/PuercoPop.keys"
+}
+
+resource "vultr_ssh_key" "github" {
+  name = "github"
+  ssh_key = chomp(data.htttp.github.response_body)
+}
+
 resource "vultr_iso_private" "nix_iso" {
   url = "https://channels.nixos.org/nixos-23.05/latest-nixos-minimal-x86_64-linux.iso"
 }
