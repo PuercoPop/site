@@ -16,26 +16,34 @@
       #   export TF_VAR_VULTR_API_KEY=${iou}
       #   ${pkgs.terraform}/bin/terraform $@
       # '';
-      bootstrap-config-module = {
+      terraform = pkgs.terraform;
+      bootstrap-config-module = { lib, modulesPath, ...}: {
         system.stateVersion = "23.05";
+        # imports = [ <nixpkgs/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix> ];
+        # imports = [ "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix" ];
+        imports = [ "${modulesPath}/installer/cd-dvd/installation-cd-minimal.nix" ];
+        # imports = [ "${modulesPath}/virtualization/qemu-vm.nix" ];
+
         services.openssh = {
           enable = true;
           settings = {
-            PermitRootLogin = "no";
+            PermitRootLogin = lib.mkForce "no";
             PasswordAuthentication = false;
           };
         };
           users = {
             mutableUsers = false;
-            users.root.openssh.authorized.keys = [
-              (builtins.fetchurl "https://github.com/PuercoPop.keys")
+            users.root.openssh.authorizedKeys.keys = [
+              "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKi6ih3rTLCwqlQnyOQHqyIUWHh8ipHLrFmjNH4rB5yP"
+              # (builtins.fetchurl "https://github.com/PuercoPop.keys")
             ];
             users.nixos = {
               isNormalUser = true;
               initialPassword = "";
               extraGroups = [ "wheel" ];
               openssh.authorizedKeys.keys = [
-                (builtins.fetchurl "https://github.com/PuercoPop.keys")
+                "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKi6ih3rTLCwqlQnyOQHqyIUWHh8ipHLrFmjNH4rB5yP"
+                # (builtins.fetchurl "https://github.com/PuercoPop.keys")
               ];
               
             };
@@ -43,7 +51,8 @@
       };
       bootstrap-img-name = "nixos-bootstrap-${system}";
       bootstrap-img = nixos-generators.nixosGenerate {
-        format = "qcow"; # or raw
+        format = "iso";
+        system = system;
         modules = [
           bootstrap-config-module
         ];
@@ -52,11 +61,11 @@
       {
         formatter."${system}" = pkgs.nixfmt;
         packages = {
-          # # nix run .#terraform
-          # terraform = terraform;
-          # "${system}" = {
-          #   bootstrap-img = bootstrap-img;
-          # };
+          "${system}" = {
+            bootstrap-img = bootstrap-img;
+            # nix run .#terraform
+            terraform = terraform;
+          };
         };
         devShells.${system}.default = pkgs.mkShell {
           buildInputs = [
