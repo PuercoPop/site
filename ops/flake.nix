@@ -18,10 +18,28 @@
       # '';
       bootstrap-config-module = {
         system.stateVersion = "23.05";
-        services.openssh.enable = true;
-        users.users.root.openssh.authorized.keys = [
-          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKi6ih3rTLCwqlQnyOQHqyIUWHh8ipHLrFmjNH4rB5yP"
-        ];
+        services.openssh = {
+          enable = true;
+          settings = {
+            PermitRootLogin = "no";
+            PasswordAuthentication = false;
+          };
+        };
+          users = {
+            mutableUsers = false;
+            users.root.openssh.authorized.keys = [
+              (builtins.fetchurl "https://github.com/PuercoPop.keys")
+            ];
+            users.nixos = {
+              isNormalUser = true;
+              initialPassword = "";
+              extraGroups = [ "wheel" ];
+              openssh.authorizedKeys.keys = [
+                (builtins.fetchurl "https://github.com/PuercoPop.keys")
+              ];
+              
+            };
+          };
       };
       bootstrap-img-name = "nixos-bootstrap-${system}";
       bootstrap-img = nixos-generators.nixosGenerate {
@@ -32,12 +50,13 @@
       };
     in
       {
+        formatter."${system}" = pkgs.nixfmt;
         packages = {
           # # nix run .#terraform
           # terraform = terraform;
-          x86_64-linux = {
-            bootstrap-img = bootstrap-img;
-          };
+          # "${system}" = {
+          #   bootstrap-img = bootstrap-img;
+          # };
         };
         devShells.${system}.default = pkgs.mkShell {
           buildInputs = [
