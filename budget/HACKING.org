@@ -1,3 +1,0 @@
-* TODO Determine which PDF parsing library to use
-https://github.com/camelot-dev/camelot
-y pytables
