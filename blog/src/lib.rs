@@ -195,6 +195,7 @@ pub fn new(ctx: Context) -> Router {
     let app = Router::new()
         .route("/", get(index))
         .route("/p/:slug", get(show_post))
+        .route("/tags/", get(list_tags))
         .with_state(ctx);
     app
 }
@@ -267,6 +268,36 @@ async fn recent_posts(client: &Client) -> Result<Vec<Post>, PgError> {
         })
         .collect();
     Ok(posts)
+}
+
+#[axum::debug_handler]
+async fn list_tags(State(state): State<Arc<Context>>) -> HandlerResult<Html<String>, HandlerError> {
+    let tmpl = state.templates.get_template("tag-list.html")?;
+    let tags = tags_count(&state.db).await?;
+    Ok(Html(tmpl.render(context!(tags => tags))?))
+}
+
+static TAGS_COUNT_QUERY: &str =
+    "SELECT tag, count(*) as count FROM blog.tags GROUP BY tag ORDER BY tag";
+
+#[derive(Serialize)]
+struct TagEntry {
+    name: Tag,
+    count: i64,
+}
+
+async fn tags_count(client: &Client) -> Result<Vec<TagEntry>, PgError> {
+    let stmt = client.prepare(TAGS_COUNT_QUERY).await?;
+    let tags: Vec<TagEntry> = client
+        .query(&stmt, &[])
+        .await?
+        .iter()
+        .map(|row| TagEntry {
+            name: row.get("tag"),
+            count: row.get("count"),
+        })
+        .collect();
+    Ok(tags)
 }
 
 #[cfg(test)]
