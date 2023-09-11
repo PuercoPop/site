@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+{% block title %}Posts tagged {{tag}}{% endblock %}
+{% block main %}
+<h2>Posts tagged {{tag}}</h2>
+{% for post in posts %}
+  {% if loop.first %}<ol>{% endif %}
+  <li><a href="/p/{{post.slug}}">{{post.title}}</a> {{post.pubdate}}
+    {% for tag in post.tags %}
+      {% if loop.first %}<ul class="post-tags">{% endif %}
+      <a href="/t/tag">#{{tag}}</a>,
+      {% if loop.last  %}</ul>{% endif %}
+    {% endfor %}
+  </li>
+  {% if loop.last %}</ol>{% endif %}
+{% endfor %}
+{% endblock %}

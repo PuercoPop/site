@@ -196,6 +196,7 @@ pub fn new(ctx: Context) -> Router {
         .route("/", get(index))
         .route("/p/:slug", get(show_post))
         .route("/tags/", get(list_tags))
+        .route("/t/:tag", get(show_tag))
         .with_state(ctx);
     app
 }
@@ -298,6 +299,49 @@ async fn tags_count(client: &Client) -> Result<Vec<TagEntry>, PgError> {
         })
         .collect();
     Ok(tags)
+}
+
+#[axum::debug_handler]
+async fn show_tag(
+    State(state): State<Arc<Context>>,
+    URLPath(tag): URLPath<String>,
+) -> HandlerResult<Html<String>, HandlerError> {
+    let tmpl = state.templates.get_template("tag-detail.html")?;
+    let posts = posts_by_tag(&state.db, &tag).await?;
+    Ok(Html(tmpl.render(context!(tag => tag, posts => posts))?))
+}
+
+static POSTS_BY_TAG_QUERY: &str = "WITH posts AS (
+  SELECT p.* FROM blog.post_tags pt
+  NATURAL JOIN blog.posts p
+  WHERE pt.tag = $1
+), tags AS (
+  SELECT post_id, array_agg(tag) AS tags
+  FROM blog.post_tags
+  WHERE post_id IN (SELECT post_id FROM posts)
+  GROUP BY post_id
+)
+SELECT posts.*, t.tags
+FROM posts NATURAL JOIN tags t";
+
+/// Returns all the posts tagged by `tag'
+async fn posts_by_tag(client: &Client, tag: &Tag) -> Result<Vec<Post>, PgError> {
+    let stmt = client.prepare(POSTS_BY_TAG_QUERY).await?;
+    let posts: Vec<Post> = client
+        .query(&stmt, &[tag])
+        .await?
+        .iter()
+        .map(|row| Post {
+            slug: row.get("slug"),
+            title: row.get("title"),
+            draft: row.get("draft"),
+            tags: row.get("tags"),
+            content: "".to_string(),
+            pubdate: row.get("published_at"),
+            path: row.get("path"),
+        })
+        .collect();
+    Ok(posts)
 }
 
 #[cfg(test)]
