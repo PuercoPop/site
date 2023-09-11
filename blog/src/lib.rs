@@ -1,6 +1,7 @@
 use axum::{
     extract::{Path as URLPath, State},
-    response::Html,
+    http,
+    response::{Html, IntoResponse, Response},
     routing::get,
     Router,
 };
@@ -13,6 +14,7 @@ use std::io::{self, BufRead, BufReader};
 use std::path::Path;
 use std::sync::Arc;
 use std::{fs, io::Read};
+use thiserror::Error;
 use tokio_postgres::{Client, Error as PgError};
 
 type Tag = String;
@@ -152,6 +154,19 @@ pub fn read_post(path: &Path) -> Result<Post, PostParseError> {
     return Ok(post);
 }
 
+/// HandlerError ocurr within HTTP handlers
+#[derive(Debug, Error)]
+enum HandlerError {
+    #[error(transparent)]
+    TemplateError(#[from] minijinja::Error),
+}
+
+impl IntoResponse for HandlerError {
+    fn into_response(self) -> Response {
+        (http::StatusCode::INTERNAL_SERVER_ERROR, self.to_string()).into_response()
+    }
+}
+
 /// Holds to the global resources the application depends on
 pub struct Context {
     /// The template engine
@@ -183,16 +198,15 @@ pub fn new(ctx: Context) -> Router {
 }
 
 #[axum::debug_handler]
-async fn index(State(state): State<Arc<Context>>) -> Html<String> {
-    let tmpl = state
-        .templates
-        .get_template("index.html")
-        .expect("Unable to get template");
+async fn index(
+    State(state): State<Arc<Context>>,
+) -> axum::response::Result<Html<String>, HandlerError> {
+    let tmpl = state.templates.get_template("index.html")?;
     let posts = recent_posts(&state.db).await.expect("IOU a ?");
-    Html(
+    Ok(Html(
         tmpl.render(context!(latest_posts => posts))
             .expect("Unable to render template"),
-    )
+    ))
 }
 
 #[axum::debug_handler]
