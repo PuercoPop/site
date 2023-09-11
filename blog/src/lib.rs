@@ -1,7 +1,7 @@
 use axum::{
     extract::{Path as URLPath, State},
     http,
-    response::{Html, IntoResponse, Response},
+    response::{Html, IntoResponse, Response, Result as HandlerResult},
     routing::get,
     Router,
 };
@@ -159,6 +159,8 @@ pub fn read_post(path: &Path) -> Result<Post, PostParseError> {
 enum HandlerError {
     #[error(transparent)]
     TemplateError(#[from] minijinja::Error),
+    #[error(transparent)]
+    DBError(#[from] tokio_postgres::Error),
 }
 
 impl IntoResponse for HandlerError {
@@ -198,31 +200,21 @@ pub fn new(ctx: Context) -> Router {
 }
 
 #[axum::debug_handler]
-async fn index(
-    State(state): State<Arc<Context>>,
-) -> axum::response::Result<Html<String>, HandlerError> {
+async fn index(State(state): State<Arc<Context>>) -> HandlerResult<Html<String>, HandlerError> {
     let tmpl = state.templates.get_template("index.html")?;
     let posts = recent_posts(&state.db).await.expect("IOU a ?");
-    Ok(Html(
-        tmpl.render(context!(latest_posts => posts))
-            .expect("Unable to render template"),
-    ))
+    Ok(Html(tmpl.render(context!(latest_posts => posts))?))
 }
 
 #[axum::debug_handler]
 async fn show_post(
     State(state): State<Arc<Context>>,
     URLPath(slug): URLPath<String>,
-) -> Html<String> {
-    let tmpl = state
-        .templates
-        .get_template("post.html")
-        .expect("Unable to get template");
-    let post = post_by_slug(&state.db, slug).await.expect("IOU a ?");
-    Html(
-        tmpl.render(context!(post => post))
-            .expect("Unable to render template"),
-    )
+) -> HandlerResult<Html<String>, HandlerError> {
+    let tmpl = state.templates.get_template("post.html")?;
+
+    let post = post_by_slug(&state.db, slug).await?;
+    Ok(Html(tmpl.render(context!(post => post))?))
 }
 
 static POST_BY_SLUG_QUERY: &str = "WITH posts AS (
