@@ -29,6 +29,11 @@ in
   shell = pkgs.mkShell {
     buildInputs = [
       terraform
+      pkgs.terraform-ls
+      pkgs.nixos-rebuild
+      # TODO: Figure out how to use it
+      pkgs.age
+      pkgs.agenix
     ];
   };
 }
