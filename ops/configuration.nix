@@ -32,7 +32,19 @@
   };
 
   networking.firewall.allowedTCPPorts = [ 80 443 ];
-  # Enable nginx/caddy to serve the files in www
   services = {
+    nginx = {
+      enable = true;
+      virtualHosts = {
+        "www.puercopop.com" = {
+          forceSSL = true;
+          enableACME = true;
+          locations."/" = {
+            # TODO: Serve the contents from the www package
+            root = "/var/www"
+          };
+        };
+      };
+    };
   };
 }
