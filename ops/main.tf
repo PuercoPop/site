@@ -1,42 +1,77 @@
 terraform {
   required_providers {
-    vultr = {
-      source  = "vultr/vultr"
-      version = "2.15.1"
+    digitalocean = {
+      source = "digitalocean/digitalocean"
+    }
+
+    http = {
+      source = "hashicorp/http"
     }
   }
 }
 
-provider "vultr" {
-  # Ensure VULTR_API_KEY is set
-  # api_key = var.vultur_api_key
-}
-
-data "http" "github" {
+data "http" "github_keys" {
   url = "https://github.com/PuercoPop.keys"
 }
 
-resource "vultr_ssh_key" "github" {
-  name = "github"
-  ssh_key = chomp(data.http.github.response_body)
+provider "digitalocean" {
+  token = var.do_token
+  spaces_access_id = var.do_spaces_access_id
+  spaces_secret_key = var.do_spaces_secret_key
 }
 
-resource "vultr_iso_private" "nix_iso" {
-  url = "https://channels.nixos.org/nixos-23.05/latest-nixos-minimal-x86_64-linux.iso"
+resource "digitalocean_ssh_key" "github" {
+  name = "github_keys"
+  public_key = chomp(data.http.github_keys.response_body)
+  lifecycle {
+    precondition {
+      condition     = contains([201, 200, 204], data.http.github_keys.status_code)
+      error_message = "Could not fetch SSH keys from GitHub"
+    }
+  }
 }
 
-# resource "vultr_block_storage" "skull-island" {}
+# resource "digitalocean_spaces_bucket" "custom-isos" {
+#   name = "custom-isos"
+#   region = "nyc3"
+# }
 
-resource "vultr_instance" "kraken" {
-  # TODO(javier): Show do I say the equivalent of nix_iso.id
-  iso_id      = vultr_iso_private.nix_iso.id
-  enable_ipv6 = true
-  plan        = "vc2-1c-1gb"
-  region      = "sea"
-  hostname    = "kraken"
-  ssh_key_ids = [vultr_ssh_key.github.id]
-  # user_data = file("cloud-init.yml")
+# resource "digitalocean_spaces_bucket_object" "bootstrap-nix-iso" {
+#   key = "nix.iso"
+#   bucket = digitalocean_spaces_bucket.custom-isos.name
+#   source = "./nix.iso"
+#   # content = file("./nix.iso")
+#   acl = "public-read"
+#   etag = filemd5("./nix.iso")
+#   region = "nyc3"
+# }
+
+resource "digitalocean_custom_image" "nixos-image" {
+  name = "nixos-23.05"
+  # url = "https://${digitalocean_spaces_bucket.custom-isos.bucket_domain_name}/${digitalocean_spaces_bucket_object.bootstrap-nix-iso.key}"
+  url = "https://custom-isos.nyc3.digitaloceanspaces.com/nix.iso"
+  regions = ["nyc3"]
 }
 
-# How do I look at the data source
-# https://registry.terraform.io/providers/vultr/vultr/latest/docs/data-sources/plan
+resource "digitalocean_droplet" "kraken" {
+  image = digitalocean_custom_image.nixos-image.id
+  name = "kraken"
+  size = "s-1vcpu-1gb"
+  region = "nyc3"
+  ipv6 = false # Custom images cannot use ipv6
+  ssh_keys = [digitalocean_ssh_key.github.fingerprint]
+  tags = ["kraken"]
+
+}
+
+resource "digitalocean_domain" "dns_puercopop" {
+  name = "puercopop.com"
+  ip_address = digitalocean_droplet.kraken.ipv4_address
+}
+
+resource "digitalocean_record" "www_subdomain" {
+  domain = digitalocean_domain.dns_puercopop.id
+  type = "A"
+  name = "www"
+  value = digitalocean_droplet.kraken.ipv4_address
+}

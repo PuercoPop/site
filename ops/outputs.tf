@@ -1,15 +1,19 @@
-
 output "kraken_ip" {
-  value = vultr_instance.kraken.main_ip
-  description = ""
+  value = digitalocean_droplet.kraken.ipv4_address
+  description = "The public IP of the Kraken droplet"
 }
 
-output "kraken_hostname" {
-  value = vultr_instance.kraken.hostname
+output "droplet_region" {
+  value = digitalocean_droplet.kraken.region
+  description = "The region on which it is deployed"
 }
 
-output "kraken_password" {
-  value = vultr_instance.kraken.default_password
-  sensitive = true
-  description = ""
+
+output "kraken_price" {
+  value = digitalocean_droplet.kraken.price_monthly
+  description = "The month price in USDs"
+}
+
+output "dns_puercopop_ttl" {
+  value = digitalocean_domain.dns_puercopop.ttl
 }

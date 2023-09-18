@@ -10,22 +10,30 @@ through a wrapper that sets environment variables before calling
 `terraform`. Finally we use nix configurations to configure any machines that
 are created using `nixos-rebuild`
 
-# Provisioning a machine
+# Runbooks
 
-vCPU/s: 1 vCPU
-RAM: 1024.00 MB
-Storage: 25 GB SSD
-Bandwidth: 0 GB
-$ mkdir -p ~/.ssh
-$ curl -L https://github.com/PuercoPop.keys >~/.ssh/authorized_keys
-$ ssh nixos@$(terraform output -raw kraken_ip)
-$ scp configuration.nix nixos@$IP:/etc/configuration.nix
+## Build boostrap ISO
 
-## First deploy
+```shell
+nix-build -A bootstrap-img
+cp result/nixos.qcow2.gz nix.iso
+```
 
-We use [cloud-init] to set the password and the a custom configuration.nix
+## Provision a new VM
 
-# Subsequent deploys
+```shell
+nix-shell -A shell
+terraform apply
+nixos-rebuild switch --fast --flake ..#kraken --build-host root@hiippo.com --target-host root@hiippo.com
+```
+
+## Deploy to a VM
+
+```shell
+nix-shell -A shell
+# This command needs to be updated
+nixos-rebuild switch --fast --flake .#default --target-host root@hiippo.com --build-host root@hiippo.com
+```
 
 # References
 

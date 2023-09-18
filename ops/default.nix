@@ -21,10 +21,10 @@ let
   config = nixpkgs.lib.nixosSystem {
     system = "${system}";
     modules = [ ./kraken-configuration.nix ];
-  }
+  };
 in
 {
-  conf = conf;
+  config = config;
   bootstrap-img = bootstrap-img;
   shell = pkgs.mkShell {
     buildInputs = [
@@ -33,7 +33,7 @@ in
       pkgs.nixos-rebuild
       # TODO: Figure out how to use it
       pkgs.age
-      pkgs.agenix
+      # pkgs.agenix
     ];
   };
 }

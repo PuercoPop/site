@@ -8,3 +8,4 @@
 \budget/target/
 \www/www
 result
+\ops/terraform.tfvars
