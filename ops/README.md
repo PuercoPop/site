@@ -24,7 +24,7 @@ cp result/nixos.qcow2.gz nix.iso
 ```shell
 nix-shell -A shell
 terraform apply
-nixos-rebuild switch --fast --flake ..#kraken --build-host root@hiippo.com --target-host root@hiippo.com
+nixos-rebuild switch --fast --flake ..#kraken --build-host root@puercopop.com --target-host root@puercopop.com
 ```
 
 ## Deploy to a VM
@@ -32,7 +32,7 @@ nixos-rebuild switch --fast --flake ..#kraken --build-host root@hiippo.com --tar
 ```shell
 nix-shell -A shell
 # This command needs to be updated
-nixos-rebuild switch --fast --flake .#default --target-host root@hiippo.com --build-host root@hiippo.com
+nixos-rebuild switch --fast --flake .#default --target-host root@puercopop.com --build-host root@puercopop.com
 ```
 
 # References

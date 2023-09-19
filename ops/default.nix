@@ -18,13 +18,14 @@ let
     imports = [ "${modulesPath}/virtualisation/digital-ocean-image.nix" ];
   };
   bootstrap-img = (pkgs.nixos bootstrap-config).digitalOceanImage;
-  config = nixpkgs.lib.nixosSystem {
-    system = "${system}";
-    modules = [ ./kraken-configuration.nix ];
+  conf = ./kraken-configuration.nix;
+  kraken = nixpkgs.lib.nixosSystem {
+    system = system;
+    modules = [ conf ];
   };
 in
 {
-  config = config;
+  kraken = kraken;
   bootstrap-img = bootstrap-img;
   shell = pkgs.mkShell {
     buildInputs = [
@@ -36,4 +37,6 @@ in
       # pkgs.agenix
     ];
   };
+  nixpkgs = nixpkgs;
+  pkgs = pkgs;
 }

@@ -9,3 +9,4 @@
 \www/www
 result
 \ops/terraform.tfvars
+\ops/nix.iso
