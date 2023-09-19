@@ -11,10 +11,13 @@
         overlays = [ ];
         config = { };
       };
+      www = pkgs.callPackage ./www { };
+      # TODO: Use callPackage
       ops = import ./ops {
         system = system;
         nixpkgs = nixpkgs;
         pkgs = pkgs;
+        www = www;
       };
     in
     {

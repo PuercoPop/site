@@ -1,4 +1,4 @@
-{ modulesPath, ... }: {
+{ modulesPath, www,... }: {
   # TODO: Check if I can use qemu-guest.nix
   imports = [ "${modulesPath}/virtualisation/digital-ocean-image.nix" ];
 
@@ -40,8 +40,7 @@
           forceSSL = true;
           enableACME = true;
           locations."/" = {
-            # TODO: Serve the contents from the www package
-            root = "/var/www";
+            root = www.resources;
           };
         };
       };

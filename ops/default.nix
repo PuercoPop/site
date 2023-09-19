@@ -8,20 +8,21 @@
     config = { };
     inherit system;
   }
+, www
 }:
 let
   terraform = pkgs.terraform.overrideAttrs (oldAttrs: {
     terraform-providers = [ pkgs.terraform-providers.digitalocean ];
   });
-  bootstrap-config = { lib, modulesPath, ...}: {
+  bootstrap-config = { lib, modulesPath, ... }: {
     system.stateVersion = "23.05";
     imports = [ "${modulesPath}/virtualisation/digital-ocean-image.nix" ];
   };
   bootstrap-img = (pkgs.nixos bootstrap-config).digitalOceanImage;
-  conf = ./kraken-configuration.nix;
   kraken = nixpkgs.lib.nixosSystem {
     system = system;
-    modules = [ conf ];
+    modules = [ ./kraken-configuration.nix ];
+    specialArgs = { www = www; };
   };
 in
 {

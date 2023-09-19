@@ -9,9 +9,6 @@
     inherit system;
   }
 }:
-let
-  www = ./resources;
-in
 {
-  www = www;
+  resources = ./resources;
 }
