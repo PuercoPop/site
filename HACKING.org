@@ -5,3 +5,5 @@
 ** TODO www
 ** TODO webhookd
 ** TODO ergoproxy
+* TODO Evaluate nginx vs caddy
+* TODO Setup SSL for puercopop.com

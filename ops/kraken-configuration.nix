@@ -14,7 +14,7 @@
 
     acme = {
       acceptTerms = true;
-      defaults.email = "pirata+hiippo@gmail.com";
+      defaults.email = "pirata+puercopop@gmail.com";
     };
   };
 
@@ -30,9 +30,11 @@
       })
     ];
   };
+  users.users.nginx.extraGroups = [ "acme" ];
 
   networking.firewall.allowedTCPPorts = [ 80 443 ];
   services = {
+    # https://discourse.nixos.org/t/nixos-nginx-acme-ssl-certificates-for-multiple-domains/19608/3
     nginx = {
       enable = true;
       virtualHosts = {
