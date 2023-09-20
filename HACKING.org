@@ -5,5 +5,27 @@
 ** TODO www
 ** TODO webhookd
 ** TODO ergoproxy
-* TODO Evaluate nginx vs caddy
-* TODO Setup SSL for puercopop.com
+* DONE Evaluate nginx vs caddy
+CLOSED: [2023-09-19 Tue 23:16]
+:LOGBOOK:
+- State "DONE"       from "TODO"       [2023-09-19 Tue 23:16] \\
+  Use nginx. "Tried by time".
+:END:
+
+* DONE Setup SSL for puercopop.com
+CLOSED: [2023-09-19 Tue 23:16]
+#+begin_quote
+[root@sparrow:~]# PAGER=cat journalctl -u acme-selfsigned-www.puercopop.com.service
+Sep 18 23:48:21 sparrow systemd[1]: Starting Generate self-signed certificate for www.puercopop.com...
+Sep 18 23:48:21 sparrow systemd[1]: acme-selfsigned-www.puercopop.com.service: Deactivated successfully.
+Sep 18 23:48:21 sparrow systemd[1]: Finished Generate self-signed certificate for www.puercopop.com.
+Sep 19 00:30:14 sparrow systemd[1]: Generate self-signed certificate for www.puercopop.com was skipped because of an unmet condition check (ConditionPathExists=!/var/lib/acme/www.puercopop.com/key.pem).
+Sep 19 00:31:32 sparrow systemd[1]: Generate self-signed certificate for www.puercopop.com was skipped because of an unmet condition check (ConditionPathExists=!/var/lib/acme/www.puercopop.com/key.pem).
+Sep 19 00:35:11 sparrow systemd[1]: Generate self-signed certificate for www.puercopop.com was skipped because of an unmet condition check (ConditionPathExists=!/var/lib/acme/www.puercopop.com/key.pem).
+Sep 19 08:42:20 sparrow systemd[1]: Generate self-signed certificate for www.puercopop.com was skipped because of an unmet condition check (ConditionPathExists=!/var/lib/acme/www.puercopop.com/key.pem).
+#+end_quote
+* TODO Update SSH setup
+** TODO Setup the nixos user
+** TODO Allow ssh access to the nixos user
+** TODO Can I use the nixos user as the builder?
+** TODO Disable root ssh login
