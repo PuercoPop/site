@@ -1,8 +1,9 @@
-* Check every sub-system works [0%]
+* Check every sub-system works [16%]
 ** TODO migrate
 ** TODO finsta
 ** TODO blog
-** TODO www
+** DONE www
+CLOSED: [2023-09-20 Wed 09:26]
 ** TODO webhookd
 ** TODO ergoproxy
 * DONE Evaluate nginx vs caddy
