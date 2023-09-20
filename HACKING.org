@@ -36,3 +36,9 @@ Sep 19 08:42:20 sparrow systemd[1]: Generate self-signed certificate for www.pue
 ** TODO Login to Mastodon using
 - https://docs.joinmastodon.org/spec/webfinger/
 - https://www.hanselman.com/blog/use-your-own-user-domain-for-mastodon-discoverability-with-the-webfinger-protocol-without-hosting-a-server
+* TODO Deploy blog                                                     :blog:
+** TODO How do I run import-blog on deploy?
+SystemD one one?
+** TODO Should I export a nixos module?
+** TODO nginx redirect
+** TODO SSL to subdomain
