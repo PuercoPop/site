@@ -29,3 +29,9 @@ Sep 19 08:42:20 sparrow systemd[1]: Generate self-signed certificate for www.pue
 ** TODO Allow ssh access to the nixos user
 ** TODO Can I use the nixos user as the builder?
 ** TODO Disable root ssh login
+* TODO Setup IndieAuth
+- https://indieauth.com/setup
+* TODO Setup Webfinger
+** TODO Login to Mastodon using
+- https://docs.joinmastodon.org/spec/webfinger/
+- https://www.hanselman.com/blog/use-your-own-user-domain-for-mastodon-discoverability-with-the-webfinger-protocol-without-hosting-a-server
