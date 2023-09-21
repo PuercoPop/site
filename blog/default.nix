@@ -24,9 +24,13 @@ let
     ];
   };
   cargoArtifacts = crane.buildDepsOnly commonArgs;
+  testDataFilter = path: _type: builtins.match ("testdata/*.md" path) != null;
   blog = crane.buildPackage (commonArgs // {
     inherit cargoArtifacts;
-    inherit src;
+    src = pkgs.lib.cleanSourceWith {
+      src = crane.path ./.;
+      filter = path: type: (testDataFilter path type) || (crane.filterCargoSources path type);
+    };
   });
 in
 {
