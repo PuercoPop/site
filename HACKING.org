@@ -1,19 +1,13 @@
-* Check every sub-system works [16%]
-** TODO migrate
-** TODO finsta
-** TODO blog
-** DONE www
-CLOSED: [2023-09-20 Wed 09:26]
-** TODO webhookd
-** TODO ergoproxy
-* DONE Evaluate nginx vs caddy
+* Tasks
+** DONE Evaluate nginx vs caddy
+
 CLOSED: [2023-09-19 Tue 23:16]
 :LOGBOOK:
 - State "DONE"       from "TODO"       [2023-09-19 Tue 23:16] \\
   Use nginx. "Tried by time".
 :END:
 
-* DONE Setup SSL for puercopop.com
+** DONE Setup SSL for puercopop.com
 CLOSED: [2023-09-19 Tue 23:16]
 #+begin_quote
 [root@sparrow:~]# PAGER=cat journalctl -u acme-selfsigned-www.puercopop.com.service
@@ -25,20 +19,23 @@ Sep 19 00:31:32 sparrow systemd[1]: Generate self-signed certificate for www.pue
 Sep 19 00:35:11 sparrow systemd[1]: Generate self-signed certificate for www.puercopop.com was skipped because of an unmet condition check (ConditionPathExists=!/var/lib/acme/www.puercopop.com/key.pem).
 Sep 19 08:42:20 sparrow systemd[1]: Generate self-signed certificate for www.puercopop.com was skipped because of an unmet condition check (ConditionPathExists=!/var/lib/acme/www.puercopop.com/key.pem).
 #+end_quote
-* TODO Update SSH setup
-** TODO Setup the nixos user
-** TODO Allow ssh access to the nixos user
-** TODO Can I use the nixos user as the builder?
-** TODO Disable root ssh login
-* TODO Setup IndieAuth
+** TODO Update SSH setup
+*** TODO Setup the nixos user
+*** TODO Allow ssh access to the nixos user
+*** TODO Can I use the nixos user as the builder?
+*** TODO Disable root ssh login
+
+** TODO Deploy blog                                                    :blog:
+*** TODO How do I run import-blog on deploy?
+SystemD one one?
+*** TODO Should I export a nixos module?
+*** TODO nginx redirect
+*** TODO SSL to subdomain
+
+* Ideas
+** TODO Setup IndieAuth
 - https://indieauth.com/setup
-* TODO Setup Webfinger
-** TODO Login to Mastodon using
+** TODO Setup Webfinger
+*** TODO Login to Mastodon using
 - https://docs.joinmastodon.org/spec/webfinger/
 - https://www.hanselman.com/blog/use-your-own-user-domain-for-mastodon-discoverability-with-the-webfinger-protocol-without-hosting-a-server
-* TODO Deploy blog                                                     :blog:
-** TODO How do I run import-blog on deploy?
-SystemD one one?
-** TODO Should I export a nixos module?
-** TODO nginx redirect
-** TODO SSL to subdomain
