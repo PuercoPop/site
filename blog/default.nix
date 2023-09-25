@@ -36,13 +36,14 @@ in
 {
   default = blog;
   shell = pkgs.mkShell {
-    nativeBuildInputs = [
+    packages = [
       pkgs.cargo
       pkgs.cargo-watch
       pkgs.rustc
       pkgs.rustfmt
       pkgs.clippy
       pkgs.rust-analyzer
+      pkgs.sqitchPg
     ];
   };
 }
