@@ -24,9 +24,14 @@ let
     modules = [ ./kraken-configuration.nix ];
     specialArgs = { www = www; };
   };
+  sparrow = nixpkgs.lib.nixosSystem {
+    system = system;
+    modules = [ ./sparrow-configuration.nix ];
+  };
 in
 {
   kraken = kraken;
+  sparrow = sparrow;
   bootstrap-img = bootstrap-img;
   shell = pkgs.mkShell {
     buildInputs = [

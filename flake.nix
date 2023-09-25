@@ -24,6 +24,7 @@
       formatter."${system}" = pkgs.nixpkgs-fmt;
       nixosConfigurations = {
         kraken = ops.kraken;
+        sparrow = ops.sparrow;
       };
     };
 }
