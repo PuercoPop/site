@@ -4,7 +4,7 @@
 
   system.stateVersion = "23.05";
   time.timeZone = "America/Lima";
-  networking.hostName = "sparrow";
+  networking.hostName = "kraken";
 
   security = {
     sudo = {
