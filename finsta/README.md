@@ -14,3 +14,7 @@ As a User I need to be able to:
 - Share pictures
 - Effects?
 - Upload by default in private/backup media from the phone.
+
+## Companion App
+
+[finsta-droid](https://github.com/PuercoPop/finsta-droid)
