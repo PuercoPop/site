@@ -18,6 +18,7 @@
   };
 
   users.users = {
+    # TODO: Add a user for each service
     nixos = {
       isNormalUser = true;
       extraGroups = [ "wheel" "networkmanager" "video" ];
@@ -50,6 +51,11 @@
           };
         };
       };
+    };
+    postgresql = {
+      enable = false;
+      # TODO: parametrize database name
+      ensureDatabases = ["blog"];
     };
   };
 }

@@ -32,7 +32,7 @@ nixos-rebuild switch --fast --flake ..#kraken --build-host root@puercopop.com --
 ```shell
 nix-shell -A shell
 # This command needs to be updated
-nixos-rebuild switch --fast --flake .#default --target-host root@puercopop.com --build-host root@puercopop.com
+nixos-rebuild switch --fast --flake .#kraken --target-host root@puercopop.com --build-host root@puercopop.com
 ```
 
 # References
