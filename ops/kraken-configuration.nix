@@ -55,7 +55,7 @@
     postgresql = {
       enable = false;
       # TODO: parametrize database name
-      ensureDatabases = ["blog"];
+      ensureDatabases = [ "blog" ];
     };
   };
 }

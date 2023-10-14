@@ -8,6 +8,7 @@
     config = { };
     inherit system;
   }
+, blog-module
 , www
 }:
 let
@@ -21,7 +22,11 @@ let
   bootstrap-img = (pkgs.nixos bootstrap-config).digitalOceanImage;
   kraken = nixpkgs.lib.nixosSystem {
     system = system;
-    modules = [ ./kraken-configuration.nix ];
+    modules = [
+      ./kraken-configuration.nix
+      blog-module
+      ({ ... }: { config.kraken.services.blog = { enable = true; }; })
+    ];
     specialArgs = { www = www; };
   };
   sparrow = nixpkgs.lib.nixosSystem {

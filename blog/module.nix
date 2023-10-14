@@ -1,8 +1,10 @@
 { lib, config, options, ... }:
+let
+  cfg = config.kraken.services.blog;
+in
 {
   options.services.blog = {
     enable = lib.mkEnableOption "Enable blog";
-    # TODO: Should we make this an option?
     package = lib.mkOption {
       default = pkgs.callPackage ./default.nix { };
       type = lib.types.package;
