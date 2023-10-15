@@ -26,7 +26,7 @@ Sep 19 08:42:20 sparrow systemd[1]: Generate self-signed certificate for www.pue
 *** TODO Disable root ssh login
 
 ** TODO Deploy blog                                                    :blog:
-*** TODO How do I run import-blog on deploy?
+*** TODO [#A] How do I run import-blog on deploy?
 SystemD one one?
 *** TODO Should I export a nixos module?
 *** TODO nginx redirect
