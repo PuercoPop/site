@@ -1,6 +1,6 @@
 { lib, config, options, ... }:
 let
-  cfg = config.kraken.services.blog;
+  cfg = config.services.blog;
 in
 {
   options.services.blog = {
@@ -9,12 +9,17 @@ in
       type = lib.types.package;
       description = "The blog derivation to use";
     };
-    options.user = lib.mkOption {
+    user = lib.mkOption {
       default = "blog";
       type = lib.types.str;
       description = "The user to run the blog service as";
     };
-    options.dbname = lib.mkOption {
+    group = lib.mkOption {
+      default = "blog";
+      type = lib.types.str;
+      description = "The group to run the blog service as";
+    };
+    dbname = lib.mkOption {
       type = lib.types.str;
       description = "The database name blog is deployed to.";
     };
@@ -25,19 +30,23 @@ in
     users = {
       users.${cfg.user} =
         {
-          isSystemuser = true;
+          isSystemUser = true;
           group = "${cfg.user}";
         };
-      group.${cfg.user} = { };
+      groups.${cfg.group} = { };
     };
     # TODO: Can I define a postgresql service here as well; Yes. Options are merged
 
-    systemd.services = {
+    services = {
       postgresql = {
         enable = true;
-        ensureDatabases = [ "blog" ];
+        ensureDatabases = [ cfg.dbname ];
+        ensureUsers = [ cfg.user ];
+        # ensurePermissions = { };
       };
+    };
 
+    systemd.services = {
       # https://github.com/serokell/systemd-nix
       # We need to define 3 systemd-units
       # 1. To run psql -f sql/schema.sql
@@ -55,7 +64,7 @@ in
           "postgresql.service"
         ];
         serviceConfig = {
-          User = "blog";
+          User = cfg.services.blog.user;
           # man 7 systemd.directives
           # Type = "notify";
           ExecStart = ''${cfg.package}/bin/import-blog'';
@@ -70,8 +79,8 @@ in
           "postgresql.service"
         ];
         serviceConfig = {
-          User = "blog";
-          Group = "blog";
+          User = cfg.user;
+          Group = cfg.group;
           Restart = "always";
           ExecStart = ''${cfg.package}/bin/serve-blog'';
         };
