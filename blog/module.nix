@@ -20,6 +20,7 @@ in
       description = "The group to run the blog service as";
     };
     dbname = lib.mkOption {
+      default = "blog";
       type = lib.types.str;
       description = "The database name blog is deployed to.";
     };
@@ -64,7 +65,7 @@ in
           "postgresql.service"
         ];
         serviceConfig = {
-          User = cfg.services.blog.user;
+          User = cfg.user;
           # man 7 systemd.directives
           # Type = "notify";
           ExecStart = ''${cfg.package}/bin/import-blog'';
