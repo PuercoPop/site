@@ -6,13 +6,12 @@ in
   options.services.blog = {
     enable = lib.mkEnableOption "Enable blog";
     package = lib.mkOption {
-      default = pkgs.callPackage ./default.nix { };
       type = lib.types.package;
       description = "The blog derivation to use";
     };
     options.user = lib.mkOption {
       default = "blog";
-      type = types.str;
+      type = lib.types.str;
       description = "The user to run the blog service as";
     };
     options.dbname = lib.mkOption {
@@ -21,7 +20,7 @@ in
     };
   };
 
-  config = mkIf cfg.enable {
+  config = lib.mkIf cfg.enable {
     environment.systemPackages = [ cfg.package ];
     users = {
       users.${cfg.user} =
@@ -31,14 +30,23 @@ in
         };
       group.${cfg.user} = { };
     };
-    # TODO: Can I define a postgresql service here as well;
+    # TODO: Can I define a postgresql service here as well; Yes. Options are merged
 
     systemd.services = {
+      postgresql = {
+        enable = true;
+        ensureDatabases = [ "blog" ];
+      };
+
       # https://github.com/serokell/systemd-nix
       # We need to define 3 systemd-units
       # 1. To run psql -f sql/schema.sql
       # 2. To run import-blog
       # 3. To run serve-blog
+      #
+      # blog-schema = pkgs.writeShellScriptBin "blog-schema" ''
+      #   psql -f ${./sql/schema.sql} -d adress
+      # '';
       import-blog-svc = {
         description = "Import all the posts";
         wantedBy = [ "multi-user.target" ];
@@ -50,7 +58,7 @@ in
           User = "blog";
           # man 7 systemd.directives
           # Type = "notify";
-          ExecStart = ''${blog}/bin/import-blog'';
+          ExecStart = ''${cfg.package}/bin/import-blog'';
         };
       };
       serve-blog-svc = {
@@ -65,7 +73,7 @@ in
           User = "blog";
           Group = "blog";
           Restart = "always";
-          ExecStart = ''${blog}/bin/serve-blog'';
+          ExecStart = ''${cfg.package}/bin/serve-blog'';
         };
       };
     };

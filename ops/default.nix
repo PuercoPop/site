@@ -8,8 +8,12 @@
     config = { };
     inherit system;
   }
-, blog-module
-, www
+, blog ? import ../blog {
+    inherit system nixpkgs pkgs;
+  }
+, www ? import ../www {
+    inherit system nixpkgs pkgs;
+  }
 }:
 let
   terraform = pkgs.terraform.overrideAttrs (oldAttrs: {
@@ -24,10 +28,8 @@ let
     system = system;
     modules = [
       ./kraken-configuration.nix
-      blog-module
-      ({ ... }: { config.kraken.services.blog = { enable = true; }; })
     ];
-    specialArgs = { www = www; };
+    specialArgs = { www = www; blog = blog; };
   };
   sparrow = nixpkgs.lib.nixosSystem {
     system = system;

@@ -11,15 +11,15 @@
         overlays = [ ];
         config = { };
       };
-      blog-module = pkgs.callPackage ./blog/module.nix { };
+      blog = pkgs.callPackage ./blog { };
       www = pkgs.callPackage ./www { };
       # TODO: Use callPackage
       ops = import ./ops {
         system = system;
         nixpkgs = nixpkgs;
         pkgs = pkgs;
-        blog-module = blog-module;
         www = www;
+        blog = blog;
       };
     in
     {

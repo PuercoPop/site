@@ -1,6 +1,9 @@
-{ modulesPath, www, ... }: {
+{ modulesPath, www, blog, ... }: {
   # TODO: Check if I can use qemu-guest.nix
-  imports = [ "${modulesPath}/virtualisation/digital-ocean-image.nix" ];
+  imports = [
+    "${modulesPath}/virtualisation/digital-ocean-image.nix"
+    ../blog/module.nix
+  ];
 
   system.stateVersion = "23.05";
   time.timeZone = "America/Lima";
@@ -52,10 +55,9 @@
         };
       };
     };
-    postgresql = {
-      enable = false;
-      # TODO: parametrize database name
-      ensureDatabases = [ "blog" ];
+    blog = {
+      enable = true;
+      package = blog.default;
     };
   };
 }
