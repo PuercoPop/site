@@ -42,8 +42,12 @@ in
       postgresql = {
         enable = true;
         ensureDatabases = [ cfg.dbname ];
-        ensureUsers = [ cfg.user ];
-        # ensurePermissions = { };
+        ensureUsers = [{
+          name = cfg.user;
+          ensurePermissions = {
+            "DATABASE ${cfg.dbname}" = "ALL PRIVILEGES";
+          };
+        }];
       };
     };
 
