@@ -58,6 +58,8 @@
     blog = {
       enable = true;
       package = blog.default;
+      templatesDir = blog.templates;
+      dbSchema = blog.schema;
     };
   };
 }

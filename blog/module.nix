@@ -5,14 +5,26 @@ in
 {
   options.services.blog = {
     enable = lib.mkEnableOption "Enable blog";
-    package = lib.mkOption {
-      type = lib.types.package;
-      description = "The blog derivation to use";
+    package =
+      lib.mkOption {
+        type = lib.types.package;
+        description = "The blog derivation to
+use";
+      };
+    templatesDir = lib.mkOption {
+      type = lib.types.path;
+      description = "A directory containing the templates";
+    };
+    dbSchema = lib.mkOption {
+      type = lib.types.path;
+      description = ''A file containing the database schema.
+        It should be idempotent.'';
     };
     user = lib.mkOption {
       default = "blog";
       type = lib.types.str;
-      description = "The user to run the blog service as";
+      description = "The user to run the blog service
+as";
     };
     group = lib.mkOption {
       default = "blog";
@@ -22,7 +34,7 @@ in
     dbname = lib.mkOption {
       default = "blog";
       type = lib.types.str;
-      description = "The database name blog is deployed to.";
+      description = "The database to use";
     };
   };
 
@@ -87,7 +99,10 @@ in
           User = cfg.user;
           Group = cfg.group;
           Restart = "always";
-          ExecStart = ''${cfg.package}/bin/serve-blog'';
+          # the following required arguments were not provided:
+          #   -d <DBURL>
+          #   -D <TEMPLATES_DIR>
+          ExecStart = ''${cfg.package}/bin/serve-blog -D ${cfg.templatesDir}'';
         };
       };
     };
