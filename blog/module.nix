@@ -53,6 +53,7 @@ as";
     services = {
       postgresql = {
         enable = true;
+        enableTCPIP = false;
         ensureDatabases = [ cfg.dbname ];
         ensureUsers = [{
           name = cfg.user;
@@ -99,10 +100,7 @@ as";
           User = cfg.user;
           Group = cfg.group;
           Restart = "always";
-          # the following required arguments were not provided:
-          #   -d <DBURL>
-          #   -D <TEMPLATES_DIR>
-          ExecStart = ''${cfg.package}/bin/serve-blog -D ${cfg.templatesDir}'';
+          ExecStart = ''${cfg.package}/bin/serve-blog -d postgresql://${cfg.user}@/${cfg.dbname} -D ${cfg.templatesDir}'';
         };
       };
     };
