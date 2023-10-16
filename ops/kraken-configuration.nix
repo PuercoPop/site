@@ -9,6 +9,8 @@
   time.timeZone = "America/Lima";
   networking.hostName = "kraken";
 
+  environment.systemPackages = [ blog.default ];
+
   security = {
     sudo = {
       enable = true;
@@ -57,8 +59,6 @@
     };
     blog = {
       enable = true;
-      # TODO: Why is this package always being recompiled on redeploy? Is it
-      # because it is not installed in a profile?
       package = blog.default;
       templateDir = blog.templates;
       contentDir = blog.content;
