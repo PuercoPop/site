@@ -35,8 +35,9 @@ let
 in
 {
   default = blog;
-  schema = ./src/schema.sql;
+  schema = ./sql/schema.sql;
   templates = ./templates;
+  content = ./content/posts;
   shell = pkgs.mkShell {
     packages = [
       pkgs.cargo

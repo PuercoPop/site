@@ -1,4 +1,4 @@
-{ modulesPath, www, blog, ... }: {
+{ modulesPath, pkgs, www, blog, ... }: {
   # TODO: Check if I can use qemu-guest.nix
   imports = [
     "${modulesPath}/virtualisation/digital-ocean-image.nix"
@@ -58,8 +58,12 @@
     blog = {
       enable = true;
       package = blog.default;
-      templatesDir = blog.templates;
+      templateDir = blog.templates;
+      contentDir = blog.content;
       dbSchema = blog.schema;
+      postgresql = {
+        package = pkgs.postgresql_15;
+      };
     };
   };
 }
