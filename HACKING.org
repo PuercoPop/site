@@ -26,9 +26,29 @@ Sep 19 08:42:20 sparrow systemd[1]: Generate self-signed certificate for www.pue
 *** TODO Disable root ssh login
 
 ** TODO Deploy blog                                                    :blog:
-*** TODO [#A] How do I run import-blog on deploy?
+*** DONE [#A] How do I run import-blog on deploy?
+CLOSED: [2023-10-15 Sun 20:17]
+:LOGBOOK:
+- State "DONE"       from "TODO"       [2023-10-15 Sun 20:17] \\
+  By using a oneshot systemd unit. Because the database is a 'cache' I can drop
+  the db and re-import on deploy.
+:END:
 SystemD one one?
-*** TODO Should I export a nixos module?
+*** DONE Should I export a nixos module?
+CLOSED: [2023-10-15 Sun 20:22]
+:LOGBOOK:
+- State "DONE"       from "TODO"       [2023-10-15 Sun 20:22] \\
+  Yes. It allows me to describe the deployment independently of process of
+  building the package.
+:END:
+
+*** TODO Why can't serve-blog understand the database url?
+
+#+begin_quote
+[root@kraken:~]# sudo -u blog /nix/store/k46wxhn6dx9wlk4ghvjy00dxyk7rxm47-blog-0.1.0/bin/serve-blog -d postgresql://blog@/blog -D >
+Error: DBerror(Error { kind: Config, cause: Some("host missing") })
+#+end_quote
+
 *** TODO nginx redirect
 *** TODO SSL to subdomain
 
