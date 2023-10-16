@@ -74,6 +74,19 @@ as";
           };
         }];
       };
+      nginx = {
+        enable = true;
+        virtualHosts = {
+          "blog.puercopop.com" = {
+            forceSSL = true;
+            enableACME = true;
+            locations."/" = {
+              proxyPass = "http://127.0.0.1:3000";
+              # TODO: Set the X-Forwarded-For header
+            };
+          };
+        };
+      };
     };
 
     systemd.services = {
