@@ -60,9 +60,16 @@ The following works:
 sudo -u blog psql -d postgresql://blog@/blog
 #+end_src
 
-*** TODO nginx redirect
-*** TODO SSL to subdomain
+*** DONE nginx redirect
+CLOSED: [2023-10-16 Mon 10:15]
+*** DONE SSL to subdomain
+CLOSED: [2023-10-16 Mon 10:15]
+*** TODO Configure X-Forwarded-For header
+** TODO Setup nix binary cache                                          :ops:
 
+** TODO Why does the blog crate keep getting rebuilt?                   :ops:
+
+** TODO Deploy from a GitHub action or sr.ht build                      :ops:
 * Ideas
 ** TODO Setup IndieAuth
 - https://indieauth.com/setup
