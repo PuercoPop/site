@@ -42,12 +42,18 @@ CLOSED: [2023-10-15 Sun 20:22]
   building the package.
 :END:
 
-*** TODO Why can't serve-blog understand the database url?
+*** TODO Why can't import-blog/serve-blog understand the database url?
 
 #+begin_quote
 [root@kraken:~]# sudo -u blog /nix/store/k46wxhn6dx9wlk4ghvjy00dxyk7rxm47-blog-0.1.0/bin/serve-blog -d postgresql://blog@/blog -D >
 Error: DBerror(Error { kind: Config, cause: Some("host missing") })
 #+end_quote
+
+The following works:
+
+#+begin_src sh
+sudo -u blog psql -d postgresql://blog@/blog
+#+end_src
 
 *** TODO nginx redirect
 *** TODO SSL to subdomain

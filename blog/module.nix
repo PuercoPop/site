@@ -39,7 +39,7 @@ as";
         description = "The PostgreSQL package to use.";
       };
       dburl = lib.mkOption {
-        default = "postgresql://${cfg.user}@/${cfg.postgresql.dbname}";
+        default = "postgresql:///${cfg.postgresql.dbname}?user=${cfg.user}&host=/run/postgresql";
         description = "The connection string to use.
            See https://www.postgresql.org/docs/16/libpq-connect.html#LIBPQ-CONNSTRING";
       };
