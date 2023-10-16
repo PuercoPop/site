@@ -47,6 +47,7 @@ resource "digitalocean_ssh_key" "github" {
 # }
 
 resource "digitalocean_custom_image" "nixos-image" {
+  distribution = "Unknown OS"
   name = "nixos-23.05"
   # url = "https://${digitalocean_spaces_bucket.custom-isos.bucket_domain_name}/${digitalocean_spaces_bucket_object.bootstrap-nix-iso.key}"
   url = "https://custom-isos.nyc3.digitaloceanspaces.com/nix.iso"
