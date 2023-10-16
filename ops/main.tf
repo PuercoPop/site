@@ -76,3 +76,10 @@ resource "digitalocean_record" "www_subdomain" {
   name = "www"
   value = digitalocean_droplet.kraken.ipv4_address
 }
+
+resource "digitalocean_record" "blog_subdomain" {
+  domain = digitalocean_domain.dns_puercopop.id
+  type = "A"
+  name = "blog"
+  value = digitalocean_droplet.kraken.ipv4_address
+}
