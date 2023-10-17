@@ -1,0 +1,13 @@
+#!/usr/bin/bash
+
+/dev/null <<DESIGN
+1. List all the migrations in directory
+2. Run a psql query to find out which ones have not been run.
+3. For each migration
+   a. Run psql -f <path/to/migration>
+   b. Check the status code
+     i.  If 0, record the migration
+     ii. If non-zero abort the entire process
+
+How should we communicate when the hash of the migration has changed?
+DESIGN

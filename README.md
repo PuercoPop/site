@@ -11,6 +11,7 @@ The initial version of the site has the following components.
 
 - ergo: A proxy whose main purpose is to upgrade other HTTP services w/o any
   downtime and keep the SSL certificates up to date..
+- migrate: A database migration system.
 - blog: Where I write my thoughts.
 - finsta: An invite-only image board.
 - webhookd: updates and redeploys other components upon learning of a new
