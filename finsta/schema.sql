@@ -8,6 +8,8 @@ CREATE TABLE finsta.users (
   user_id integer PRIMARY KEY GENERATED always AS IDENTITY,
   email text NOT NULL UNIQUE, -- todo(javier): we want uniqueness to be case-insensitive
   password BYTEA NOT NULL,
+  -- display_name text not null;
+  -- name text not null;
 );
 
 CREATE TABLE finsta.admins (
@@ -48,6 +50,7 @@ CREATE TABLE finsta.known_media (
 --     -- author_id integer references
 -- )
 create table finsta.media (
-       checksum bytea not null
+       checksum bytea not null;
+       -- TODO: Bucket URL? Is there some kind of structure we want to mimick?
 );
-commit;
+COMMIT;
