@@ -280,7 +280,7 @@ async fn list_tags(State(state): State<Arc<Context>>) -> HandlerResult<Html<Stri
 }
 
 static TAGS_COUNT_QUERY: &str =
-    "SELECT tag, count(*) as count FROM blog.tags GROUP BY tag ORDER BY tag";
+    "SELECT tag, count(*) as count FROM blog.post_tags GROUP BY tag ORDER BY tag";
 
 #[derive(Serialize)]
 struct TagEntry {
