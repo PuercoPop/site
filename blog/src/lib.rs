@@ -323,7 +323,8 @@ static POSTS_BY_TAG_QUERY: &str = "WITH posts AS (
   GROUP BY post_id
 )
 SELECT posts.*, t.tags
-FROM posts NATURAL JOIN tags t";
+FROM posts NATURAL JOIN tags t
+ORDER BY posts.published_at DESC";
 
 /// Returns all the posts tagged by `tag'
 async fn posts_by_tag(client: &Client, tag: &Tag) -> Result<Vec<Post>, PgError> {
