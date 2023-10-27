@@ -13,6 +13,7 @@ pub async fn form() -> Html<&'static str> {
 
 pub async fn upload(mut multipart: Multipart) {
     // TODO: Replace unwrap calls with ?
+    // Handler should return something like Result<(), axum::http::StatusCode>
     while let Some(field) = multipart.next_field().await.unwrap() {
         let name = field.name().unwrap().to_string();
         println!("Field is {}", name);
