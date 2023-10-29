@@ -1,8 +1,22 @@
-use axum::{extract::Multipart, response::Html};
+use axum::{
+    extract::Multipart,
+    response::Html,
+    routing::{get, post},
+    Router,
+};
+
+pub fn new() -> Router {
+    Router::new()
+        .route("/", get(index))
+        .route("/upload", get(form))
+        .route("/upload", post(upload))
+}
 
 pub async fn index() -> Html<&'static str> {
     Html("こんにちは<a href=/upload>Upload</a>")
 }
+
+// TODO: whoami page/endpoint
 
 pub async fn form() -> Html<&'static str> {
     Html("<html><body><h1>Upload Image</h1><form action=/upload method=post enctype='multipart/form-data'>
