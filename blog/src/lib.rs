@@ -197,6 +197,7 @@ pub fn new(ctx: Context) -> Router {
         .route("/p/:slug", get(show_post))
         .route("/tags/", get(list_tags))
         .route("/t/:tag", get(show_tag))
+        .route("/feed/", get(feed))
         .with_state(ctx);
     app
 }
@@ -340,6 +341,47 @@ async fn posts_by_tag(client: &Client, tag: &Tag) -> Result<Vec<Post>, PgError> 
             tags: row.get("tags"),
             content: "".to_string(),
             pubdate: row.get("published_at"),
+            path: row.get("path"),
+        })
+        .collect();
+    Ok(posts)
+}
+
+// TODO: Set Content-type to XML. This means not using Html in the return time.
+// TODO: After we stop recreating the database on each deploy, implement a
+// paginated feed.
+// TODO: After we feed is paginated we can include the posts content in the
+// feed.
+/// Implements the blog's Atom feed. See:
+/// https://datatracker.ietf.org/doc/html/rfc4287
+#[axum::debug_handler]
+async fn feed(State(state): State<Arc<Context>>) -> HandlerResult<Html<String>, HandlerError> {
+    let tmpl = state.templates.get_template("atom.xml")?;
+    let posts = all_posts(&state.db).await?;
+    Ok(Html(tmpl.render(context!(posts => posts))?))
+}
+
+static ALL_POSTS_QUERY: &str = "WITH posts AS (
+  select * from blog.posts order by published_at desc
+), post_tags AS (
+select post_id, array_agg(tag) as tags from blog.post_tags where post_id IN (select post_id from posts) group by post_id
+)
+select p.title, p.slug, p.draft, pt.tags, p.published_at, p.content, p.path from posts p natural join post_tags pt
+order by p.published_at desc";
+
+async fn all_posts(client: &Client) -> Result<Vec<Post>, PgError> {
+    let stmt = client.prepare(ALL_POSTS_QUERY).await?;
+    let posts: Vec<Post> = client
+        .query(&stmt, &[])
+        .await?
+        .iter()
+        .map(|row| Post {
+            slug: row.get("slug"),
+            title: row.get("title"),
+            draft: row.get("draft"),
+            tags: row.get("tags"),
+            pubdate: row.get("published_at"),
+            content: row.get("content"),
             path: row.get("path"),
         })
         .collect();

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Serious Trolling</title>
+  <link href="https://blog.puercopop.com" />
+  <author>
+    <name>Javier Olaechea</name>
+  </author>
+  {% for post in posts %}
+  <entry>
+    <id>urn:slug:{{post.slug}}</id>
+    <updated>{{post.pubdate}}</updated>
+    <title>{{post.title}}</title>
+    <link>https://blog.puercopop.com/p/{{post.slug}}</link>
+  </entry>
+{% endfor %}
+</feed>
