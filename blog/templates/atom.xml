@@ -2,6 +2,8 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Serious Trolling</title>
   <link href="https://blog.puercopop.com" />
+  <link rel="self" href="https://blog.puercopop.com/feed/" />
+  <fh:complete />
   <author>
     <name>Javier Olaechea</name>
   </author>

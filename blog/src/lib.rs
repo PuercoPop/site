@@ -350,12 +350,14 @@ async fn posts_by_tag(client: &Client, tag: &Tag) -> Result<Vec<Post>, PgError> 
     Ok(posts)
 }
 
+// TODO: Add updated as a top-level tag to the feed.
 // TODO: After we stop recreating the database on each deploy, implement a
 // paginated feed.
 // TODO: After we feed is paginated we can include the posts content in the
 // feed.
 /// Implements the blog's Atom feed. See:
 /// https://datatracker.ietf.org/doc/html/rfc4287
+/// and https://github.com/rackerlabs/riss/blob/master/cookbook/atom-feed-paging-and-archiving.md
 #[axum::debug_handler]
 async fn feed(State(state): State<Arc<Context>>) -> HandlerResult<Response, HandlerError> {
     let tmpl = state.templates.get_template("atom.xml")?;
@@ -374,6 +376,7 @@ select post_id, array_agg(tag) as tags from blog.post_tags where post_id IN (sel
 select p.title, p.slug, p.draft, pt.tags, p.published_at, p.content, p.path from posts p natural join post_tags pt
 order by p.published_at desc";
 
+// TODO: Once we move to a paginated feed we can remove this method and used recent_posts directly instead.
 async fn all_posts(client: &Client) -> Result<Vec<Post>, PgError> {
     let stmt = client.prepare(ALL_POSTS_QUERY).await?;
     let posts: Vec<Post> = client
