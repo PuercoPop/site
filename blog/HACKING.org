@@ -1,12 +1,17 @@
-* TODO Do we want to enable the following axum feature flags?
+* DONE Do we want to enable the following axum feature flags?
+CLOSED: [2023-10-30 Mon 09:15]
 https://docs.rs/axum/latest/axum/#feature-flags
 - headers	Enables extracting typed headers via TypedHeader
 - multipart	Enables parsing multipart/form-data requests with Multipart
 - macros	Enables optional utility macros
-* TODO Setup server with PostgreSQL connection
-* TODO Chose template
-* TODO Homepage endpoint                                           :endpoint:
-* TODO Render single post by slug                                  :endpoint:
+* DONE Setup server with PostgreSQL connection
+CLOSED: [2023-10-30 Mon 09:14]
+* DONE Chose template
+CLOSED: [2023-10-30 Mon 09:14]
+* DONE Homepage endpoint                                           :endpoint:
+CLOSED: [2023-10-30 Mon 09:15]
+* DONE Render single post by slug                                  :endpoint:
+CLOSED: [2023-10-30 Mon 09:15]
 * TODO List of all the tags tags                                   :endpoint:
 * TODO List posts with the same tag                                :endpoint:
 * TODO atom.xml                                                    :endpoint:
