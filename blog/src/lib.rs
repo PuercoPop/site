@@ -6,6 +6,7 @@ use axum::{
     Router,
 };
 use chrono::NaiveDate;
+use hyper::header::{self, HeaderMap};
 use minijinja::{context, Environment, Source};
 use pulldown_cmark::{Event, Parser};
 use regex::Regex;
@@ -161,6 +162,8 @@ enum HandlerError {
     TemplateError(#[from] minijinja::Error),
     #[error(transparent)]
     DBError(#[from] tokio_postgres::Error),
+    #[error(transparent)]
+    InvalidHeader(#[from] hyper::header::InvalidHeaderValue),
 }
 
 impl IntoResponse for HandlerError {
@@ -347,7 +350,6 @@ async fn posts_by_tag(client: &Client, tag: &Tag) -> Result<Vec<Post>, PgError> 
     Ok(posts)
 }
 
-// TODO: Set Content-type to XML. This means not using Html in the return time.
 // TODO: After we stop recreating the database on each deploy, implement a
 // paginated feed.
 // TODO: After we feed is paginated we can include the posts content in the
@@ -355,10 +357,13 @@ async fn posts_by_tag(client: &Client, tag: &Tag) -> Result<Vec<Post>, PgError> 
 /// Implements the blog's Atom feed. See:
 /// https://datatracker.ietf.org/doc/html/rfc4287
 #[axum::debug_handler]
-async fn feed(State(state): State<Arc<Context>>) -> HandlerResult<Html<String>, HandlerError> {
+async fn feed(State(state): State<Arc<Context>>) -> HandlerResult<Response, HandlerError> {
     let tmpl = state.templates.get_template("atom.xml")?;
     let posts = all_posts(&state.db).await?;
-    Ok(Html(tmpl.render(context!(posts => posts))?))
+    let mut headers = HeaderMap::new();
+    headers.insert(header::CONTENT_TYPE, "application/atom+xml.".parse()?);
+    let body = tmpl.render(context!(posts => posts))?;
+    Ok((headers, body).into_response())
 }
 
 static ALL_POSTS_QUERY: &str = "WITH posts AS (
