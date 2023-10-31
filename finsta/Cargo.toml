@@ -7,5 +7,10 @@ edition = "2021"
 
 [dependencies]
 axum = { version = "0.6.20", features = ["multipart"] }
+clap = { version = "4.4.7", features = [ "derive", "env", "unicode"] }
+http = "0.2.9"
+hyper = "0.14.27"
+minijinja = { version = "1.0.9", features = ["loader"] }
+thiserror = "1.0.50"
 tokio = { version = "1.27.0", features = ["full"] }
 tokio-postgres = "0.7.7"
