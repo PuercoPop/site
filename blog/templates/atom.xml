@@ -12,7 +12,7 @@
     <id>urn:slug:{{post.slug}}</id>
     <updated>{{post.pubdate}}</updated>
     <title>{{post.title}}</title>
-    <link>https://blog.puercopop.com/p/{{post.slug}}</link>
+    <link href="https://blog.puercopop.com/p/{{post.slug}}" />
   </entry>
 {% endfor %}
 </feed>
