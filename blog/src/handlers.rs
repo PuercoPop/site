@@ -79,6 +79,7 @@ pub(crate) async fn feed(
 ) -> HandlerResult<Response, HandlerError> {
     let tmpl = state.templates.get_template("atom.xml")?;
     let posts = all_posts(&state.db).await?;
+    // TODO: use Response::builder() instead
     let mut headers = HeaderMap::new();
     headers.insert(header::CONTENT_TYPE, "application/atom+xml".parse()?);
     let body = tmpl.render(context!(posts => posts))?;
