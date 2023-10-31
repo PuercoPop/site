@@ -1,5 +1,5 @@
 use axum::{routing::get, Router};
-use minijinja::{Environment, Source};
+use minijinja::{Environment, path_loader};
 use std::sync::Arc;
 use tokio_postgres::Client;
 
@@ -20,9 +20,9 @@ pub struct Context {
 }
 
 pub fn new_ctx(client: Client, template_dir: String) -> Context {
-    let source = Source::from_path(template_dir);
+    let source = path_loader(template_dir);
     let mut env = Environment::new();
-    env.set_source(source);
+    env.set_loader(source);
 
     Context {
         templates: env,
