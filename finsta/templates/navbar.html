@@ -1,5 +1,17 @@
 <nav>
   <ul>
+    <!-- TODO: Check if used is logged, toggle between login CTA or form -->
     <li><a href="/login">Login</a></li>
+    <li><form method="POST" action="/sign-in">
+        <label>
+          Email
+          <input type="email">
+        </label>
+        <label>
+          Password
+          <input type="password">
+        </label>
+      </form>
+    </li>
   </ul>
 </nav>
