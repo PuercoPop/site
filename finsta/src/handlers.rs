@@ -1,7 +1,8 @@
 use crate::HTTPContext;
 use axum::{
-    extract::{Multipart, Query, State},
+    extract::{Multipart, State},
     response::{Html, IntoResponse, Response, Result as HandlerResult},
+    Form,
 };
 use minijinja::context;
 use serde::Deserialize;
@@ -33,8 +34,8 @@ pub(crate) struct SignInQP {
 }
 
 pub(crate) async fn sign_in(
-    params: Query<SignInQP>,
     State(_state): State<Arc<HTTPContext>>,
+    Form(params): Form<SignInQP>,
 ) -> HandlerResult<Html<String>, HandlerError> {
     // 1. Extract request parameters
     // 2. Check against the database
