@@ -4,10 +4,12 @@ begin;
 drop schema finsta cascade all;
 create schema finsta if not exists;
 
+CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA public;
+
 CREATE TABLE finsta.users (
-  user_id integer PRIMARY KEY GENERATED always AS IDENTITY,
-  email text NOT NULL UNIQUE, -- todo(javier): we want uniqueness to be case-insensitive
-  password BYTEA NOT NULL,
+  user_id INTEGER PRIMARY KEY GENERATED always AS IDENTITY,
+  email TEXT NOT NULL UNIQUE, -- todo(javier): we want uniqueness to be case-insensitive
+  password TEXT NOT NULL,
   -- display_name text not null;
   -- name text not null;
 );
