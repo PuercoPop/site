@@ -1,9 +1,10 @@
 use crate::HTTPContext;
 use axum::{
-    extract::{Multipart, State},
+    extract::{Multipart, Query, State},
     response::{Html, IntoResponse, Response, Result as HandlerResult},
 };
 use minijinja::context;
+use serde::Deserialize;
 use std::sync::Arc;
 
 #[derive(thiserror::Error, Debug)]
@@ -25,11 +26,21 @@ pub async fn index(
     Ok(Html(tmpl.render(context!())?))
 }
 
-pub async fn sign_in(State(_state): State<Arc<HTTPContext>>) -> HandlerResult<Html<String>, HandlerError> {
+#[derive(Deserialize)]
+pub(crate) struct SignInQP {
+    email: String,
+    password: String,
+}
+
+pub(crate) async fn sign_in(
+    params: Query<SignInQP>,
+    State(_state): State<Arc<HTTPContext>>,
+) -> HandlerResult<Html<String>, HandlerError> {
     // 1. Extract request parameters
     // 2. Check against the database
     // 3. If successful redirct
-    todo!()
+    println!("e: {}. p: {}", params.email, params.password);
+    Ok(Html("IOU".to_string()))
 }
 
 // TODO: whoami page/endpoint

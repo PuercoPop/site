@@ -27,6 +27,7 @@ pub fn new(template_dir: String, db: Client) -> Router {
 
     Router::new()
         .route("/", get(handlers::index))
+        .route("/sign-in", post(handlers::sign_in))
         .route("/upload", get(handlers::form))
         .route("/upload", post(handlers::upload))
         .with_state(ctx)

@@ -11,6 +11,7 @@ clap = { version = "4.4.7", features = [ "derive", "env", "unicode"] }
 http = "0.2.9"
 hyper = "0.14.27"
 minijinja = { version = "1.0.9", features = ["loader"] }
+serde = { version = "1.0.190", features = ["derive"] }
 thiserror = "1.0.50"
 tokio = { version = "1.27.0", features = ["full"] }
 tokio-postgres = "0.7.7"
