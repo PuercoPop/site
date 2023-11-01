@@ -7,12 +7,18 @@ struct Opts {
     templates_dir: String,
 }
 
+#[derive(thiserror::Error, Debug)]
+enum Error {
+    #[error(transparent)]
+    HyperError(#[from] hyper::Error)
+}
+
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), Error> {
     let args = Opts::parse();
     let app = new(args.templates_dir);
     axum::Server::bind(&"0.0.0.0:3000".parse().unwrap())
         .serve(app.into_make_service())
-        .await
-        .unwrap();
+        .await?;
+    Ok(())
 }
