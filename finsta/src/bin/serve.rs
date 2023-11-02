@@ -1,6 +1,7 @@
 use clap::Parser;
 use finsta::new;
 use tokio_postgres::NoTls;
+use tower_http::trace::TraceLayer;
 
 #[derive(Parser)]
 struct Opts {
@@ -28,8 +29,10 @@ async fn main() -> Result<(), Error> {
             eprintln!("connection error: {}", err);
         }
     });
+    tracing_subscriber::fmt::init();
 
-    let app = new(args.templates_dir, client);
+    let app = new(args.templates_dir, client)
+        .layer(TraceLayer::new_for_http());
     axum::Server::bind(&"0.0.0.0:3000".parse().unwrap())
         .serve(app.into_make_service())
         .await?;
