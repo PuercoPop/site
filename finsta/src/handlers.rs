@@ -7,14 +7,14 @@ use axum::{
 use minijinja::context;
 use serde::Deserialize;
 use std::sync::Arc;
-use tokio_postgres::{Error as PgError};
+use tokio_postgres::Error as PgError;
 
 #[derive(thiserror::Error, Debug)]
 pub enum HandlerError {
     #[error(transparent)]
     TemplateError(#[from] minijinja::Error),
     #[error(transparent)]
-    DBError(#[from] PgError)
+    DBError(#[from] PgError),
 }
 
 impl IntoResponse for HandlerError {
@@ -44,7 +44,8 @@ pub(crate) async fn sign_in(
     // 2. ✔ Check against the database
     // 3. If successful redirect
     println!("e: {}. p: {}", params.email, params.password);
-    let is_valid = crate::users::authenticate_user(&state.db, params.email, params.password).await?;
+    let is_valid =
+        crate::users::authenticate_user(&state.db, params.email, params.password).await?;
     println!("Auth is {}", is_valid);
     Ok(Html("Auth is {}".to_string()))
 }
