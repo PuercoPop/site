@@ -7,6 +7,7 @@ use std::sync::Arc;
 use tokio_postgres::Client;
 
 mod db;
+mod users;
 mod handlers;
 
 /// A context that is accessible on all axum request handlers.
