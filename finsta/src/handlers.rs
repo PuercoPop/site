@@ -1,9 +1,10 @@
 use crate::HTTPContext;
 use axum::{
     extract::{Multipart, State},
-    response::{Html, IntoResponse, Response, Result as HandlerResult},
+    response::{Html, IntoResponse, Redirect, Response, Result as HandlerResult},
     Form,
 };
+use http::StatusCode;
 use minijinja::context;
 use serde::Deserialize;
 use std::sync::Arc;
@@ -15,6 +16,8 @@ pub enum HandlerError {
     TemplateError(#[from] minijinja::Error),
     #[error(transparent)]
     DBError(#[from] PgError),
+    #[error(transparent)]
+    HTTPError(#[from] http::Error),
 }
 
 impl IntoResponse for HandlerError {
@@ -36,18 +39,29 @@ pub(crate) struct SignInQP {
     password: String,
 }
 
+// TODO: Track sign-in attempts
 pub(crate) async fn sign_in(
     State(state): State<Arc<HTTPContext>>,
     Form(params): Form<SignInQP>,
-) -> HandlerResult<Html<String>, HandlerError> {
+) -> HandlerResult<impl IntoResponse, HandlerError> {
     // 1. ✔ Extract request parameters
     // 2. ✔ Check against the database
     // 3. If successful redirect
-    println!("e: {}. p: {}", params.email, params.password);
     let is_valid =
         crate::users::authenticate_user(&state.db, params.email, params.password).await?;
-    println!("Auth is {}", is_valid);
-    Ok(Html("Auth is {}".to_string()))
+
+    if is_valid {
+        // TODO: Get URL from query param, redirect_to
+        Ok(Redirect::temporary("/"))
+    } else {
+        // TODO: Figure out how to return a response on this branch. Seems I
+        // have to return the same type on both branches?
+        // let response = Response::builder().status(StatusCode::NOT_FOUND).body(
+        //     "This are not the droids that you are looking for",
+        // )?;
+        // Ok(response)
+        Ok(Redirect::temporary("/"))
+    }
 }
 
 // TODO: whoami page/endpoint
