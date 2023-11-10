@@ -25,6 +25,8 @@ fn print_help() {
 }
 
 fn main() {
+    let mut migration_dir: Option<String> = None;
+    let mut dburl: Option<String> = None;
     let mut args = env::args().into_iter();
     // drop the first one argument which is the name of the executable
     args.next();
@@ -34,8 +36,25 @@ fn main() {
                 print_help();
                 exit(0)
             }
-            "-D" => println!("Save migration dir"),
-            "-d" => println!("database URL to connect to"),
+            "-D" => match args.next() {
+                Some(v) => migration_dir = Some(v),
+                None => {
+                    println!("-D takes a directory");
+                    print_help();
+                    exit(1);
+                }
+            },
+            "-d" => {
+                match args.next() {
+                    Some(v) => dburl = Some(v),
+                    None => {
+                        println!("-D takes the URL of the PostgreSQL database to connect to");
+                        print_help();
+                        exit(1);
+                    }
+                }
+                println!("database URL to connect to")
+            }
             &_ => {
                 println!("Unrecognized option: {:?}", arg);
                 print_help();
