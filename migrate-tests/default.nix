@@ -16,10 +16,16 @@ pkgs.nixosTest {
       isNormalUser = true;
       initialHashedPassword = "nixos";
     };
-    # /home/puercopop/src/nixpkgs/nixos/tests/web-apps/mastodon/remote-postgresql.nix
+    services = {
+      # /home/puercopop/src/nixpkgs/nixos/tests/web-apps/mastodon/remote-postgresql.nix
+      postgresql = {
+        enable = true;
+      };
+    };
   };
   testScript = ''
-    start_all()
+    machine.wait_for_unit("postgresql.service")
     machine.succeed("sudo -u nixos whoami")
+    machine.succeed("sudo -u postgres psql -c 'SELECT 1;'")
   '';
 }
