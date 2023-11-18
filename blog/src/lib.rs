@@ -34,12 +34,11 @@ pub fn new_ctx(client: Client, template_dir: String) -> Context {
 pub fn new(ctx: Context) -> Router {
     // TODO: Can I remove the Arc wrapper?
     let ctx = Arc::new(ctx);
-    let app = Router::new()
+    Router::new()
         .route("/", get(handlers::index))
         .route("/p/:slug", get(handlers::show_post))
         .route("/tags/", get(handlers::list_tags))
         .route("/t/:tag", get(handlers::show_tag))
         .route("/feed/", get(handlers::feed))
-        .with_state(ctx);
-    app
+        .with_state(ctx)
 }
