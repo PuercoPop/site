@@ -203,9 +203,9 @@ mod tests {
 
     #[test]
     fn test_md5_1() {
-        let pathbuf = PathBuf::from("./schema.sql");
+        let pathbuf = PathBuf::from("./meta.sql");
         assert_eq!(
-            md5(pathbuf),
+            md5(&pathbuf),
             Some("a9c1d60ea6e7d398c30f31c854a1a62c".to_string())
         );
     }
@@ -213,6 +213,6 @@ mod tests {
     #[test]
     fn test_md5_enoent() {
         let pathbuf = PathBuf::from("./fubar.sql");
-        assert_eq!(md5(pathbuf), None);
+        assert_eq!(md5(&pathbuf), None);
     }
 }
