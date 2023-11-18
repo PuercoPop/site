@@ -1,5 +1,5 @@
 use axum::{routing::get, Router};
-use minijinja::{Environment, path_loader};
+use minijinja::{path_loader, Environment};
 use std::sync::Arc;
 use tokio_postgres::Client;
 
