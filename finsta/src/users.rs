@@ -1,7 +1,7 @@
 use tokio_postgres::{Client, Error as PgError};
 
 static CHECK_PASS: &str =
-    "SELECT u.password = crypt(?, u.password) AS result FROM finsta.users u WHERE email = ?";
+    "SELECT u.password = crypt($1::text, u.password) AS result FROM finsta.users u WHERE email = $2";
 
 pub(crate) async fn authenticate_user(
     db: &Client,
