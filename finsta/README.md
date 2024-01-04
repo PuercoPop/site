@@ -8,10 +8,24 @@
 
 ## Development setup
 
+Setup the database
+
 ```shell
 createdb finsta -h localhost -U postgres
 psql -h localhost -U postgres -d finsta -f sql/schema.sql
 psql -h localhost -U postgres -d finsta -f sql/seeds.sql
+```
+
+Build the server
+
+```shell
+cargo build
+```
+
+Finally run the serve:
+
+```shell
+$ RUST_LOG=info,axum::rejection=trace ./target/debug/serve -d postgres://postgres@localhost:5432/finsta -D ./template
 ```
 
 ## Affordances
