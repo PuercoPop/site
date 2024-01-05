@@ -22,11 +22,22 @@ Build the server
 cargo build
 ```
 
-Finally run the serve:
+Finally run the server:
 
 ```shell
 $ RUST_LOG=info,axum::rejection=trace ./target/debug/serve -d postgres://postgres@localhost:5432/finsta -D ./template
 ```
+
+## Testing
+
+### Setup the test database
+
+```shell
+createdb finsta_test -h localhost -U postgres
+psql -h localhost -U postgres -d finsta_test -f sql/schema.sql
+psql -h localhost -U postgres -d finsta_test -f sql/seeds.sql
+```
+
 
 ## Affordances
 
