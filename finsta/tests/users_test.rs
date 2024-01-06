@@ -26,33 +26,36 @@ async fn test_authenticate_user_1() {
     assert_eq!(ret, false);
 }
 
-// TODO: Test authenticate_user with wrong password
 #[tokio::test]
 async fn test_authenticate_user_2() {
+    // When the wrong path is provided
     let db = setup_db().await;
-    // TODO: Check this succeds
-    let _ret = db
-        .query(
-            "INSERT INTO users (email, password) VALUES ($1, crypt($2, gensalt('bf', 8)))",
+    let count = db
+        .execute(
+            "INSERT INTO finsta.users (email, password) VALUES ($1::text, crypt($2::text, gen_salt('bf', 8)))",
             &[&"jane@doe.com".to_string(), &"badtzu".to_string()],
         )
-        .await;
+        .await.unwrap();
+    assert_eq!(count, 1);
     let ret = authenticate_user(&db, "jane@doe.com".to_string(), "t0ps3cr3t".to_string())
         .await
         .unwrap();
     assert_eq!(ret, false)
 }
 
-// TODO: Test authenticate_user with correct password
 #[tokio::test]
 async fn test_authenticate_user_3() {
+    // Happy path
     let db = setup_db().await;
-    let _ret = db
-        .query(
-            "INSERT INTO users (email, password) VALUES ($1, crypt($2, gensalt('bf', 8)))",
+    // TODO:: Wrap in transaction
+    let count = db
+        .execute(
+            "INSERT INTO finsta.users (email, password) VALUES ($1::text, crypt($2::text, gen_salt('bf', 8)))",
             &[&"jane@doe.com".to_string(), &"t0ps3cr3t".to_string()],
         )
-        .await;
+        .await
+        .unwrap();
+    assert_eq!(count, 1);
     let ret = authenticate_user(&db, "jane@doe.com".to_string(), "t0ps3cr3t".to_string())
         .await
         .unwrap();
