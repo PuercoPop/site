@@ -4,7 +4,6 @@ use axum::{
     response::{Html, IntoResponse, Redirect, Response, Result as HandlerResult},
     Form,
 };
-use http::StatusCode;
 use minijinja::context;
 use serde::Deserialize;
 use std::sync::Arc;
@@ -52,6 +51,7 @@ pub(crate) async fn sign_in(
 
     if is_valid {
         // TODO: Get URL from query param, redirect_to
+        // https://github.com/tokio-rs/axum/discussions/351
         Ok(Redirect::temporary("/"))
     } else {
         // TODO: Figure out how to return a response on this branch. Seems I

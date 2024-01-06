@@ -9,6 +9,10 @@ pub async fn authenticate_user(
     password: String,
 ) -> Result<bool, PgError> {
     let stmt = db.prepare(CHECK_PASS).await?;
-    let row = db.query_one(&stmt, &[&password, &email]).await?;
-    row.try_get("result").or(Ok(false))
+    let rows = db.query(&stmt, &[&password, &email]).await?;
+    // If the rows <> 1 return false.
+    if rows.len() != 1 {
+        return Ok(false);
+    }
+    rows[0].try_get("result")
 }

@@ -7,8 +7,8 @@ use std::sync::Arc;
 use tokio_postgres::Client;
 
 mod db;
-mod users;
 mod handlers;
+pub mod users;
 
 /// A context that is accessible on all axum request handlers.
 pub struct HTTPContext {
