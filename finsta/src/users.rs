@@ -1,10 +1,10 @@
-use tokio_postgres::{Client, Error as PgError};
+use tokio_postgres::{Error as PgError, GenericClient};
 
 static CHECK_PASS: &str =
     "SELECT u.password = crypt($1::text, u.password) AS result FROM finsta.users u WHERE email = $2";
 
-pub async fn authenticate_user(
-    db: &Client,
+pub async fn authenticate_user<C: GenericClient>(
+    db: &C,
     email: String,
     password: String,
 ) -> Result<bool, PgError> {

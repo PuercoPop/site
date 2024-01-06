@@ -29,26 +29,28 @@ async fn test_authenticate_user_1() {
 #[tokio::test]
 async fn test_authenticate_user_2() {
     // When the wrong path is provided
-    let db = setup_db().await;
-    let count = db
+    let mut db = setup_db().await;
+    let tx = db.transaction().await.unwrap();
+    let count = tx
         .execute(
             "INSERT INTO finsta.users (email, password) VALUES ($1::text, crypt($2::text, gen_salt('bf', 8)))",
             &[&"jane@doe.com".to_string(), &"badtzu".to_string()],
         )
         .await.unwrap();
     assert_eq!(count, 1);
-    let ret = authenticate_user(&db, "jane@doe.com".to_string(), "t0ps3cr3t".to_string())
+    let ret = authenticate_user(&tx, "jane@doe.com".to_string(), "t0ps3cr3t".to_string())
         .await
         .unwrap();
-    assert_eq!(ret, false)
+    assert_eq!(ret, false);
+    tx.rollback().await.unwrap();
 }
 
 #[tokio::test]
 async fn test_authenticate_user_3() {
     // Happy path
-    let db = setup_db().await;
-    // TODO:: Wrap in transaction
-    let count = db
+    let mut db = setup_db().await;
+    let tx = db.transaction().await.unwrap();
+    let count = tx
         .execute(
             "INSERT INTO finsta.users (email, password) VALUES ($1::text, crypt($2::text, gen_salt('bf', 8)))",
             &[&"jane@doe.com".to_string(), &"t0ps3cr3t".to_string()],
@@ -56,8 +58,9 @@ async fn test_authenticate_user_3() {
         .await
         .unwrap();
     assert_eq!(count, 1);
-    let ret = authenticate_user(&db, "jane@doe.com".to_string(), "t0ps3cr3t".to_string())
+    let ret = authenticate_user(&tx, "jane@doe.com".to_string(), "t0ps3cr3t".to_string())
         .await
         .unwrap();
-    assert_eq!(ret, true)
+    assert_eq!(ret, true);
+    tx.rollback().await.unwrap()
 }
