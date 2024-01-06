@@ -16,7 +16,6 @@ async fn setup_db() -> Client {
     client
 }
 
-// TODO: Test authenticate_user with no users
 #[tokio::test]
 async fn test_authenticate_user_1() {
     let db = setup_db().await;

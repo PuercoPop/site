@@ -9,6 +9,7 @@ pub async fn authenticate_user(
     password: String,
 ) -> Result<bool, PgError> {
     let stmt = db.prepare(CHECK_PASS).await?;
+    // TODO: Can I use query_opt(…).and_then(…) instead?
     let rows = db.query(&stmt, &[&password, &email]).await?;
     // If the rows <> 1 return false.
     if rows.len() != 1 {
