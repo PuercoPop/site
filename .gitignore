@@ -6,6 +6,7 @@
 \blog/target/
 \finsta/target/
 \budget/target/
+\migrate/target/
 \www/www
 result
 \ops/terraform.tfvars
