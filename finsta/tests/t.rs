@@ -15,4 +15,14 @@ pub async fn new_db() -> Client {
     client
 }
 
-// TODO: Implement with_rollback(|tx| ...)
+// TODO: Finish this method once async closures become stable. Ref:
+// https://github.com/rust-lang/rust/issues/62290
+//
+// pub async fn with_rollback<F>(db: &mut Client, block: F)
+// where
+//     F: Fn(&Transaction) -> (),
+// {
+//     let tx = db.transaction().await.unwrap();
+//     block(&tx);
+//     tx.rollback().await.unwrap();
+// }
