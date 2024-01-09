@@ -44,3 +44,9 @@ migrate-unit = {
 }
 
 ```
+
+# Related approaches
+
+- https://github.com/purcell/postgresql-migrations/
+- https://nalanj.dev/posts/minimalist-postgresql-migrations/
+- https://github.com/docteurklein/declarative-sql-migrations/#run-tests
